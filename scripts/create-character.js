@@ -207,7 +207,7 @@ function relative(file) {
 }
 
 function usage() {
-  console.error("Usage: node scripts/create-character.js <work-slug> <character-id> [--name 中文名] [--en English] [--ja Japanese] [--category 分类] [--affiliation 所属] [--grade 定位] [--timeline 状态]");
+  console.error("Usage: node scripts/create-character.js <work-slug> <character-id> [--name 中文名] [--en English] [--ja Japanese] [--category 分类] [--affiliation 所属] [--grade 身份/能力] [--timeline 状态]");
 }
 
 function fail(message) {

@@ -27,7 +27,6 @@
     work: "all",
     category: "all",
     affiliation: "all",
-    grade: "all",
     evidenceStatus: "all",
     auditWork: "all",
     auditEvidence: "all",
@@ -124,15 +123,10 @@
               <select id="affiliationFilter" name="affiliation"></select>
             </div>
             <div class="field">
-              <label for="gradeFilter">等级 / 定位</label>
-              <select id="gradeFilter" name="grade"></select>
-            </div>
-            <div class="field">
               <label for="sortFilter">排序</label>
               <select id="sortFilter" name="sort">
                 <option value="name">按名字</option>
                 <option value="category">按分类</option>
-                <option value="grade">按等级 / 定位</option>
               </select>
             </div>
             <div class="field">
@@ -224,7 +218,6 @@
       state.work = "all";
       state.category = "all";
       state.affiliation = "all";
-      state.grade = "all";
       state.evidenceStatus = "all";
       state.rankMode = "exact";
       state.sort = "name";
@@ -247,7 +240,6 @@
     const scoped = state.work === "all" ? characters : characters.filter((item) => item.work === state.work);
     setScopedSelectOptions(form, "category", "categoryFilter", "全部分类", scoped);
     setScopedSelectOptions(form, "affiliation", "affiliationFilter", "全部所属", scoped);
-    setScopedSelectOptions(form, "grade", "gradeFilter", "全部等级 / 定位", scoped);
     hydrateDimensionFilters(form, scoped);
   }
 
@@ -265,7 +257,6 @@
     state.work = form.querySelector("[name='work']").value;
     state.category = form.querySelector("[name='category']").value;
     state.affiliation = form.querySelector("[name='affiliation']").value;
-    state.grade = form.querySelector("[name='grade']").value;
     state.evidenceStatus = form.querySelector("[name='evidenceStatus']").value;
     state.rankMode = form.querySelector("[name='rankMode']").value;
     state.sort = form.querySelector("[name='sort']").value;
@@ -345,7 +336,6 @@
         if (state.work !== "all" && item.work !== state.work) return false;
         if (state.category !== "all" && item.category !== state.category) return false;
         if (state.affiliation !== "all" && item.affiliation !== state.affiliation) return false;
-        if (state.grade !== "all" && item.grade !== state.grade) return false;
         if (!matchesEvidenceStatus(item, state.evidenceStatus)) return false;
         return dimensions.every((dimension) => {
           const filter = state.dimensionFilters[dimension.key];
@@ -386,9 +376,6 @@
   function sortCharacters(a, b) {
     if (state.sort === "category") {
       return compare(a.category, b.category) || compare(a.name, b.name);
-    }
-    if (state.sort === "grade") {
-      return compare(a.grade, b.grade) || compare(a.name, b.name);
     }
     return compare(a.name, b.name);
   }
@@ -461,13 +448,12 @@
         <div class="character-heading">
           <div>
             <h2><a href="${escapeAttribute(characterHref(character))}">${escapeHtml(character.name)}</a></h2>
-            <div class="meta-line">${escapeHtml(character.en)} · <a href="${escapeAttribute(workHref(character.work))}">${escapeHtml(character.work)}</a> · ${escapeHtml(character.affiliation)}</div>
+            <div class="meta-line">${escapeHtml(character.en)} · <a href="${escapeAttribute(workHref(character.work))}">${escapeHtml(character.work)}</a> · ${escapeHtml(character.affiliation)} · 身份 / 能力：${escapeHtml(character.grade)}</div>
             ${character.timelineStatus ? `<div class="meta-line">时间线状态：${escapeHtml(character.timelineStatus)}</div>` : ""}
             <div class="alias-line">${escapeHtml([character.ja, ...(character.aliases || [])].filter(Boolean).join(" / "))}</div>
           </div>
           <div class="badge-list" aria-label="角色标签">
             <span class="badge is-category">${escapeHtml(character.category)}</span>
-            <span class="badge is-grade">${escapeHtml(character.grade)}</span>
             <span class="badge${confidenceBadgeClass(character.confidence)}">口径：${escapeHtml(confidenceLabel(character.confidence))}</span>
             ${timelineCount(character) > 1 ? `<span class="badge">时间线 ${timelineCount(character)}</span>` : ""}
             ${character.auditWarnings && character.auditWarnings.length ? `<span class="badge is-warning">待审 ${character.auditWarnings.length}</span>` : ""}
@@ -511,7 +497,7 @@
               <span class="badge is-category">${escapeHtml(character.category)}</span>
               <a class="badge is-work-link" href="${escapeAttribute(workHref(character.work))}">作品：${escapeHtml(character.work)}</a>
               <span class="badge">${escapeHtml(character.affiliation)}</span>
-              <span class="badge is-grade">${escapeHtml(character.grade)}</span>
+              <span class="badge">身份 / 能力：${escapeHtml(character.grade)}</span>
               <span class="badge${confidenceBadgeClass(character.confidence)}">口径：${escapeHtml(confidenceLabel(character.confidence))}</span>
               ${renderSourceQualityBadge(character)}
               ${character.timelineStatus ? `<span class="badge">时间线状态：${escapeHtml(character.timelineStatus)}</span>` : ""}

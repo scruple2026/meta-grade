@@ -401,11 +401,6 @@ button {
   white-space: nowrap;
 }
 
-.badge.is-grade {
-  background: #f4ead7;
-  color: #6e4304;
-}
-
 .badge.is-category {
   background: #e5eef7;
   color: #264765;

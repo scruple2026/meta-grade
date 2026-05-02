@@ -79,7 +79,7 @@ node scripts/create-work.js <work-slug> --name 作品名
       ja: "Example Character",
       category: "主角团",
       affiliation: "示例阵营",
-      grade: "示例定位",
+      grade: "示例身份 / 能力",
       appearances: ["资料范围"],
       timelineStatus: "示例时间线 / 示例状态",
       aliases: ["可搜索别名"],
