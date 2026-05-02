@@ -14,7 +14,6 @@
       name: "娜美",
       en: "Nami",
       ja: "ナミ",
-      category: "主角团",
       affiliation: "草帽一伙",
       grade: "航海士 / 天候棒",
       appearances: ["正篇"],

@@ -14,7 +14,6 @@
       name: "利威尔·阿克曼",
       en: "Levi Ackerman",
       ja: "リヴァイ・アッカーマン",
-      category: "核心战力",
       affiliation: "调查兵团",
       grade: "人类最强士兵",
       appearances: ["正篇"],

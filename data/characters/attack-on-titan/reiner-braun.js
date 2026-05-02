@@ -14,7 +14,6 @@
       name: "莱纳·布朗",
       en: "Reiner Braun",
       ja: "ライナー・ブラウン",
-      category: "核心战力",
       affiliation: "玛莱战士队",
       grade: "铠之巨人继承者",
       appearances: ["正篇"],

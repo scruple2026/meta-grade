@@ -14,7 +14,6 @@
       name: "友哈巴赫",
       en: "Yhwach",
       ja: "ユーハバッハ",
-      category: "最终 boss",
       affiliation: "无形帝国",
       grade: "千年血战最终 boss / 灭却师之祖",
       appearances: ["正篇"],

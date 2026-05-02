@@ -14,7 +14,6 @@
       name: "两面宿傩",
       en: "Ryomen Sukuna",
       ja: "両面宿儺",
-      category: "最终 Boss / 诅咒之王",
       affiliation: "宿傩阵营",
       grade: "最终 Boss / 作品顶层",
       appearances: ["正篇漫画/动画", "涩谷事变", "新宿决战"],

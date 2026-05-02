@@ -48,7 +48,6 @@ function normalizeCharacter(character, characterId) {
     name: character.name || "待补中文名",
     en: character.en || "",
     ja: character.ja || "",
-    category: character.category || "待定",
     affiliation: character.affiliation || "待定",
     grade: character.grade || "待定",
     appearances: character.appearances || ["资料范围待补"],
@@ -91,7 +90,6 @@ ${property("id", character.id)}
 ${property("name", character.name)}
 ${property("en", character.en)}
 ${property("ja", character.ja)}
-${property("category", character.category)}
 ${property("affiliation", character.affiliation)}
 ${property("grade", character.grade)}
 ${property("appearances", character.appearances)}

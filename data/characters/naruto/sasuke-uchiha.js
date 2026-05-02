@@ -14,7 +14,6 @@
       name: "宇智波佐助",
       en: "Sasuke Uchiha",
       ja: "うちはサスケ",
-      category: "主角团",
       affiliation: "木叶隐村 / 宇智波",
       grade: "主角团 / 轮回眼持有者",
       appearances: ["正篇"],

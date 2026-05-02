@@ -14,7 +14,6 @@
       name: "井上织姬",
       en: "Orihime Inoue",
       ja: "井上織姫",
-      category: "主角团",
       affiliation: "空座町 / 代理死神阵营",
       grade: "支援核心 / 盾舜六花",
       appearances: ["正篇"],

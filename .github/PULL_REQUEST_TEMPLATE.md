@@ -19,7 +19,6 @@
       name: "中文名",
       en: "English Name",
       ja: "日本語名或留空",
-      category: "主角团 / 核心反派 / 最终 Boss / 其他",
       affiliation: "所属阵营",
       grade: "身份 / 能力",
       appearances: ["资料范围"],
@@ -79,7 +78,6 @@ module.exports = {
   character: {
     id: "character-id",
     name: "中文名",
-    category: "主角团 / 核心反派 / 最终 Boss / 其他",
     affiliation: "所属阵营",
     grade: "身份 / 能力",
     appearances: ["资料范围"],

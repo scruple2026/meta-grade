@@ -53,7 +53,6 @@ function main() {
     name: args.name || "待补中文名",
     en: args.en || "TBD",
     ja: args.ja || "",
-    category: args.category || "待定",
     affiliation: args.affiliation || "待定",
     grade: args.grade || "待定",
     timelineStatus: args.timeline || ""
@@ -84,7 +83,6 @@ function renderCharacterFile(meta) {
       name: "${escapeJs(meta.name)}",
       en: "${escapeJs(meta.en)}",
       ja: "${escapeJs(meta.ja)}",
-      category: "${escapeJs(meta.category)}",
       affiliation: "${escapeJs(meta.affiliation)}",
       grade: "${escapeJs(meta.grade)}",
       appearances: ["资料范围待补"],
@@ -207,7 +205,7 @@ function relative(file) {
 }
 
 function usage() {
-  console.error("Usage: node scripts/create-character.js <work-slug> <character-id> [--name 中文名] [--en English] [--ja Japanese] [--category 分类] [--affiliation 所属] [--grade 身份/能力] [--timeline 状态]");
+  console.error("Usage: node scripts/create-character.js <work-slug> <character-id> [--name 中文名] [--en English] [--ja Japanese] [--affiliation 所属] [--grade 身份/能力] [--timeline 状态]");
 }
 
 function fail(message) {

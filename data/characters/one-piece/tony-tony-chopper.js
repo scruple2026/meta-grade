@@ -14,7 +14,6 @@
       name: "托尼托尼·乔巴",
       en: "Tony Tony Chopper",
       ja: "トニートニー・チョッパー",
-      category: "主角团",
       affiliation: "草帽一伙",
       grade: "船医 / 人人果实能力者",
       appearances: ["正篇"],

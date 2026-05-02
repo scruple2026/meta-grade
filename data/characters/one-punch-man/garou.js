@@ -14,7 +14,6 @@
       name: "饿狼",
       en: "Garou",
       ja: "ガロウ",
-      category: "核心反派",
       affiliation: "英雄狩猎者",
       grade: "怪人化武术家 / 宇宙恐惧模式峰值",
       appearances: ["正篇"],

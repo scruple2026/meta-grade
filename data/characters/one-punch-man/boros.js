@@ -14,7 +14,6 @@
       name: "波罗斯",
       en: "Boros",
       ja: "ボロス",
-      category: "最终 boss",
       affiliation: "暗物质海贼团",
       grade: "外星霸主 / 第一季最终 boss",
       appearances: ["正篇"],

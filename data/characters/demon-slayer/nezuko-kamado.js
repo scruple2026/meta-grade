@@ -14,7 +14,6 @@
       name: "灶门祢豆子",
       en: "Nezuko Kamado",
       ja: "竈門禰豆子",
-      category: "主角团",
       affiliation: "灶门家 / 鬼杀队协力",
       grade: "特殊鬼 / 主角团",
       appearances: ["立志篇", "游郭篇", "刀匠村篇", "无限城篇"],

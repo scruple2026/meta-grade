@@ -14,7 +14,6 @@
       name: "花京院典明",
       en: "Noriaki Kakyoin",
       ja: "花京院典明",
-      category: "主角团",
       affiliation: "乔斯达一行",
       grade: "绿色法皇使者",
       appearances: ["正篇"],

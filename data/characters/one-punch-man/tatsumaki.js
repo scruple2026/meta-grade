@@ -14,7 +14,6 @@
       name: "战栗的龙卷",
       en: "Tatsumaki",
       ja: "戦慄のタツマキ",
-      category: "核心战力",
       affiliation: "英雄协会",
       grade: "S级英雄 / 超能力者",
       appearances: ["正篇"],

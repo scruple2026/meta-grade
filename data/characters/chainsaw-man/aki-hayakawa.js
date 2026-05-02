@@ -14,7 +14,6 @@
       name: "早川秋",
       en: "Aki Hayakawa",
       ja: "早川アキ",
-      category: "主角团",
       affiliation: "公安对魔特异课",
       grade: "公安恶魔猎人 / 契约者",
       appearances: ["公安篇"],

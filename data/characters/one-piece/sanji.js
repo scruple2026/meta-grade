@@ -14,7 +14,6 @@
       name: "山治",
       en: "Sanji",
       ja: "サンジ",
-      category: "主角团",
       affiliation: "草帽一伙",
       grade: "厨师 / 杰尔马改造体觉醒",
       appearances: ["正篇"],

@@ -14,7 +14,6 @@
       name: "爱德华·艾尔利克",
       en: "Edward Elric",
       ja: "エドワード・エルリック",
-      category: "主角团",
       affiliation: "艾尔利克兄弟 / 国家炼金术师",
       grade: "主角 / 钢之炼金术师",
       appearances: ["正篇"],

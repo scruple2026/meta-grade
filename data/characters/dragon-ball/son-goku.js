@@ -14,7 +14,6 @@
       name: "孙悟空",
       en: "Son Goku",
       ja: "孫悟空",
-      category: "主角团",
       affiliation: "Z战士",
       grade: "主角 / 赛亚人",
       appearances: ["正篇"],

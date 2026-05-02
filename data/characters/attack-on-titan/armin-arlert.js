@@ -14,7 +14,6 @@
       name: "阿尔敏·阿诺德",
       en: "Armin Arlert",
       ja: "アルミン・アルレルト",
-      category: "主角团",
       affiliation: "调查兵团",
       grade: "超大型巨人继承者 / 指挥官",
       appearances: ["玛莱篇", "地鸣篇"],

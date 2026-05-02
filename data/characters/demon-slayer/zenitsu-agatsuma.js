@@ -14,7 +14,6 @@
       name: "我妻善逸",
       en: "Zenitsu Agatsuma",
       ja: "我妻善逸",
-      category: "主角团",
       affiliation: "鬼杀队",
       grade: "主角团 / 雷之呼吸",
       appearances: ["立志篇", "无限列车篇", "游郭篇", "无限城篇"],

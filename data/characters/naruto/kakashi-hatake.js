@@ -14,7 +14,6 @@
       name: "旗木卡卡西",
       en: "Kakashi Hatake",
       ja: "はたけカカシ",
-      category: "核心战力",
       affiliation: "木叶隐村",
       grade: "第六代火影 / 写轮眼忍者",
       appearances: ["正篇"],

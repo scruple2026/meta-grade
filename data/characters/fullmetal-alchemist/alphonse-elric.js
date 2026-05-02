@@ -14,7 +14,6 @@
       name: "阿尔冯斯·艾尔利克",
       en: "Alphonse Elric",
       ja: "アルフォンス・エルリック",
-      category: "主角团",
       affiliation: "艾尔利克兄弟",
       grade: "主角团 / 铠甲灵魂",
       appearances: ["正篇"],

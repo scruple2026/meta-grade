@@ -14,7 +14,6 @@
       name: "千手柱间",
       en: "Hashirama Senju",
       ja: "千手柱間",
-      category: "核心战力",
       affiliation: "木叶隐村 / 千手一族",
       grade: "初代火影 / 木遁仙术",
       appearances: ["终结谷回忆", "第四次忍界大战"],

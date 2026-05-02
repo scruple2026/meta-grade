@@ -14,7 +14,6 @@
       name: "朽木露琪亚",
       en: "Rukia Kuchiki",
       ja: "朽木ルキア",
-      category: "主角团",
       affiliation: "护廷十三队",
       grade: "死神 / 袖白雪",
       appearances: ["正篇"],

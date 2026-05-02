@@ -14,7 +14,6 @@
       name: "比克",
       en: "Piccolo",
       ja: "ピッコロ",
-      category: "主角团",
       affiliation: "Z战士 / 那美克星人",
       grade: "那美克星战士",
       appearances: ["正篇"],

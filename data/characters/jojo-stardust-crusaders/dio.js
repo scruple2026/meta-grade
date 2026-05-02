@@ -14,7 +14,6 @@
       name: "DIO",
       en: "Dio Brando",
       ja: "ディオ・ブランドー",
-      category: "最终 boss",
       affiliation: "迪奥阵营",
       grade: "第三部最终 boss / 世界",
       appearances: ["正篇"],

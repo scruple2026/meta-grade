@@ -14,7 +14,6 @@
       name: "电次",
       en: "Denji",
       ja: "デンジ",
-      category: "主角团",
       affiliation: "公安对魔特异课 / 电锯人",
       grade: "主角 / 电锯恶魔混成体",
       appearances: ["公安篇", "学园篇"],

@@ -14,7 +14,6 @@
       name: "梅路艾姆",
       en: "Meruem",
       ja: "メルエム",
-      category: "最终 boss",
       affiliation: "嵌合蚁",
       grade: "蚁王",
       appearances: ["蚁王篇"],

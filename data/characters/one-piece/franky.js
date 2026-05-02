@@ -14,7 +14,6 @@
       name: "弗兰奇",
       en: "Franky",
       ja: "フランキー",
-      category: "主角团",
       affiliation: "草帽一伙",
       grade: "船匠 / 改造人",
       appearances: ["正篇"],

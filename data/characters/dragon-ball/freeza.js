@@ -14,7 +14,6 @@
       name: "弗利萨",
       en: "Frieza",
       ja: "フリーザ",
-      category: "核心反派",
       affiliation: "弗利萨军",
       grade: "那美克星篇最终 boss",
       appearances: ["正篇"],

@@ -14,7 +14,6 @@
       name: "乌索普",
       en: "Usopp",
       ja: "ウソップ",
-      category: "主角团",
       affiliation: "草帽一伙",
       grade: "狙击手",
       appearances: ["正篇"],

@@ -14,7 +14,6 @@
       name: "孙悟饭",
       en: "Son Gohan",
       ja: "孫悟飯",
-      category: "主角团",
       affiliation: "Z战士",
       grade: "混血赛亚人 / 潜力解放",
       appearances: ["正篇"],

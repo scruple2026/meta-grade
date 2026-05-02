@@ -25,7 +25,6 @@
   const state = {
     query: "",
     work: "all",
-    category: "all",
     affiliation: "all",
     evidenceStatus: "all",
     auditWork: "all",
@@ -115,19 +114,8 @@
               <select id="workFilter" name="work"></select>
             </div>
             <div class="field">
-              <label for="categoryFilter">分类</label>
-              <select id="categoryFilter" name="category"></select>
-            </div>
-            <div class="field">
               <label for="affiliationFilter">所属</label>
               <select id="affiliationFilter" name="affiliation"></select>
-            </div>
-            <div class="field">
-              <label for="sortFilter">排序</label>
-              <select id="sortFilter" name="sort">
-                <option value="name">按名字</option>
-                <option value="category">按分类</option>
-              </select>
             </div>
             <div class="field">
               <label for="evidenceFilter">证据状态</label>
@@ -189,7 +177,6 @@
 
     form.querySelector("[name='query']").value = state.query;
     form.querySelector("[name='work']").value = state.work;
-    form.querySelector("[name='sort']").value = state.sort;
     form.querySelector("[name='evidenceStatus']").value = state.evidenceStatus;
     form.querySelector("[name='rankMode']").value = state.rankMode;
     hydrateScopedFilters(form);
@@ -216,11 +203,9 @@
     document.getElementById("resetFilters").addEventListener("click", () => {
       state.query = "";
       state.work = "all";
-      state.category = "all";
       state.affiliation = "all";
       state.evidenceStatus = "all";
       state.rankMode = "exact";
-      state.sort = "name";
       dimensions.forEach((dimension) => {
         state.dimensionFilters[dimension.key] = "all";
       });
@@ -238,7 +223,6 @@
 
   function hydrateScopedFilters(form) {
     const scoped = state.work === "all" ? characters : characters.filter((item) => item.work === state.work);
-    setScopedSelectOptions(form, "category", "categoryFilter", "全部分类", scoped);
     setScopedSelectOptions(form, "affiliation", "affiliationFilter", "全部所属", scoped);
     hydrateDimensionFilters(form, scoped);
   }
@@ -255,11 +239,9 @@
   function readForm(form) {
     state.query = form.querySelector("[name='query']").value.trim();
     state.work = form.querySelector("[name='work']").value;
-    state.category = form.querySelector("[name='category']").value;
     state.affiliation = form.querySelector("[name='affiliation']").value;
     state.evidenceStatus = form.querySelector("[name='evidenceStatus']").value;
     state.rankMode = form.querySelector("[name='rankMode']").value;
-    state.sort = form.querySelector("[name='sort']").value;
     dimensions.forEach((dimension) => {
       state.dimensionFilters[dimension.key] = form.querySelector(`[name='${dimension.key}']`).value;
     });
@@ -334,7 +316,6 @@
         const haystack = normalize([item.name, item.en, item.ja, item.timelineStatus, ...(item.aliases || [])].join(" "));
         if (query && !haystack.includes(query)) return false;
         if (state.work !== "all" && item.work !== state.work) return false;
-        if (state.category !== "all" && item.category !== state.category) return false;
         if (state.affiliation !== "all" && item.affiliation !== state.affiliation) return false;
         if (!matchesEvidenceStatus(item, state.evidenceStatus)) return false;
         return dimensions.every((dimension) => {
@@ -374,9 +355,6 @@
   }
 
   function sortCharacters(a, b) {
-    if (state.sort === "category") {
-      return compare(a.category, b.category) || compare(a.name, b.name);
-    }
     return compare(a.name, b.name);
   }
 
@@ -402,7 +380,7 @@
       results.innerHTML = `
         <div class="empty-state">
           <h2>没有匹配角色</h2>
-          <p>放宽名字、作品、分类或 8 维面板筛选后再试。</p>
+          <p>放宽名字、作品、所属或 8 维面板筛选后再试。</p>
         </div>
       `;
       return;
@@ -453,7 +431,6 @@
             <div class="alias-line">${escapeHtml([character.ja, ...(character.aliases || [])].filter(Boolean).join(" / "))}</div>
           </div>
           <div class="badge-list" aria-label="角色标签">
-            <span class="badge is-category">${escapeHtml(character.category)}</span>
             <span class="badge${confidenceBadgeClass(character.confidence)}">口径：${escapeHtml(confidenceLabel(character.confidence))}</span>
             ${timelineCount(character) > 1 ? `<span class="badge">时间线 ${timelineCount(character)}</span>` : ""}
             ${character.auditWarnings && character.auditWarnings.length ? `<span class="badge is-warning">待审 ${character.auditWarnings.length}</span>` : ""}
@@ -494,7 +471,6 @@
             <h1>${escapeHtml(character.name)}</h1>
             <p class="detail-subtitle">${escapeHtml(character.en)} · ${escapeHtml(character.ja || "")}</p>
             <div class="detail-meta">
-              <span class="badge is-category">${escapeHtml(character.category)}</span>
               <a class="badge is-work-link" href="${escapeAttribute(workHref(character.work))}">作品：${escapeHtml(character.work)}</a>
               <span class="badge">${escapeHtml(character.affiliation)}</span>
               <span class="badge">身份 / 能力：${escapeHtml(character.grade)}</span>
@@ -946,7 +922,7 @@
             ${workCharacters.map((character) => `
               <a href="${escapeAttribute(characterHref(character))}">
                 <strong>${escapeHtml(character.name)}</strong>
-                <span>${escapeHtml(character.category)} · ${escapeHtml(character.grade)}</span>
+                <span>${escapeHtml(character.affiliation)} · ${escapeHtml(character.grade)}</span>
               </a>
             `).join("")}
           </div>

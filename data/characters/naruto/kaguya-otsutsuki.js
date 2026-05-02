@@ -14,7 +14,6 @@
       name: "大筒木辉夜",
       en: "Kaguya Otsutsuki",
       ja: "大筒木カグヤ",
-      category: "最终 boss",
       affiliation: "大筒木一族",
       grade: "疾风传最终 boss / 查克拉始祖",
       appearances: ["正篇"],

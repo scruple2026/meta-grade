@@ -14,7 +14,6 @@
       name: "乔拉可尔·米霍克",
       en: "Dracule Mihawk",
       ja: "ジュラキュール・ミホーク",
-      category: "顶级剑士",
       affiliation: "十字公会",
       grade: "世界最强剑士",
       appearances: ["东海篇", "顶上战争", "最终章前后"],

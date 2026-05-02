@@ -14,7 +14,6 @@
       name: "五条悟",
       en: "Satoru Gojo",
       ja: "五条悟",
-      category: "主角团 / 特级术师",
       affiliation: "东京咒术高专 / 五条家",
       grade: "特级术师",
       appearances: ["正篇漫画/动画", "怀玉·玉折", "涩谷事变", "新宿决战"],

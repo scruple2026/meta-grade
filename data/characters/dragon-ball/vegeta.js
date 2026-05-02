@@ -14,7 +14,6 @@
       name: "贝吉塔",
       en: "Vegeta",
       ja: "ベジータ",
-      category: "主角团",
       affiliation: "Z战士",
       grade: "赛亚人王子",
       appearances: ["正篇"],

@@ -14,7 +14,6 @@
       name: "杰诺斯",
       en: "Genos",
       ja: "ジェノス",
-      category: "主角团",
       affiliation: "英雄协会",
       grade: "S级英雄 / 改造人",
       appearances: ["正篇"],

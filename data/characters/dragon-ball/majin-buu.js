@@ -14,7 +14,6 @@
       name: "魔人布欧",
       en: "Majin Buu",
       ja: "魔人ブウ",
-      category: "最终 boss",
       affiliation: "魔人",
       grade: "魔人布欧篇最终 boss",
       appearances: ["正篇"],

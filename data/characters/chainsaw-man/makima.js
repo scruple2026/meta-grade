@@ -14,7 +14,6 @@
       name: "玛奇玛",
       en: "Makima",
       ja: "マキマ",
-      category: "最终反派",
       affiliation: "公安对魔特异课 / 支配恶魔",
       grade: "公安篇最终 boss / 支配恶魔",
       appearances: ["公安篇"],

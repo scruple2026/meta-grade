@@ -14,7 +14,6 @@
       name: "马歇尔·D·蒂奇",
       en: "Marshall D. Teach",
       ja: "マーシャル・D・ティーチ",
-      category: "核心反派",
       affiliation: "黑胡子海贼团",
       grade: "四皇 / 黑暗果实与震震果实",
       appearances: ["正篇"],

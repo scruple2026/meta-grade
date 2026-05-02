@@ -115,7 +115,6 @@
       aliases: raw.aliases || [],
       work,
       workSlug,
-      category: raw.category,
       affiliation: raw.affiliation,
       appearances: raw.appearances,
       timelineStatus: raw.timelineStatus || raw.timeline || raw.version || "",

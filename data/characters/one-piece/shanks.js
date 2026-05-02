@@ -14,7 +14,6 @@
       name: "香克斯",
       en: "Shanks",
       ja: "シャンクス",
-      category: "四皇",
       affiliation: "红发海贼团",
       grade: "四皇 / 霸王色霸气",
       appearances: ["东海篇", "顶上战争", "最终章前后"],

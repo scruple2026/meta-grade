@@ -14,7 +14,6 @@
       name: "罗伊·马斯坦",
       en: "Roy Mustang",
       ja: "ロイ・マスタング",
-      category: "核心战力",
       affiliation: "亚美斯多利斯军部",
       grade: "国家炼金术师 / 焰之炼金术师",
       appearances: ["正篇"],

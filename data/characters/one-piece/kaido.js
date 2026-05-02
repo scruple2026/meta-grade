@@ -14,7 +14,6 @@
       name: "凯多",
       en: "Kaido",
       ja: "カイドウ",
-      category: "四皇",
       affiliation: "百兽海贼团",
       grade: "四皇 / 鱼鱼果实幻兽种",
       appearances: ["和之国篇"],

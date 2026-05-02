@@ -14,7 +14,6 @@
       name: "爱德华·纽盖特",
       en: "Edward Newgate",
       ja: "エドワード・ニューゲート",
-      category: "四皇",
       affiliation: "白胡子海贼团",
       grade: "四皇 / 震震果实",
       appearances: ["回忆", "顶上战争"],

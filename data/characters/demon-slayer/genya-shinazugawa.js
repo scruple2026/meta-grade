@@ -14,7 +14,6 @@
       name: "不死川玄弥",
       en: "Genya Shinazugawa",
       ja: "不死川玄弥",
-      category: "主角团",
       affiliation: "鬼杀队",
       grade: "主角团 / 食鬼体质",
       appearances: ["刀匠村篇", "无限城篇"],

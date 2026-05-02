@@ -14,7 +14,6 @@
       name: "金·布拉德雷",
       en: "King Bradley",
       ja: "キング・ブラッドレイ",
-      category: "最终反派阵营",
       affiliation: "人造人 / 亚美斯多利斯总统",
       grade: "人造人「愤怒」",
       appearances: ["正篇"],

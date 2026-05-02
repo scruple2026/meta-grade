@@ -14,7 +14,6 @@
       name: "阿散井恋次",
       en: "Renji Abarai",
       ja: "阿散井恋次",
-      category: "主角团",
       affiliation: "护廷十三队",
       grade: "副队长 / 真卍解",
       appearances: ["正篇"],

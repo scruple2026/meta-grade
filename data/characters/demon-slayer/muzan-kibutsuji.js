@@ -14,7 +14,6 @@
       name: "鬼舞辻无惨",
       en: "Muzan Kibutsuji",
       ja: "鬼舞辻無惨",
-      category: "最终 Boss / 鬼王",
       affiliation: "鬼 / 十二鬼月支配者",
       grade: "最终 Boss / 鬼王",
       appearances: ["立志篇", "无限城篇", "最终决战"],

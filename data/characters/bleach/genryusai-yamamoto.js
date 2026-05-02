@@ -14,7 +14,6 @@
       name: "山本元柳斋重国",
       en: "Genryusai Shigekuni Yamamoto",
       ja: "山本元柳斎重國",
-      category: "核心战力",
       affiliation: "护廷十三队",
       grade: "总队长 / 流刃若火",
       appearances: ["尸魂界篇", "空座町篇", "千年血战篇"],

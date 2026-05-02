@@ -14,7 +14,6 @@
       name: "酷拉皮卡",
       en: "Kurapika",
       ja: "クラピカ",
-      category: "主角团",
       affiliation: "诺斯拉家族 / 猎人协会",
       grade: "具现化系 / 火红眼特质系",
       appearances: ["约克新篇", "继承战篇"],

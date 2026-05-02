@@ -14,7 +14,6 @@
       name: "迈特凯",
       en: "Might Guy",
       ja: "マイト・ガイ",
-      category: "核心战力",
       affiliation: "木叶隐村",
       grade: "体术专家 / 八门遁甲",
       appearances: ["正篇", "第四次忍界大战"],

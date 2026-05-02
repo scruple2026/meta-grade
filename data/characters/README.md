@@ -77,7 +77,6 @@ node scripts/create-work.js <work-slug> --name 作品名
       name: "示例角色",
       en: "Example Character",
       ja: "Example Character",
-      category: "主角团",
       affiliation: "示例阵营",
       grade: "示例身份 / 能力",
       appearances: ["资料范围"],

@@ -14,7 +14,6 @@
       name: "三笠·阿克曼",
       en: "Mikasa Ackerman",
       ja: "ミカサ・アッカーマン",
-      category: "主角团",
       affiliation: "调查兵团",
       grade: "阿克曼战士",
       appearances: ["正篇"],

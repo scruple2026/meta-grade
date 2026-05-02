@@ -14,7 +14,6 @@
       name: "甚平",
       en: "Jinbe",
       ja: "ジンベエ",
-      category: "主角团",
       affiliation: "草帽一伙",
       grade: "操舵手 / 鱼人空手道",
       appearances: ["正篇"],

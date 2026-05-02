@@ -14,7 +14,6 @@
       name: "埼玉",
       en: "Saitama",
       ja: "サイタマ",
-      category: "主角",
       affiliation: "英雄协会",
       grade: "主角 / 上限未明",
       appearances: ["正篇"],

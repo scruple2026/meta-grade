@@ -14,7 +14,6 @@
       name: "空条承太郎",
       en: "Jotaro Kujo",
       ja: "空条承太郎",
-      category: "主角团",
       affiliation: "乔斯达一行",
       grade: "主角 / 白金之星",
       appearances: ["正篇"],

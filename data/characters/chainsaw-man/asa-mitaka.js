@@ -14,7 +14,6 @@
       name: "三鹰朝 / 战争恶魔",
       en: "Asa Mitaka / Yoru",
       ja: "三鷹アサ / ヨル",
-      category: "主角团",
       affiliation: "学园篇 / 战争恶魔",
       grade: "学园篇主角 / 战争恶魔宿主",
       appearances: ["学园篇"],

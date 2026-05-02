@@ -14,7 +14,6 @@
       name: "艾萨克·尼特罗",
       en: "Isaac Netero",
       ja: "アイザック＝ネテロ",
-      category: "顶级战力",
       affiliation: "猎人协会",
       grade: "猎人协会会长 / 百式观音",
       appearances: ["蚁王篇"],

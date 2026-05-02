@@ -14,7 +14,6 @@
       name: "漩涡鸣人",
       en: "Naruto Uzumaki",
       ja: "うずまきナルト",
-      category: "主角团",
       affiliation: "木叶隐村",
       grade: "主角 / 九尾人柱力 / 六道力量",
       appearances: ["正篇"],

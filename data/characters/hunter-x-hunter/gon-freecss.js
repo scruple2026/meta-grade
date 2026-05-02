@@ -14,7 +14,6 @@
       name: "杰·富力士",
       en: "Gon Freecss",
       ja: "ゴン＝フリークス",
-      category: "主角团",
       affiliation: "猎人协会",
       grade: "主角 / 强化系念能力者",
       appearances: ["猎人考试篇", "贪婪之岛篇", "蚁王篇"],

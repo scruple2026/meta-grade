@@ -14,7 +14,6 @@
       name: "帕瓦",
       en: "Power",
       ja: "パワー",
-      category: "主角团",
       affiliation: "公安对魔特异课",
       grade: "血之魔人",
       appearances: ["公安篇"],

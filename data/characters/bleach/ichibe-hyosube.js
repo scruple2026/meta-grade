@@ -14,7 +14,6 @@
       name: "兵主部一兵卫",
       en: "Ichibe Hyosube",
       ja: "兵主部一兵衛",
-      category: "核心战力",
       affiliation: "零番队",
       grade: "零番队首领 / 名字权能",
       appearances: ["千年血战篇"],

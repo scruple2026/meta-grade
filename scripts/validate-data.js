@@ -273,7 +273,6 @@ function validateCharacters(data) {
     if (!character.name) errors.push(`${label}: missing name.`);
     if (!character.work) errors.push(`${label}: missing work.`);
     if (!character.workSlug) errors.push(`${label}: missing workSlug from work source metadata.`);
-    if (!character.category) errors.push(`${label}: missing category.`);
     if (!character.affiliation) errors.push(`${label}: missing affiliation.`);
     if (!character.grade) errors.push(`${label}: missing grade.`);
     if (!Array.isArray(character.appearances) || !character.appearances.length) {
@@ -413,6 +412,14 @@ function validateEvidenceLink(label, link, options = {}) {
   }
 }
 
+function hasSpecificRatingEvidence(character) {
+  return asArray(character.evidenceLinks).some((link) => {
+    if (!link) return false;
+    if (link.ratingEvidence === true) return Boolean(link.claim || link.citation);
+    return ["chapter", "episode", "setting"].includes(link.type) && Boolean(link.claim || link.citation);
+  });
+}
+
 function isAuthorityClaimOnNonAuthoritativeHost(link) {
   if (!link || !link.url || !["primary", "official", "licensed"].includes(link.authority)) return false;
   let host = "";
@@ -523,15 +530,13 @@ function validateInflationRisk(characters, workSources) {
 
   for (const character of characters) {
     const label = `${character.work}/${character.id}`;
-    const category = String(character.category || "");
-    const central = /主角|核心战力|核心反派|最终\s*boss|最终Boss|最终反派|中央反派/i.test(category);
     const text = JSON.stringify({ notes: character.notes, dimensions: character.dimensions });
     const highRiskMain = ["attack", "defense", "movement", "reaction", "energy"].some((key) => {
       const entry = character.dimensions && character.dimensions[key];
       return entry && [entry.normal, entry.peak].some((value) => HIGH_RISK_BASES.has(baseRank(value)) || /国家级|大陆级|地表级|行星级|恒星级|亚光速|光速|超光速/.test(baseRank(value)));
     });
-    if (highRiskMain && !central) {
-      addWarning(`${label}: non-central category "${category}" uses high-risk main ranks; check for scope inflation.`, "medium");
+    if (highRiskMain && !hasSpecificRatingEvidence(character)) {
+      addWarning(`${label}: high-risk main ranks should have concrete ratingEvidence links; check for scope inflation.`, "medium");
     }
 
     for (const key of ["movement", "reaction"]) {

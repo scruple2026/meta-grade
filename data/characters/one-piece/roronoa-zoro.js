@@ -14,7 +14,6 @@
       name: "罗罗诺亚·索隆",
       en: "Roronoa Zoro",
       ja: "ロロノア・ゾロ",
-      category: "主角团",
       affiliation: "草帽一伙",
       grade: "剑士 / 霸王色缠绕",
       appearances: ["正篇"],

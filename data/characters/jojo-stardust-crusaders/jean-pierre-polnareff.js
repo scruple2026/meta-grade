@@ -14,7 +14,6 @@
       name: "简·皮耶尔·波鲁那雷夫",
       en: "Jean Pierre Polnareff",
       ja: "ジャン・ピエール・ポルナレフ",
-      category: "主角团",
       affiliation: "乔斯达一行",
       grade: "银色战车使者",
       appearances: ["正篇"],

@@ -14,7 +14,6 @@
       name: "艾伦·耶格尔",
       en: "Eren Yeager",
       ja: "エレン・イェーガー",
-      category: "主角 / 最终 boss",
       affiliation: "调查兵团 / 叶卡派 / 始祖巨人",
       grade: "主角 / 始祖巨人持有者",
       appearances: ["托洛斯特区篇", "玛莱篇", "地鸣篇"],

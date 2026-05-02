@@ -401,11 +401,6 @@ button {
   white-space: nowrap;
 }
 
-.badge.is-category {
-  background: #e5eef7;
-  color: #264765;
-}
-
 .badge.is-warning {
   background: #fae4de;
   color: #8a3027;

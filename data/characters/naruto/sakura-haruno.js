@@ -14,7 +14,6 @@
       name: "春野樱",
       en: "Sakura Haruno",
       ja: "春野サクラ",
-      category: "主角团",
       affiliation: "木叶隐村",
       grade: "医疗忍者 / 百豪之术",
       appearances: ["正篇"],

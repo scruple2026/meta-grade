@@ -14,7 +14,6 @@
       name: "宇智波斑",
       en: "Madara Uchiha",
       ja: "うちはマダラ",
-      category: "核心反派",
       affiliation: "宇智波一族 / 晓幕后",
       grade: "六道级反派",
       appearances: ["终结谷回忆", "第四次忍界大战", "六道斑"],

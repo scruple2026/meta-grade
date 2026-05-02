@@ -14,7 +14,6 @@
       name: "吉克·耶格尔",
       en: "Zeke Yeager",
       ja: "ジーク・イェーガー",
-      category: "核心反派",
       affiliation: "玛莱战士队 / 叶卡派相关",
       grade: "兽之巨人继承者 / 王血",
       appearances: ["玛莱篇", "地鸣篇"],

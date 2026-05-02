@@ -14,7 +14,6 @@
       name: "雷欧力·帕拉丁奈特",
       en: "Leorio Paradinight",
       ja: "レオリオ＝パラディナイト",
-      category: "主角团",
       affiliation: "猎人协会",
       grade: "医生志向猎人 / 放出系念能力者",
       appearances: ["正篇"],

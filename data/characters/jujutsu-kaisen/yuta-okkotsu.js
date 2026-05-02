@@ -14,7 +14,6 @@
       name: "乙骨忧太",
       en: "Yuta Okkotsu",
       ja: "乙骨憂太",
-      category: "主角团 / 特级术师",
       affiliation: "东京咒术高专",
       grade: "特级术师",
       appearances: ["咒术回战0", "仙台结界", "新宿决战"],

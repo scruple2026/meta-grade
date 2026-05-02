@@ -14,7 +14,6 @@
       name: "伏黑惠",
       en: "Megumi Fushiguro",
       ja: "伏黒恵",
-      category: "主角团",
       affiliation: "东京咒术高专 / 禅院血脉",
       grade: "主角团 / 十种影法术",
       appearances: ["正篇漫画/动画", "涩谷事变", "死灭回游"],

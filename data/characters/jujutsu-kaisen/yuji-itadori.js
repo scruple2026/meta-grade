@@ -14,7 +14,6 @@
       name: "虎杖悠仁",
       en: "Yuji Itadori",
       ja: "虎杖悠仁",
-      category: "主角团",
       affiliation: "东京咒术高专",
       grade: "主角 / 高专学生",
       appearances: ["正篇漫画/动画", "涩谷事变", "死灭回游", "新宿决战"],

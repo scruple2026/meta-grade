@@ -14,7 +14,6 @@
       name: "布鲁克",
       en: "Brook",
       ja: "ブルック",
-      category: "主角团",
       affiliation: "草帽一伙",
       grade: "音乐家 / 黄泉果实能力者",
       appearances: ["正篇"],

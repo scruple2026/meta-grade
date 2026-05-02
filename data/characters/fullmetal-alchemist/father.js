@@ -14,7 +14,6 @@
       name: "父亲大人",
       en: "Father",
       ja: "お父様",
-      category: "最终反派",
       affiliation: "人造人阵营",
       grade: "最终 boss / 人造人源头",
       appearances: ["正篇"],

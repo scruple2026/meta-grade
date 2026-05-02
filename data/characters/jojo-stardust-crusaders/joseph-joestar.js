@@ -14,7 +14,6 @@
       name: "乔瑟夫·乔斯达",
       en: "Joseph Joestar",
       ja: "ジョセフ・ジョースター",
-      category: "主角团",
       affiliation: "乔斯达一行",
       grade: "波纹战士 / 隐者之紫",
       appearances: ["正篇"],

@@ -14,7 +14,6 @@
       name: "蓝染惣右介",
       en: "Sosuke Aizen",
       ja: "藍染惣右介",
-      category: "核心反派",
       affiliation: "护廷十三队叛徒 / 虚圈",
       grade: "破面篇最终 boss / 崩玉融合",
       appearances: ["正篇"],

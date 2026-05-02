@@ -14,7 +14,6 @@
       name: "石田雨龙",
       en: "Uryu Ishida",
       ja: "石田雨竜",
-      category: "主角团",
       affiliation: "灭却师 / 无形帝国相关",
       grade: "灭却师 / 星十字骑士团相关",
       appearances: ["正篇"],

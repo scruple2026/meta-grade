@@ -14,7 +14,6 @@
       name: "栗花落香奈乎",
       en: "Kanao Tsuyuri",
       ja: "栗花落カナヲ",
-      category: "主角团",
       affiliation: "鬼杀队 / 蝴蝶屋",
       grade: "主角团 / 花之呼吸",
       appearances: ["立志篇", "柱训练篇", "无限城篇"],

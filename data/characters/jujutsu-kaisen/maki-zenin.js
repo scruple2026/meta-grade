@@ -14,7 +14,6 @@
       name: "禅院真希",
       en: "Maki Zenin",
       ja: "禪院真希",
-      category: "主角团",
       affiliation: "东京咒术高专 / 禅院家",
       grade: "主角团 / 天与咒缚",
       appearances: ["咒术回战0", "正篇漫画/动画", "禅院家肃清", "樱岛结界", "新宿决战"],

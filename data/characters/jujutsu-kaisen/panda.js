@@ -14,7 +14,6 @@
       name: "胖达",
       en: "Panda",
       ja: "パンダ",
-      category: "主角团",
       affiliation: "东京咒术高专",
       grade: "主角团 / 突然变异咒骸",
       appearances: ["咒术回战0", "正篇漫画/动画", "京都交流会", "死灭回游"],

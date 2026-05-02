@@ -14,7 +14,6 @@
       name: "沙鲁",
       en: "Cell",
       ja: "セル",
-      category: "核心反派",
       affiliation: "人造人 / 沙鲁游戏",
       grade: "沙鲁篇最终 boss",
       appearances: ["正篇"],

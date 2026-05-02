@@ -14,7 +14,6 @@
       name: "奇犽·揍敌客",
       en: "Killua Zoldyck",
       ja: "キルア＝ゾルディック",
-      category: "主角团",
       affiliation: "揍敌客家族 / 猎人协会",
       grade: "主角团 / 变化系念能力者",
       appearances: ["猎人考试篇", "贪婪之岛篇", "蚁王篇"],

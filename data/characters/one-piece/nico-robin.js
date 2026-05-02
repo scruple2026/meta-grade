@@ -14,7 +14,6 @@
       name: "妮可·罗宾",
       en: "Nico Robin",
       ja: "ニコ・ロビン",
-      category: "主角团",
       affiliation: "草帽一伙",
       grade: "考古学家 / 花花果实能力者",
       appearances: ["正篇"],

@@ -14,7 +14,6 @@
       name: "西索·莫罗",
       en: "Hisoka Morow",
       ja: "ヒソカ＝モロウ",
-      category: "核心战力",
       affiliation: "独行猎人 / 幻影旅团相关",
       grade: "变化系念能力者",
       appearances: ["猎人考试篇", "天空竞技场篇", "约克新篇"],

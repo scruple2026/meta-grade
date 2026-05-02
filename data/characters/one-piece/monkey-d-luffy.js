@@ -14,7 +14,6 @@
       name: "蒙奇·D·路飞",
       en: "Monkey D. Luffy",
       ja: "モンキー・D・ルフィ",
-      category: "主角团",
       affiliation: "草帽一伙",
       grade: "船长 / 尼卡果实觉醒",
       appearances: ["正篇"],

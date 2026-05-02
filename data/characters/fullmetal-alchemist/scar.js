@@ -14,7 +14,6 @@
       name: "斯卡",
       en: "Scar",
       ja: "スカー",
-      category: "核心战力",
       affiliation: "伊修瓦尔幸存者",
       grade: "破坏炼成武僧",
       appearances: ["正篇"],

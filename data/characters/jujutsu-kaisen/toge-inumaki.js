@@ -14,7 +14,6 @@
       name: "狗卷棘",
       en: "Toge Inumaki",
       ja: "狗巻棘",
-      category: "主角团",
       affiliation: "东京咒术高专",
       grade: "主角团 / 咒言师",
       appearances: ["咒术回战0", "正篇漫画/动画"],

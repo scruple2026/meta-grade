@@ -14,7 +14,6 @@
       name: "伊奇",
       en: "Iggy",
       ja: "イギー",
-      category: "主角团",
       affiliation: "乔斯达一行",
       grade: "愚者使者",
       appearances: ["正篇"],

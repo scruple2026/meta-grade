@@ -14,7 +14,6 @@
       name: "黑崎一护",
       en: "Ichigo Kurosaki",
       ja: "黒崎一護",
-      category: "主角团",
       affiliation: "代理死神",
       grade: "主角 / 混合血统",
       appearances: ["正篇"],

@@ -14,7 +14,6 @@
       name: "宇智波带土",
       en: "Obito Uchiha",
       ja: "うちはオビト",
-      category: "核心反派",
       affiliation: "晓 / 十尾人柱力",
       grade: "空间忍术 / 十尾人柱力",
       appearances: ["神无毗桥回忆", "晓幕后", "第四次忍界大战"],

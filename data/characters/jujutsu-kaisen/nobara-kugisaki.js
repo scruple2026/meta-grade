@@ -14,7 +14,6 @@
       name: "钉崎野蔷薇",
       en: "Nobara Kugisaki",
       ja: "釘崎野薔薇",
-      category: "主角团",
       affiliation: "东京咒术高专",
       grade: "主角团 / 芻灵咒法",
       appearances: ["正篇漫画/动画", "八十八桥", "涩谷事变"],

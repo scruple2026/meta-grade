@@ -14,7 +14,6 @@
       name: "穆罕默德·阿布德尔",
       en: "Muhammad Avdol",
       ja: "モハメド・アヴドゥル",
-      category: "主角团",
       affiliation: "乔斯达一行",
       grade: "魔术师之红使者",
       appearances: ["正篇"],
