@@ -195,7 +195,7 @@ Also run a data integrity check equivalent to:
 - every character has all required battle-explanation fields (`notes.*`)
 - every character has source links
 - list/filter options use the main rank before `｜`
-- dimension rank filters support exact matching and "at least this rank" without mixing options from unrelated selected works
+- dimension rank filters use per-dimension inclusive `[min, max]` intervals without mixing options from unrelated selected works
 - stable character routes use `#/character/<work-slug>/<character-id>/<timeline-key>`; legacy `#/character/<character-id>` remains compatible
 - work scripts, character scripts, `index.html`, and `data/characters.js` stay in sync
 - `reference.md` and `data/reference.js` stay in sync

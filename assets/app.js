@@ -30,14 +30,12 @@
     auditWork: "all",
     auditEvidence: "all",
     auditAuthority: "all",
-    rankMode: "exact",
     dimensionFilters: {},
-    mode: "grid",
-    sort: "name"
+    mode: "grid"
   };
 
   dimensions.forEach((dimension) => {
-    state.dimensionFilters[dimension.key] = "all";
+    state.dimensionFilters[dimension.key] = { min: "all", max: "all" };
   });
 
   window.addEventListener("hashchange", renderRoute);
@@ -128,20 +126,22 @@
                 <option value="external">外源 / 一次性 / 特殊峰值</option>
               </select>
             </div>
-            <div class="field">
-              <label for="rankModeFilter">维度筛选模式</label>
-              <select id="rankModeFilter" name="rankMode">
-                <option value="exact">精确匹配</option>
-                <option value="gte">至少该档</option>
-              </select>
-            </div>
             <div class="dimension-filter-grid" aria-label="8 个主维度筛选">
               ${dimensions
                 .map(
                   (dimension) => `
-                    <div class="field">
-                      <label for="${dimension.key}Filter">${dimension.label}</label>
-                      <select id="${dimension.key}Filter" name="${dimension.key}"></select>
+                    <div class="field dimension-range-field">
+                      <label>${dimension.label}</label>
+                      <div class="range-selects">
+                        <div class="range-control">
+                          <span>下限</span>
+                          <select id="${dimension.key}MinFilter" name="${dimension.key}Min" aria-label="${dimension.label}下限"></select>
+                        </div>
+                        <div class="range-control">
+                          <span>上限</span>
+                          <select id="${dimension.key}MaxFilter" name="${dimension.key}Max" aria-label="${dimension.label}上限"></select>
+                        </div>
+                      </div>
                     </div>
                   `
                 )
@@ -178,7 +178,6 @@
     form.querySelector("[name='query']").value = state.query;
     form.querySelector("[name='work']").value = state.work;
     form.querySelector("[name='evidenceStatus']").value = state.evidenceStatus;
-    form.querySelector("[name='rankMode']").value = state.rankMode;
     hydrateScopedFilters(form);
 
     form.addEventListener("input", (event) => {
@@ -205,9 +204,8 @@
       state.work = "all";
       state.affiliation = "all";
       state.evidenceStatus = "all";
-      state.rankMode = "exact";
       dimensions.forEach((dimension) => {
-        state.dimensionFilters[dimension.key] = "all";
+        state.dimensionFilters[dimension.key] = { min: "all", max: "all" };
       });
       renderHome();
     });
@@ -241,9 +239,14 @@
     state.work = form.querySelector("[name='work']").value;
     state.affiliation = form.querySelector("[name='affiliation']").value;
     state.evidenceStatus = form.querySelector("[name='evidenceStatus']").value;
-    state.rankMode = form.querySelector("[name='rankMode']").value;
     dimensions.forEach((dimension) => {
-      state.dimensionFilters[dimension.key] = form.querySelector(`[name='${dimension.key}']`).value;
+      const filter = normalizeDimensionFilter(dimension.key, {
+        min: form.querySelector(`[name='${dimension.key}Min']`).value,
+        max: form.querySelector(`[name='${dimension.key}Max']`).value
+      });
+      state.dimensionFilters[dimension.key] = filter;
+      form.querySelector(`[name='${dimension.key}Min']`).value = filter.min;
+      form.querySelector(`[name='${dimension.key}Max']`).value = filter.max;
     });
   }
 
@@ -269,15 +272,17 @@
   function hydrateDimensionFilters(form, scopedCharacters) {
     dimensions.forEach((dimension) => {
       const values = collectRankValues(dimension.key, scopedCharacters);
-      if (state.dimensionFilters[dimension.key] !== "all" && !values.includes(state.dimensionFilters[dimension.key])) {
-        state.dimensionFilters[dimension.key] = "all";
-      }
-      setSelectOptions(`${dimension.key}Filter`, ["all", ...values], `全部${dimension.label}`);
-      form.querySelector(`[name='${dimension.key}']`).value = state.dimensionFilters[dimension.key];
+      const filter = normalizeDimensionFilter(dimension.key, state.dimensionFilters[dimension.key], values);
+      state.dimensionFilters[dimension.key] = filter;
+      setSelectOptions(`${dimension.key}MinFilter`, ["all", ...values], "不限下限");
+      setSelectOptions(`${dimension.key}MaxFilter`, ["all", ...values], "不限上限");
+      form.querySelector(`[name='${dimension.key}Min']`).value = filter.min;
+      form.querySelector(`[name='${dimension.key}Max']`).value = filter.max;
     });
   }
 
   function collectRankValues(key, source = characters) {
+    const order = rankOrders[key] || [];
     return [
       ...new Set(
         source
@@ -287,9 +292,26 @@
           })
           .filter(Boolean)
           .map((value) => String(value).trim())
-          .filter(Boolean)
+          .filter((value) => order.includes(value))
       )
     ].sort((a, b) => compareRankOption(key, a, b));
+  }
+
+  function normalizeDimensionFilter(key, filter, availableValues = null) {
+    const order = rankOrders[key] || [];
+    const values = availableValues || order;
+    const next = {
+      min: filter && filter.min ? filter.min : "all",
+      max: filter && filter.max ? filter.max : "all"
+    };
+    if (next.min !== "all" && !values.includes(next.min)) next.min = "all";
+    if (next.max !== "all" && !values.includes(next.max)) next.max = "all";
+    const minIndex = next.min === "all" ? -1 : order.indexOf(next.min);
+    const maxIndex = next.max === "all" ? -1 : order.indexOf(next.max);
+    if (minIndex >= 0 && maxIndex >= 0 && minIndex > maxIndex) {
+      return { min: next.max, max: next.min };
+    }
+    return next;
   }
 
   function compareRankOption(key, a, b) {
@@ -320,9 +342,9 @@
         if (!matchesEvidenceStatus(item, state.evidenceStatus)) return false;
         return dimensions.every((dimension) => {
           const filter = state.dimensionFilters[dimension.key];
-          if (filter === "all") return true;
+          if (!filter || (filter.min === "all" && filter.max === "all")) return true;
           const entry = item.dimensions[dimension.key];
-          return matchesDimensionRank(dimension.key, entry, filter);
+          return matchesDimensionRange(dimension.key, entry, filter);
         });
       })
       .sort(sortCharacters);
@@ -339,18 +361,15 @@
     return true;
   }
 
-  function matchesDimensionRank(key, entry, filter) {
-    if (state.rankMode !== "gte") {
-      return baseRank(entry.normal) === filter || baseRank(entry.peak) === filter;
-    }
+  function matchesDimensionRange(key, entry, filter) {
     const order = rankOrders[key] || [];
-    const target = order.indexOf(filter);
-    if (target < 0) {
-      return baseRank(entry.normal) === filter || baseRank(entry.peak) === filter;
-    }
+    if (!order.length) return true;
+    const minIndex = filter.min === "all" ? 0 : order.indexOf(filter.min);
+    const maxIndex = filter.max === "all" ? order.length - 1 : order.indexOf(filter.max);
+    if (minIndex < 0 || maxIndex < 0) return true;
     return [entry.normal, entry.peak].some((value) => {
       const index = order.indexOf(baseRank(value));
-      return index >= target;
+      return index >= minIndex && index <= maxIndex;
     });
   }
 
