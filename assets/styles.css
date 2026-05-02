@@ -147,6 +147,40 @@ button {
   text-decoration: none;
 }
 
+.top-nav .nav-highlight {
+  border-color: #2d7d5f;
+  background: #eaf6ef;
+  color: #174b39;
+  font-weight: 700;
+}
+
+.repo-strip {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 16px;
+  border-top: 1px solid rgba(31, 42, 36, 0.08);
+  padding: 7px 24px 9px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.repo-strip a {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.repo-strip span,
+.repo-strip a {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.repo-strip code {
+  font-size: 12px;
+}
+
 .app-shell {
   max-width: 1440px;
   margin: 0 auto;
@@ -1202,6 +1236,12 @@ button {
 
   .top-nav {
     justify-content: flex-start;
+  }
+
+  .repo-strip {
+    justify-content: flex-start;
+    padding-left: 14px;
+    padding-right: 14px;
   }
 
   .toolbar,

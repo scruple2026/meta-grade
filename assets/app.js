@@ -1160,8 +1160,12 @@
           </ul>
         </section>
         <section class="about-section">
+          <h2>社区 PR</h2>
+          <p>社区 PR 是本站核心维护入口。Fork 或开始编辑前先看根目录 <code>CONTRIBUTING.md</code>；创建 PR 时 GitHub 会自动套用 <code>.github/PULL_REQUEST_TEMPLATE.md</code>。新增角色、大幅修订角色或补高风险证据时，PR 最前面应先放完整角色文件提案，第一段代码块要能直接落成 <code>data/characters/&lt;work-slug&gt;/&lt;character-id&gt;.js</code>；说明文字和 checklist 放在代码块后面。仓库地址是 <a href="https://github.com/scruple2026/meta-grade" target="_blank" rel="noopener">https://github.com/scruple2026/meta-grade</a>。</p>
+        </section>
+        <section class="about-section">
           <h2>静态部署</h2>
-          <p>项目没有后端、没有构建依赖。作品元数据放在 <code>data/works/*.js</code>，角色按单文件放在 <code>data/characters/&lt;work-slug&gt;/</code>，GitHub Pages 可直接发布仓库根目录，Vercel 可按静态站点导入并使用 <code>vercel.json</code> 的静态配置。</p>
+          <p>项目没有后端、没有构建依赖。作品元数据放在 <code>data/works/*.js</code>，角色按单文件放在 <code>data/characters/&lt;work-slug&gt;/</code>。当前以 GitHub Pages 发布为主，仓库根目录可直接作为静态站点发布；暂不维护 Vercel 独立部署配置。</p>
         </section>
         <section class="about-section">
           <h2>数据边界</h2>

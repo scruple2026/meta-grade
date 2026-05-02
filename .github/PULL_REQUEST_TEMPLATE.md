@@ -1,4 +1,4 @@
-## 角色文件提案
+## PR 最前面：角色文件提案
 
 新增角色或大幅修订角色时，优先把下面这个代码块改成可直接落盘的角色文件。维护者应能把代码块复制到 `data/characters/<work-slug>/<character-id>.js`，或把结构化提案交给 `node scripts/apply-character-proposal.js proposal.js` 同步清单。
 

@@ -2,6 +2,24 @@
 
 这是一个纯静态跨作品战力维基，按 `reference.md` 的 8 个主维度录入不同作品战斗角色的常态/峰值面板。当前按作品维护核心战斗角色、核心反派和最终 Boss 级条目，长尾角色等待明确需求或社区 PR。站点不包含图片、不需要后端、不需要构建步骤。
 
+## 社区 PR（核心入口）
+
+显眼入口：
+
+- GitHub Repo：<https://github.com/scruple2026/meta-grade>
+- Fork 前先看：[`CONTRIBUTING.md`](CONTRIBUTING.md)
+- PR 模板文件：`.github/PULL_REQUEST_TEMPLATE.md`
+- 在线查看 PR 模板：<https://github.com/scruple2026/meta-grade/blob/main/.github/PULL_REQUEST_TEMPLATE.md>
+- 提交 PR：<https://github.com/scruple2026/meta-grade/compare>
+
+本仓库的核心维护方式是社区 PR：新增角色、修订面板、补章节/集数/设定书证据，都优先通过 PR 以单角色文件为单位提交。`.github/PULL_REQUEST_TEMPLATE.md` 保留在 GitHub 自动识别的位置；fork 或开始编辑前请先看根目录 `CONTRIBUTING.md`。
+
+1. PR 正文最前面先放完整角色文件提案，第一段代码块应能直接落成 `data/characters/<work-slug>/<character-id>.js`。
+2. 一个 PR 优先只改一个角色文件；例如炭治郎只改 `data/characters/demon-slayer/tanjiro-kamado.js`，虎杖只改 `data/characters/jujutsu-kaisen/yuji-itadori.js`。
+3. 说明文字、证据解释和 checklist 放在角色文件代码块后面，不要放在最前面挤掉可复制提案。
+4. 维护者可以把结构化提案保存为 `proposal.js`，用 `node scripts/apply-character-proposal.js proposal.js` 自动落盘角色文件并同步 `index.html` 与 `data/characters.js`。
+5. 高风险量级应补到 `evidenceLinks`，并写清 `claim`、`lang`、`authority`、`medium`、`ratingEvidence`；缺证据时保留待审说明，不把称号、危险等级或剧情评价直接换算成主量级。
+
 ## 本地查看
 
 直接用浏览器打开 `index.html` 即可。公共数据注册器写在 `data/core.js`，作品来源元数据写在 `data/works/*.js`，每个角色独立写在 `data/characters/<work-slug>/<character-id>.js`，前端交互写在 `assets/app.js`。站内 `#/reference` 会渲染量级体系文档，`#/audit` 会集中展示待补具体证据的高风险条目，`#/work/<work-slug>` 会展示作品口径、角色清单和待审条目。角色稳定链接使用 `#/character/<work-slug>/<character-id>/<timeline-key>`，旧的 `#/character/<character-id>` 仍保留兼容。Markdown 原文仍保留在 `reference.md`。
@@ -12,13 +30,7 @@
 2. 在仓库 Settings → Pages 中选择 Deploy from a branch。
 3. Source 选择目标分支和 `/root` 目录。
 4. `.nojekyll` 已放在根目录，GitHub Pages 会按普通静态文件发布。
-
-## 部署到 Vercel
-
-1. 在 Vercel 导入该仓库。
-2. Framework Preset 选择 Other。
-3. Build Command 留空，Output Directory 留空或使用 `.`。
-4. `vercel.json` 已配置为纯静态站点可用的 URL 选项。
+5. 当前以 GitHub Pages 为默认发布目标，暂不维护 Vercel 独立部署配置。
 
 ## 数据维护
 
@@ -32,8 +44,6 @@
 - `能量总量` 包含超自然能量池、机体能源、弹药/外源能源，也包含体力、肌耐力和肉体持久度；没有魔力/咒力/查克拉不等于 `不适用`。
 - `confidence`、`evidenceType`、`sourceQuality`、`evidenceLinks` 用于详情页和校验脚本提示证据状态。`evidenceLinks` 可使用 `{ type, scope, label, url, citation, lang, authority, medium, ratingEvidence, claim }`，其中 `type` 建议为 `chapter`、`episode`、`setting`、`official`、`wiki` 或 `source`；`lang` 建议为 `ja`、`zh`、`en` 或 `other`；`authority` 建议为 `primary`、`official`、`licensed`、`wiki`、`cross-reference`、`analysis` 或 `source`；`medium` 建议为 `manga`、`anime`、`databook`、`official-site`、`publisher`、`wiki`、`cross-wiki`、`print` 或 `other`。`claim` 必须说明该来源支撑哪个量级、形态或设定；没有公开 URL 的原作卷话/设定书可填 `citation`。只有确实用于支撑量级、形态或高风险设定时才设置 `ratingEvidence: true`。高风险量级缺少原作语言、原作/官方/授权层证据时，应保留待审警告，不要伪装成稳定结论。
 - `revisionNotes` 用于记录定级变更理由，例如降档、改成争议峰值、拆出外源状态等。
-- 社区 PR 应按角色改对应文件：例如炭治郎只改 `data/characters/demon-slayer/tanjiro-kamado.js`，虎杖只改 `data/characters/jujutsu-kaisen/yuji-itadori.js`。
-- PR 模板里的第一段是完整角色文件提案，应该能直接复制成 `data/characters/<work-slug>/<character-id>.js`；说明文字和 checklist 只放在代码块后面。
 - `data/works/*.js` 只放作品来源、作品名、作品原作语言 `originalLanguage`、日文/官方入口 `canonicalLinks`、作品收录口径 `scaleNotes`、作品量级复核入口 `scaleEvidenceLinks` 和默认 `work` 包装器，不放角色条目。
 - `data/core.js` 只放 8 维 schema 和 `character`/`dims`/`notes`/`registerWorkSource`/`registerCharacters` 等公共函数；不要把具体角色或作品来源塞回公共文件。
 - `data/characters.js` 只保留旧入口兼容、作品文件清单和角色文件清单，不再作为大杂烩角色表维护。
