@@ -32,8 +32,21 @@
         url: "https://naruto.fandom.com/wiki/Characters"
       }
     ],
+    scaleEvidenceLinks: [
+      {
+        type: "source",
+        scope: "作品量级参考",
+        label: "VS Battles Wiki：Naruto",
+        url: "https://vsbattles.fandom.com/wiki/Naruto_%28Verse%29",
+        lang: "en",
+        authority: "cross-reference",
+        medium: "cross-wiki",
+        ratingEvidence: true,
+        claim: "用于复核火影忍者中尾兽、六道、终结谷和忍界大战高端角色密度的跨界量级口径；本站仍逐角色标注争议和峰值条件。"
+      }
+    ],
     scaleNotes: {
-          "scope": "当前收录第七班核心与疾风传最终 Boss 辉夜。",
+          "scope": "当前收录第七班核心、疾风传最终 Boss 辉夜，以及斑、带土、柱间、迈特凯。",
           "versionPolicy": "疾风传初期、仙人模式、九尾模式、六道模式后续应拆 timelinePanels。",
           "highRisk": [
                 "六道力量",

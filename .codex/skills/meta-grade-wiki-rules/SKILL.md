@@ -7,7 +7,7 @@ description: Project-specific rules for updating the meta-grade cross-series pow
 
 ## Core Identity
 
-This project is a cross-series power wiki, not a single-work fan wiki. The site is a pure static wiki with no backend, no images, and no generated marketing pages. Keep it deployable on GitHub Pages and Vercel by editing static files only.
+This project is a cross-series power wiki, not a single-work fan wiki. The site is a pure static wiki with no backend, no images, and no generated marketing pages. Keep it deployable on GitHub Pages by editing static files only; do not reintroduce Vercel-specific deployment config unless explicitly requested.
 
 Keep agent-maintenance guidance in this skill or a local `AGENTS.md`, not in community PR templates or copyable character proposal snippets. PR templates should stay proposer-facing: data shape, source expectations, review checklist, and directly reusable JS proposals. Do not put internal agent workflow, source-crawling tactics, token-budget policy, delegation policy, or S3 operation rules into PR artifacts.
 
@@ -140,22 +140,23 @@ When updating data files:
 2. Keep work metadata only in `data/works/<work-slug>.js`; do not put character entries in work metadata files.
 3. Keep concrete character entries one-character-per-file under `data/characters/<work-slug>/<character-id>.js`.
 4. Keep `data/characters.js` as the lightweight compatibility/manifest entry only.
-5. Add a new character by creating a new `data/characters/<work-slug>/<character-id>.js` file and adding that path to both `index.html` and `data/characters.js`.
-6. Add a new work by creating a new `data/works/<work-slug>.js` file, registering its source metadata inside that file, adding its `<script>` tag in `index.html` after `data/core.js`, and placing its character files after that work script.
-7. Keep `POWER_WIKI_DIMENSIONS` compatible with the 8 dimensions in `reference.md`.
-8. Preserve `work` as the cross-series work/franchise field via the work wrapper.
-9. Preserve `appearances` as the within-work arc/media scope.
-10. Use `timelineStatus` for the rated story stage/status when it affects the panel, e.g. final arc, post-awakening, weakened state, external power, or early/late version. Leave it blank when the character has no meaningful stage distinction.
-11. Use `timelinePanels` only when it reduces ambiguity: major arc growth, temporary external power, one-time sacrifice forms, final boss absorbed forms, or explicit early/final contrast. Every explicit panel must have a stable `key`; if a default panel is needed, set `defaultTimelineKey` to one of those keys. Do not create filler panels for characters whose panel is effectively unchanged.
-12. Keep each work's durable scope notes in `registerWorkSource(...).scaleNotes`: `scope`, `versionPolicy`, `highRisk`, and `conservativeNotes`; set `originalLanguage` and use `canonicalLinks` for original-language official/publisher entry points; use `scaleEvidenceLinks` for work-level scale references that justify broad high-tier density.
-13. Keep `aliases` useful for search.
-14. Ensure every character has all 8 dimensions and all battle-explanation fields (`notes.*`).
-15. Use `｜` labels to explain peak sources, but make filters operate on the text before `｜`.
-16. Do not add images or image URLs.
-17. Prefer `node scripts/create-character.js <work-slug> <character-id> --name 中文名` when creating a new character file; it syncs `index.html` and `data/characters.js`.
-18. Prefer `node scripts/create-work.js <work-slug> --name 作品名` when creating a new work; it creates the work metadata file, the character directory, and syncs the work manifests.
-19. Use `node scripts/apply-character-proposal.js proposal.js` for structured community proposals when available; it writes the one-character file and syncs both script lists.
-20. Keep the PR template's first section as a copyable full character JS file proposal. Review notes and checklist may follow, but the first code block should be directly convertible into `data/characters/<work-slug>/<character-id>.js`.
+5. Keep user-facing classification fields clean. Do not put selection or maintenance labels such as `热门战力`, `高讨论度`, `待审核`, or source status wording into `category`, `affiliation`, or `grade`. Use stable role terms such as `主角团`, `核心反派`, `最终 boss`, `核心战力`, `四皇`, or `顶级剑士`; for high-risk main ranks, prefer `核心战力`/`核心反派` and put narrower titles such as `总队长`, `队长`, `零番队`, or `传说忍者` in `grade` or `affiliation`.
+6. Add a new character by creating a new `data/characters/<work-slug>/<character-id>.js` file and adding that path to both `index.html` and `data/characters.js`.
+7. Add a new work by creating a new `data/works/<work-slug>.js` file, registering its source metadata inside that file, adding its `<script>` tag in `index.html` after `data/core.js`, and placing its character files after that work script.
+8. Keep `POWER_WIKI_DIMENSIONS` compatible with the 8 dimensions in `reference.md`.
+9. Preserve `work` as the cross-series work/franchise field via the work wrapper.
+10. Preserve `appearances` as the within-work arc/media scope.
+11. Use `timelineStatus` for the rated story stage/status when it affects the panel, e.g. final arc, post-awakening, weakened state, external power, or early/late version. Leave it blank when the character has no meaningful stage distinction.
+12. Use `timelinePanels` only when it reduces ambiguity: major arc growth, temporary external power, one-time sacrifice forms, final boss absorbed forms, or explicit early/final contrast. Every explicit panel must have a stable `key`; if a default panel is needed, set `defaultTimelineKey` to one of those keys. Do not create filler panels for characters whose panel is effectively unchanged.
+13. Keep each work's durable scope notes in `registerWorkSource(...).scaleNotes`: `scope`, `versionPolicy`, `highRisk`, and `conservativeNotes`; set `originalLanguage` and use `canonicalLinks` for original-language official/publisher entry points; use `scaleEvidenceLinks` for work-level scale references that justify broad high-tier density.
+14. Keep `aliases` useful for search.
+15. Ensure every character has all 8 dimensions and all battle-explanation fields (`notes.*`).
+16. Use `｜` labels to explain peak sources, but make filters operate on the text before `｜`.
+17. Do not add images or image URLs.
+18. Prefer `node scripts/create-character.js <work-slug> <character-id> --name 中文名` when creating a new character file; it syncs `index.html` and `data/characters.js`.
+19. Prefer `node scripts/create-work.js <work-slug> --name 作品名` when creating a new work; it creates the work metadata file, the character directory, and syncs the work manifests.
+20. Use `node scripts/apply-character-proposal.js proposal.js` for structured community proposals when available; it writes the one-character file and syncs both script lists.
+21. Keep the PR template's first section as a copyable full character JS file proposal. Review notes and checklist may follow, but the first code block should be directly convertible into `data/characters/<work-slug>/<character-id>.js`.
 
 When changing `reference.md`, run `node scripts/sync-reference.js` to update `data/reference.js`, which stores the Markdown string rendered by the static `#/reference` route. Keep the raw `reference.md` link available for source review.
 
