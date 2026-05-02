@@ -1,0 +1,44 @@
+(function () {
+  "use strict";
+
+  const { dims, notes, registerCharacters } = window.POWER_WIKI;
+  const work = window.POWER_WIKI_WORKS && window.POWER_WIKI_WORKS["鬼灭之刃"];
+
+  if (!work) {
+    throw new Error("鬼灭之刃 work metadata must load before character files.");
+  }
+
+  registerCharacters([
+    work.character({
+      id: "zenitsu-agatsuma",
+      name: "我妻善逸",
+      en: "Zenitsu Agatsuma",
+      ja: "我妻善逸",
+      category: "主角团",
+      affiliation: "鬼杀队",
+      grade: "主角团 / 雷之呼吸",
+      appearances: ["立志篇", "无限列车篇", "游郭篇", "无限城篇"],
+      timelineStatus: "无限城 / 击败狯岳时期",
+      aliases: ["雷之呼吸", "火雷神"],
+      fandomSlug: "Zenitsu_Agatsuma",
+      dimensions: dims({
+        attack: ["墙级", "房屋级｜雷之呼吸｜火雷神", "单点拔刀斩击极强，但破坏范围有限。"],
+        defense: ["凡人级", "墙级｜全集中呼吸", "承伤靠训练和呼吸支撑。"],
+        movement: ["亚音速", "音速｜雷之呼吸｜短距突进", "速度是核心优势；峰值只按短距突进近似声速处理，不按雷电特效抬到超音速。"],
+        reaction: ["亚音速", "音速｜听觉", "听觉感知和拔刀反应强，但非全维速度专精。"],
+        vitality: ["强化凡体", "精锐韧体", "能在重伤、毒伤后作战。"],
+        healing: ["无自愈", "缓慢自愈", "无自体再生。"],
+        energy: ["凡人能量", "墙级能量｜全集中呼吸", "爆发强，长战稳定性低于柱。"],
+        energyRegen: ["常规回能", "快速回能", "休整后可恢复爆发。"]
+      }),
+      notes: notes({
+        penetration: "雷之呼吸一之型和火雷神是高速单点斩击，适合斩首穿透。",
+        resistance: "普通人类防御，毒素和失血仍危险。",
+        special: "超常听觉、雷之呼吸一之型、火雷神、睡眠/极限集中战斗。",
+        weakness: "技型偏科严重，早期心理状态不稳；近身一击不中会陷入风险。",
+        setting: "按无限城击败狯岳时期记录。",
+        basis: "依据蜘蛛山、游郭和无限城对狯岳战中的高速拔刀、听觉感知和承伤表现定级。"
+      })
+    })
+  ]);
+})();

@@ -1,0 +1,90 @@
+# 跨界战力维基
+
+这是一个纯静态跨作品战力维基，按 `reference.md` 的 8 个主维度录入不同作品战斗角色的常态/峰值面板。当前按作品维护核心战斗角色、核心反派和最终 Boss 级条目，长尾角色等待明确需求或社区 PR。站点不包含图片、不需要后端、不需要构建步骤。
+
+## 本地查看
+
+直接用浏览器打开 `index.html` 即可。公共数据注册器写在 `data/core.js`，作品来源元数据写在 `data/works/*.js`，每个角色独立写在 `data/characters/<work-slug>/<character-id>.js`，前端交互写在 `assets/app.js`。站内 `#/reference` 会渲染量级体系文档，`#/audit` 会集中展示待补具体证据的高风险条目，`#/work/<work-slug>` 会展示作品口径、角色清单和待审条目。角色稳定链接使用 `#/character/<work-slug>/<character-id>/<timeline-key>`，旧的 `#/character/<character-id>` 仍保留兼容。Markdown 原文仍保留在 `reference.md`。
+
+## 部署到 GitHub Pages
+
+1. 将仓库推送到 GitHub。
+2. 在仓库 Settings → Pages 中选择 Deploy from a branch。
+3. Source 选择目标分支和 `/root` 目录。
+4. `.nojekyll` 已放在根目录，GitHub Pages 会按普通静态文件发布。
+
+## 部署到 Vercel
+
+1. 在 Vercel 导入该仓库。
+2. Framework Preset 选择 Other。
+3. Build Command 留空，Output Directory 留空或使用 `.`。
+4. `vercel.json` 已配置为纯静态站点可用的 URL 选项。
+
+## 数据维护
+
+- 主维度列表来自 `reference.md`：攻击能级、防御能级、移动速度、反应速度、生命体量、生命回复速度、能量总量、能量回复速度。
+- `work` 字段表示跨界维基中的作品分区，例如《咒术回战》《鬼灭之刃》。
+- `appearances` 表示角色在该作品内的资料范围或登场媒体，例如正篇、0 卷、怀玉·玉折等。
+- `timelineStatus` 表示当前角色面板采用的剧情阶段/状态，例如“结局 / 新宿决战后”“无限城最终决战前人类状态”。阶段变化明显、外力/削弱/终盘成长会影响面板时应写清楚；没什么阶段差异的角色可以留空。
+- `timelinePanels` 用于同一角色跨篇章成长、一次性峰值、外源形态或最终形态差异。变化不明显的角色不要硬填面板；有时间线面板的角色会在详情页左侧作为时间线列表展示，点击某个阶段只显示该阶段面板。每个面板必须有稳定 `key`，`defaultTimelineKey` 必须指向默认显示的面板。
+- `notes.penetration` 是兼容字段名，网页显示为“攻击性质”；用于记录攻击范围、穿透、伤害类型、命中条件、媒介限制和持续/低耦合等性质，不再只限于“穿透”。
+- `生命体量` 表示破防后的失能、死亡或核心毁灭阈值，不等同于防御能级，也不等同于生命回复速度。
+- `能量总量` 包含超自然能量池、机体能源、弹药/外源能源，也包含体力、肌耐力和肉体持久度；没有魔力/咒力/查克拉不等于 `不适用`。
+- `confidence`、`evidenceType`、`sourceQuality`、`evidenceLinks` 用于详情页和校验脚本提示证据状态。`evidenceLinks` 可使用 `{ type, scope, label, url, citation, lang, authority, medium, ratingEvidence, claim }`，其中 `type` 建议为 `chapter`、`episode`、`setting`、`official`、`wiki` 或 `source`；`lang` 建议为 `ja`、`zh`、`en` 或 `other`；`authority` 建议为 `primary`、`official`、`licensed`、`wiki`、`cross-reference`、`analysis` 或 `source`；`medium` 建议为 `manga`、`anime`、`databook`、`official-site`、`publisher`、`wiki`、`cross-wiki`、`print` 或 `other`。`claim` 必须说明该来源支撑哪个量级、形态或设定；没有公开 URL 的原作卷话/设定书可填 `citation`。只有确实用于支撑量级、形态或高风险设定时才设置 `ratingEvidence: true`。高风险量级缺少原作语言、原作/官方/授权层证据时，应保留待审警告，不要伪装成稳定结论。
+- `revisionNotes` 用于记录定级变更理由，例如降档、改成争议峰值、拆出外源状态等。
+- 社区 PR 应按角色改对应文件：例如炭治郎只改 `data/characters/demon-slayer/tanjiro-kamado.js`，虎杖只改 `data/characters/jujutsu-kaisen/yuji-itadori.js`。
+- PR 模板里的第一段是完整角色文件提案，应该能直接复制成 `data/characters/<work-slug>/<character-id>.js`；说明文字和 checklist 只放在代码块后面。
+- `data/works/*.js` 只放作品来源、作品名、作品原作语言 `originalLanguage`、日文/官方入口 `canonicalLinks`、作品收录口径 `scaleNotes`、作品量级复核入口 `scaleEvidenceLinks` 和默认 `work` 包装器，不放角色条目。
+- `data/core.js` 只放 8 维 schema 和 `character`/`dims`/`notes`/`registerWorkSource`/`registerCharacters` 等公共函数；不要把具体角色或作品来源塞回公共文件。
+- `data/characters.js` 只保留旧入口兼容、作品文件清单和角色文件清单，不再作为大杂烩角色表维护。
+- `data/reference.js` 是 `reference.md` 的静态网页渲染数据。修改 `reference.md` 后运行 `node scripts/sync-reference.js`，否则站内 `#/reference` 会显示旧文档，校验也会报错。
+- 新增角色时新建一个 `data/characters/<work-slug>/<character-id>.js`，并在 `index.html` 和 `data/characters.js` 的角色清单里加入该文件路径。
+- 也可以用 `node scripts/create-character.js <work-slug> <character-id> --name 中文名` 生成角色模板并同步 `index.html` 与 `data/characters.js`。
+- 维护者可以把社区提交的结构化提案保存为 `proposal.js`，用 `node scripts/apply-character-proposal.js proposal.js` 自动落盘角色文件并同步 `index.html` 与 `data/characters.js`。
+- 新增作品时优先用 `node scripts/create-work.js <work-slug> --name 作品名` 生成 `data/works/<work-slug>.js`、`data/characters/<work-slug>/` 并同步清单；手动新增时也必须在作品文件内用 `registerWorkSource` 登记来源。
+- 《咒术回战》当前只收录主角团和最终 Boss 两面宿傩；里香、魔虚罗等召唤/外置战力只写入对应角色的战力解释项，不再单独成条目。
+- 《鬼灭之刃》当前只收录主角团和最终 Boss 鬼舞辻无惨；柱和十二鬼月暂不进入本版结果。
+- 每个作品都按 `reference.md` 的通用规则和自身证据定级，不维护隐藏的作品专属禁用上限。若证据支持更高主档，应逐条给出破坏、承受、速度或能量依据。
+- 领域、必中、规则、灵魂、空间、黑洞、世界斩等特殊杀伤只写入峰值标签或战力解释项；除非原作给出可换算表现，否则不折算为更高主面板等级。
+- 搜索结果页只展示 8 个主维度简介。
+- 角色页展示战力解释项和来源；来源区块会区分 `量级依据` 与 `资料入口`，并在页面说明二者用途差异。
+- 分类、所属、等级/定位和维度筛选选项会随当前作品筛选收敛；维度筛选支持“精确匹配”和“至少该档”两种模式，匹配时只看 `｜` 前的主档名。
+- 普通人、纯剧情人物、辅助监督、低优先级泳者和普通一级术师不进入本版结果。
+- 战斗资料不足以跨界定级的维度使用【无资料】；原作存在可能性但无法判断时使用【未知】；确实没有展示时使用【未表现】。不要用模板自动抬级。
+
+## 校验
+
+修改数据后至少运行：
+
+```bash
+node scripts/validate-data.js
+node --check scripts/validate-data.js
+node --check scripts/create-character.js
+node --check scripts/create-work.js
+node --check scripts/apply-character-proposal.js
+node --check scripts/sync-reference.js
+node --check scripts/check-links.js
+node --check scripts/check-source-content.js
+node --check assets/app.js
+node --check data/core.js
+node --check data/characters.js
+```
+
+`scripts/validate-data.js` 会检查 JS 语法、`index.html` 与 `data/characters.js` 清单同步、`reference.md` 与 `data/reference.js` 同步、作品 slug、角色 workSlug、作品原作语言、时间线 key/defaultTimelineKey、8 维字段完整性、战力解释项/来源缺漏、档名是否符合 `reference.md`，并对国家级/大陆级/行星级/光速等高风险档位缺少具体证据链接的条目给出分级警告。脚本还会校验 `lang`、`authority`、`medium`、`ratingEvidence` 和 `claim/citation`，并防止把 Fandom、萌娘百科、Wikipedia、JoJo Wiki 等非官方域名标成 `primary`、`official` 或 `licensed`。脚本还会提示可能的模板膨胀风险，例如单作品多数角色被批量抬到城市级以上、非核心角色使用高风险主档、能量总量远高于单击攻击但没有区分说明；如果城市级以上密度已通过作品层面的 `scaleEvidenceLinks` 复核，则不再重复提示该低风险 warning。允许档名会优先从 `reference.md` 的专属标尺中解析，脚本内保留旧档名作为兼容兜底。当前警告不代表构建失败，而是社区后续补章节、集数、设定书来源的待审清单；需要把警告当失败时可加 `--strict-warnings`。
+
+链接健康检查可运行：
+
+```bash
+node scripts/check-links.js --dry-run
+node scripts/check-links.js --timeout 8000 --concurrency 6
+```
+
+`check-links.js` 会检查作品来源、作品量级来源、角色来源和证据链接。默认把 `401/403/405/429` 视为“可达但受限”，只有真正失败的链接会让命令失败；需要把受限状态也当失败时加 `--strict`。
+
+当直连检查出现 Fandom、VS Battles Wiki、萌娘百科等软失败时，可以再跑内容可读性检查：
+
+```bash
+node scripts/check-source-content.js --concurrency 3 --timeout 12000
+```
+
+`check-source-content.js` 会优先通过公开 MediaWiki API 或正常 GET 读取页面正文。`READABLE` 只表示脚本能读到文本，不表示文本已经支持某个评级；把来源标成 `ratingEvidence: true` 前，仍必须人工核对具体 claim。

@@ -1,0 +1,44 @@
+(function () {
+  "use strict";
+
+  const { dims, notes, registerCharacters } = window.POWER_WIKI;
+  const work = window.POWER_WIKI_WORKS && window.POWER_WIKI_WORKS["进击的巨人"];
+
+  if (!work) {
+    throw new Error("进击的巨人 work metadata must load before character files.");
+  }
+
+  registerCharacters([
+    work.character({
+      id: "eren-yeager",
+      name: "艾伦·耶格尔",
+      en: "Eren Yeager",
+      ja: "エレン・イェーガー",
+      category: "主角 / 最终 boss",
+      affiliation: "调查兵团 / 叶卡派 / 始祖巨人",
+      grade: "主角 / 始祖巨人持有者",
+      appearances: ["托洛斯特区篇", "玛莱篇", "地鸣篇"],
+      timelineStatus: "最终章 / 始祖巨人发动地鸣",
+      aliases: ["进击的巨人", "始祖巨人", "Attack Titan"],
+      fandomSlug: "Eren_Yeager",
+      dimensions: dims({
+        attack: ["楼级", "城市级｜地鸣｜持续灾害｜外部巨群", "单体巨人以建筑级破坏为主；地鸣是超大巨人群持续踏平文明，不等同艾伦单次拳击。"],
+        defense: ["楼级", "城市级｜始祖巨人体", "巨人体体量巨大但存在本体要害；始祖形态防御更多来自规模和巨群保护。"],
+        movement: ["亚音速", "亚音速｜巨人体", "巨人体移动和立体机动作战不按音速处理。"],
+        reaction: ["凡人速", "亚音速｜巨人战斗经验", "可进行巨人近战和硬质化反制，但高端多依赖预判。"],
+        vitality: ["楼级生命阈值｜巨人体｜特殊生命结构", "街区级生命阈值｜始祖巨人体", "巨人体可承受大量肢体破坏，但本体和颈部/道路机制是核心。"],
+        healing: ["快速自愈", "极速自愈｜巨人之力", "巨人化可快速修复肢体和身体损伤，受体力和继承者状态限制。"],
+        energy: ["楼级能量", "城市级能量｜地鸣控制｜外部巨群", "地鸣总规模来自始祖控制巨群，不等同个人单体能量池。"],
+        energyRegen: ["常规回能", "快速回能｜巨人之力", "多次巨人化会消耗体力，不能无限连续使用。"]
+      }),
+      notes: notes({
+        penetration: "硬质化和巨人体力量可破坏建筑、防御工事和巨人身体；地鸣靠巨群踏平而非单点穿透。",
+        resistance: "巨人体可再生，但本体被斩首、爆破或脱离巨人体仍是弱点。",
+        special: "巨人化、硬质化、进击的巨人记忆、始祖巨人道路干涉、地鸣控制。",
+        weakness: "本体位置、继承者体力、王血/道路条件和同伴针对是关键限制。",
+        setting: "按最终章始祖巨人艾伦记录；早期训练兵和普通进击巨人状态不单独拆文件。",
+        basis: "依据艾伦早中期巨人战、硬质化、玛莱篇战锤能力应用和最终地鸣表现保守定级。"
+      })
+    })
+  ]);
+})();

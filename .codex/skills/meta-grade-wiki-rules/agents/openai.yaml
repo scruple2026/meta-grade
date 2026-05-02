@@ -1,0 +1,4 @@
+interface:
+  display_name: "Meta Grade Wiki Rules"
+  short_description: "Conservative wiki rating rules"
+  default_prompt: "Use the project rules to update this cross-series power wiki conservatively."

@@ -1,0 +1,1398 @@
+(function () {
+  "use strict";
+
+  const app = document.getElementById("app");
+  const characters = window.POWER_WIKI_CHARACTERS || window.JJK_CHARACTERS || [];
+  const dimensions = window.POWER_WIKI_DIMENSIONS || window.JJK_DIMENSIONS || [];
+  const workSources = window.POWER_WIKI_WORK_SOURCES || {};
+  const confidenceLabels = {
+    stable: "稳定",
+    medium: "中等",
+    review: "待审",
+    disputed: "争议"
+  };
+  const rankOrders = {
+    attack: ["昆虫级", "凡人级", "砖级", "墙级", "房屋级", "楼级", "街区级", "城市级", "国家级", "大陆级", "地表级", "行星级", "恒星级", "星系级", "超星系团级", "有限宇宙级", "无限级"],
+    defense: ["昆虫级", "凡人级", "砖级", "墙级", "房屋级", "楼级", "街区级", "城市级", "国家级", "大陆级", "地表级", "行星级", "恒星级", "星系级", "超星系团级", "有限宇宙级", "无限级"],
+    movement: ["凡人速", "亚音速", "音速", "超音速", "高超音速", "宇宙速度级", "超第三宇宙速度级", "亚光速", "光速", "超光速"],
+    reaction: ["凡人速", "亚音速", "音速", "超音速", "高超音速", "宇宙速度级", "超第三宇宙速度级", "亚光速", "光速", "超光速"],
+    vitality: ["凡人肉身", "强化凡体", "精锐韧体", "房屋级生命阈值", "楼级生命阈值", "街区级生命阈值", "城市级生命阈值", "国家级生命阈值", "大陆级生命阈值", "地表级生命阈值", "行星级生命结构", "恒星级生命结构", "星系级生命结构", "宇宙级生命结构"],
+    healing: ["无自愈", "缓慢自愈", "常规自愈", "快速自愈", "极速自愈", "瞬愈"],
+    energy: ["凡人能量", "砖级能量", "墙级能量", "房屋级能量", "楼级能量", "街区级能量", "城市级能量", "国家级能量", "大陆级能量", "地表级能量", "行星级能量", "恒星级能量", "星系级能量", "超星系团级能量", "有限宇宙级能量", "无限级能量"],
+    energyRegen: ["无回能", "缓慢回能", "常规回能", "快速回能", "极速回能", "无限回能"]
+  };
+  const unrankedOptionOrder = ["无资料", "未知", "未表现", "不适用"];
+  const state = {
+    query: "",
+    work: "all",
+    category: "all",
+    affiliation: "all",
+    grade: "all",
+    evidenceStatus: "all",
+    auditWork: "all",
+    auditEvidence: "all",
+    auditAuthority: "all",
+    rankMode: "exact",
+    dimensionFilters: {},
+    mode: "grid",
+    sort: "name"
+  };
+
+  dimensions.forEach((dimension) => {
+    state.dimensionFilters[dimension.key] = "all";
+  });
+
+  window.addEventListener("hashchange", renderRoute);
+  renderRoute();
+
+  function renderRoute() {
+    const route = location.hash.replace(/^#/, "") || "/";
+    const segments = route.split("/").filter(Boolean).map((part) => decodeURIComponent(part));
+    if (segments[0] === "character") {
+      const target = resolveCharacterRoute(segments.slice(1));
+      if (target) {
+        renderCharacter(target.character, target.stageKey);
+      } else {
+        renderMissing("未找到角色", "#/", "返回角色检索");
+      }
+      return;
+    }
+    if (segments[0] === "work" && segments[1]) {
+      renderWorkPage(segments[1]);
+      return;
+    }
+    if (route === "/audit") {
+      renderAudit();
+      return;
+    }
+    if (route === "/about") {
+      renderAbout();
+      return;
+    }
+    if (route === "/reference") {
+      renderReference();
+      return;
+    }
+    renderHome();
+  }
+
+  function resolveCharacterRoute(parts) {
+    if (!parts.length) return null;
+    if (parts.length >= 2) {
+      const workName = resolveWorkName(parts[0]);
+      if (workName) {
+        const character = characters.find((item) => item.work === workName && item.id === parts[1]);
+        if (character) return { character, stageKey: parts[2] || "" };
+      }
+    }
+    const character = characters.find((item) => item.id === parts[0]);
+    return character ? { character, stageKey: parts[1] || "" } : null;
+  }
+
+  function renderMissing(title, href, label) {
+    app.innerHTML = `
+      <section class="empty-state">
+        <h1>${escapeHtml(title)}</h1>
+        <p><a href="${escapeAttribute(href)}">${escapeHtml(label)}</a></p>
+      </section>
+    `;
+  }
+
+  function renderHome() {
+    app.innerHTML = `
+      <div class="wiki-grid">
+        <aside class="filters" aria-label="角色筛选器">
+          <div class="filter-header">
+            <h1>角色检索</h1>
+            <p>当前按作品维护核心战斗角色；搜索结果只展示 8 个主维度简介，细节、争议和来源在角色页查看。</p>
+          </div>
+          <form class="filter-body" id="filterForm">
+            <div class="field">
+              <label for="searchInput">角色名字</label>
+              <input id="searchInput" name="query" type="search" placeholder="中文 / 英文 / 别名" autocomplete="off">
+            </div>
+            <div class="field">
+              <label for="workFilter">作品</label>
+              <select id="workFilter" name="work"></select>
+            </div>
+            <div class="field">
+              <label for="categoryFilter">分类</label>
+              <select id="categoryFilter" name="category"></select>
+            </div>
+            <div class="field">
+              <label for="affiliationFilter">所属</label>
+              <select id="affiliationFilter" name="affiliation"></select>
+            </div>
+            <div class="field">
+              <label for="gradeFilter">等级 / 定位</label>
+              <select id="gradeFilter" name="grade"></select>
+            </div>
+            <div class="field">
+              <label for="sortFilter">排序</label>
+              <select id="sortFilter" name="sort">
+                <option value="name">按名字</option>
+                <option value="category">按分类</option>
+                <option value="grade">按等级 / 定位</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="evidenceFilter">证据状态</label>
+              <select id="evidenceFilter" name="evidenceStatus">
+                <option value="all">全部证据状态</option>
+                <option value="stable">稳定</option>
+                <option value="review">待审 / 有警告</option>
+                <option value="disputed">争议</option>
+                <option value="bounded">仅下限 / 仅上限</option>
+                <option value="external">外源 / 一次性 / 特殊峰值</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="rankModeFilter">维度筛选模式</label>
+              <select id="rankModeFilter" name="rankMode">
+                <option value="exact">精确匹配</option>
+                <option value="gte">至少该档</option>
+              </select>
+            </div>
+            <div class="dimension-filter-grid" aria-label="8 个主维度筛选">
+              ${dimensions
+                .map(
+                  (dimension) => `
+                    <div class="field">
+                      <label for="${dimension.key}Filter">${dimension.label}</label>
+                      <select id="${dimension.key}Filter" name="${dimension.key}"></select>
+                    </div>
+                  `
+                )
+                .join("")}
+            </div>
+            <div class="filter-actions">
+              <button class="primary-action" type="submit">应用筛选</button>
+              <button class="small-action" type="button" id="resetFilters">重置</button>
+            </div>
+          </form>
+        </aside>
+        <section class="content-column" aria-live="polite">
+          <div class="toolbar">
+            <div class="result-count" id="resultCount"></div>
+            <div class="view-tools">
+              <button class="chip-button" type="button" id="gridMode" aria-pressed="true">网格</button>
+              <button class="chip-button" type="button" id="listMode" aria-pressed="false">密集</button>
+            </div>
+          </div>
+          <div id="workScope"></div>
+          <div class="results" id="results"></div>
+        </section>
+      </div>
+    `;
+
+    hydrateFilters();
+    renderResults();
+  }
+
+  function hydrateFilters() {
+    const form = document.getElementById("filterForm");
+    setSelectOptions("workFilter", ["all", ...collectValues((item) => [item.work])], "全部作品");
+
+    form.querySelector("[name='query']").value = state.query;
+    form.querySelector("[name='work']").value = state.work;
+    form.querySelector("[name='sort']").value = state.sort;
+    form.querySelector("[name='evidenceStatus']").value = state.evidenceStatus;
+    form.querySelector("[name='rankMode']").value = state.rankMode;
+    hydrateScopedFilters(form);
+
+    form.addEventListener("input", (event) => {
+      if (event.target.name === "query") {
+        state.query = event.target.value.trim();
+        renderResults();
+      }
+    });
+    form.addEventListener("change", (event) => {
+      readForm(form);
+      if (event.target.name === "work") {
+        hydrateScopedFilters(form);
+      }
+      renderResults();
+    });
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      readForm(form);
+      hydrateScopedFilters(form);
+      renderResults();
+    });
+    document.getElementById("resetFilters").addEventListener("click", () => {
+      state.query = "";
+      state.work = "all";
+      state.category = "all";
+      state.affiliation = "all";
+      state.grade = "all";
+      state.evidenceStatus = "all";
+      state.rankMode = "exact";
+      state.sort = "name";
+      dimensions.forEach((dimension) => {
+        state.dimensionFilters[dimension.key] = "all";
+      });
+      renderHome();
+    });
+    document.getElementById("gridMode").addEventListener("click", () => {
+      state.mode = "grid";
+      renderResults();
+    });
+    document.getElementById("listMode").addEventListener("click", () => {
+      state.mode = "list";
+      renderResults();
+    });
+  }
+
+  function hydrateScopedFilters(form) {
+    const scoped = state.work === "all" ? characters : characters.filter((item) => item.work === state.work);
+    setScopedSelectOptions(form, "category", "categoryFilter", "全部分类", scoped);
+    setScopedSelectOptions(form, "affiliation", "affiliationFilter", "全部所属", scoped);
+    setScopedSelectOptions(form, "grade", "gradeFilter", "全部等级 / 定位", scoped);
+    hydrateDimensionFilters(form, scoped);
+  }
+
+  function setScopedSelectOptions(form, stateKey, id, allLabel, scopedCharacters) {
+    const values = collectValues((item) => [item[stateKey]], scopedCharacters);
+    if (state[stateKey] !== "all" && !values.includes(state[stateKey])) {
+      state[stateKey] = "all";
+    }
+    setSelectOptions(id, ["all", ...values], allLabel);
+    form.querySelector(`[name='${stateKey}']`).value = state[stateKey];
+  }
+
+  function readForm(form) {
+    state.query = form.querySelector("[name='query']").value.trim();
+    state.work = form.querySelector("[name='work']").value;
+    state.category = form.querySelector("[name='category']").value;
+    state.affiliation = form.querySelector("[name='affiliation']").value;
+    state.grade = form.querySelector("[name='grade']").value;
+    state.evidenceStatus = form.querySelector("[name='evidenceStatus']").value;
+    state.rankMode = form.querySelector("[name='rankMode']").value;
+    state.sort = form.querySelector("[name='sort']").value;
+    dimensions.forEach((dimension) => {
+      state.dimensionFilters[dimension.key] = form.querySelector(`[name='${dimension.key}']`).value;
+    });
+  }
+
+  function setSelectOptions(id, values, allLabel) {
+    const element = document.getElementById(id);
+    element.innerHTML = values
+      .map((value) => `<option value="${escapeAttribute(value)}">${escapeHtml(value === "all" ? allLabel : value)}</option>`)
+      .join("");
+  }
+
+  function collectValues(project, source = characters) {
+    return [
+      ...new Set(
+        source
+          .flatMap(project)
+          .filter(Boolean)
+          .map((value) => String(value).trim())
+          .filter(Boolean)
+      )
+    ].sort((a, b) => a.localeCompare(b, "zh-Hans-CN"));
+  }
+
+  function hydrateDimensionFilters(form, scopedCharacters) {
+    dimensions.forEach((dimension) => {
+      const values = collectRankValues(dimension.key, scopedCharacters);
+      if (state.dimensionFilters[dimension.key] !== "all" && !values.includes(state.dimensionFilters[dimension.key])) {
+        state.dimensionFilters[dimension.key] = "all";
+      }
+      setSelectOptions(`${dimension.key}Filter`, ["all", ...values], `全部${dimension.label}`);
+      form.querySelector(`[name='${dimension.key}']`).value = state.dimensionFilters[dimension.key];
+    });
+  }
+
+  function collectRankValues(key, source = characters) {
+    return [
+      ...new Set(
+        source
+          .flatMap((item) => {
+            const entry = item.dimensions[key];
+            return [baseRank(entry.normal), baseRank(entry.peak)];
+          })
+          .filter(Boolean)
+          .map((value) => String(value).trim())
+          .filter(Boolean)
+      )
+    ].sort((a, b) => compareRankOption(key, a, b));
+  }
+
+  function compareRankOption(key, a, b) {
+    const order = rankOrders[key] || [];
+    const aIndex = order.indexOf(a);
+    const bIndex = order.indexOf(b);
+    if (aIndex >= 0 && bIndex >= 0) return aIndex - bIndex;
+    if (aIndex >= 0) return -1;
+    if (bIndex >= 0) return 1;
+
+    const aUnranked = unrankedOptionOrder.indexOf(a);
+    const bUnranked = unrankedOptionOrder.indexOf(b);
+    if (aUnranked >= 0 && bUnranked >= 0) return aUnranked - bUnranked;
+    if (aUnranked >= 0) return 1;
+    if (bUnranked >= 0) return -1;
+
+    return a.localeCompare(b, "zh-Hans-CN");
+  }
+
+  function getFilteredCharacters() {
+    const query = normalize(state.query);
+    return characters
+      .filter((item) => {
+        const haystack = normalize([item.name, item.en, item.ja, item.timelineStatus, ...(item.aliases || [])].join(" "));
+        if (query && !haystack.includes(query)) return false;
+        if (state.work !== "all" && item.work !== state.work) return false;
+        if (state.category !== "all" && item.category !== state.category) return false;
+        if (state.affiliation !== "all" && item.affiliation !== state.affiliation) return false;
+        if (state.grade !== "all" && item.grade !== state.grade) return false;
+        if (!matchesEvidenceStatus(item, state.evidenceStatus)) return false;
+        return dimensions.every((dimension) => {
+          const filter = state.dimensionFilters[dimension.key];
+          if (filter === "all") return true;
+          const entry = item.dimensions[dimension.key];
+          return matchesDimensionRank(dimension.key, entry, filter);
+        });
+      })
+      .sort(sortCharacters);
+  }
+
+  function matchesEvidenceStatus(character, filter) {
+    if (filter === "all") return true;
+    const text = characterAuditText(character);
+    if (filter === "stable") return character.confidence === "stable" && !(character.auditWarnings || []).length;
+    if (filter === "review") return character.confidence === "review" || (character.auditWarnings || []).length > 0;
+    if (filter === "disputed") return character.confidence === "disputed" || text.includes("争议");
+    if (filter === "bounded") return text.includes("仅下限") || text.includes("仅上限");
+    if (filter === "external") return /外源|一次性|仪式|特殊位移|不可控|剧情限定|装备/.test(text);
+    return true;
+  }
+
+  function matchesDimensionRank(key, entry, filter) {
+    if (state.rankMode !== "gte") {
+      return baseRank(entry.normal) === filter || baseRank(entry.peak) === filter;
+    }
+    const order = rankOrders[key] || [];
+    const target = order.indexOf(filter);
+    if (target < 0) {
+      return baseRank(entry.normal) === filter || baseRank(entry.peak) === filter;
+    }
+    return [entry.normal, entry.peak].some((value) => {
+      const index = order.indexOf(baseRank(value));
+      return index >= target;
+    });
+  }
+
+  function sortCharacters(a, b) {
+    if (state.sort === "category") {
+      return compare(a.category, b.category) || compare(a.name, b.name);
+    }
+    if (state.sort === "grade") {
+      return compare(a.grade, b.grade) || compare(a.name, b.name);
+    }
+    return compare(a.name, b.name);
+  }
+
+  function compare(a, b) {
+    return String(a).localeCompare(String(b), "zh-Hans-CN");
+  }
+
+  function renderResults() {
+    const resultCount = document.getElementById("resultCount");
+    const results = document.getElementById("results");
+    const workScope = document.getElementById("workScope");
+    const gridButton = document.getElementById("gridMode");
+    const listButton = document.getElementById("listMode");
+    const filtered = getFilteredCharacters();
+
+    gridButton.setAttribute("aria-pressed", String(state.mode === "grid"));
+    listButton.setAttribute("aria-pressed", String(state.mode === "list"));
+    results.className = `results ${state.mode === "list" ? "list-mode" : ""}`;
+    resultCount.innerHTML = `已显示 <strong>${filtered.length}</strong> / ${characters.length} 个角色`;
+    workScope.innerHTML = renderWorkScope();
+
+    if (!filtered.length) {
+      results.innerHTML = `
+        <div class="empty-state">
+          <h2>没有匹配角色</h2>
+          <p>放宽名字、作品、分类或 8 维面板筛选后再试。</p>
+        </div>
+      `;
+      return;
+    }
+
+    results.innerHTML = filtered.map(renderCharacterRow).join("");
+  }
+
+  function renderWorkScope() {
+    if (state.work === "all") {
+      const reviewCount = characters.filter((item) => matchesEvidenceStatus(item, "review") || matchesEvidenceStatus(item, "disputed")).length;
+      return `
+        <section class="scope-note">
+          <strong>全站范围</strong>
+          <span>当前只维护各作品核心战斗角色；长尾角色、非战斗角色和纯剧情角色等待明确需求或社区 PR。</span>
+          <span>待审/争议条目：${reviewCount}。</span>
+        </section>
+      `;
+    }
+    const source = workSources[state.work] || {};
+    const notes = source.scaleNotes || {};
+    const items = [
+      notes.scope,
+      notes.versionPolicy,
+      notes.conservativeNotes,
+      notes.sourcePolicy || source.sourcePolicy
+    ].filter(Boolean);
+    const highRisk = Array.isArray(notes.highRisk) ? notes.highRisk : [];
+    if (!items.length && !highRisk.length) return "";
+    return `
+      <section class="scope-note">
+        <strong>${escapeHtml(state.work)} 收录口径</strong>
+        ${items.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}
+        ${highRisk.length ? `<span>高风险机制：${escapeHtml(highRisk.join(" / "))}</span>` : ""}
+        <span><a href="${escapeAttribute(workHref(state.work))}">查看作品页</a></span>
+      </section>
+    `;
+  }
+
+  function renderCharacterRow(character) {
+    return `
+      <article class="character-row">
+        <div class="character-heading">
+          <div>
+            <h2><a href="${escapeAttribute(characterHref(character))}">${escapeHtml(character.name)}</a></h2>
+            <div class="meta-line">${escapeHtml(character.en)} · <a href="${escapeAttribute(workHref(character.work))}">${escapeHtml(character.work)}</a> · ${escapeHtml(character.affiliation)}</div>
+            ${character.timelineStatus ? `<div class="meta-line">时间线状态：${escapeHtml(character.timelineStatus)}</div>` : ""}
+            <div class="alias-line">${escapeHtml([character.ja, ...(character.aliases || [])].filter(Boolean).join(" / "))}</div>
+          </div>
+          <div class="badge-list" aria-label="角色标签">
+            <span class="badge is-category">${escapeHtml(character.category)}</span>
+            <span class="badge is-grade">${escapeHtml(character.grade)}</span>
+            <span class="badge${confidenceBadgeClass(character.confidence)}">口径：${escapeHtml(confidenceLabel(character.confidence))}</span>
+            ${timelineCount(character) > 1 ? `<span class="badge">时间线 ${timelineCount(character)}</span>` : ""}
+            ${character.auditWarnings && character.auditWarnings.length ? `<span class="badge is-warning">待审 ${character.auditWarnings.length}</span>` : ""}
+          </div>
+        </div>
+        <div class="dimension-grid" aria-label="${escapeAttribute(character.name)} 的 8 个主维度简介">
+          ${dimensions.map((dimension) => renderDimensionCell(character, dimension)).join("")}
+        </div>
+      </article>
+    `;
+  }
+
+  function renderDimensionCell(character, dimension) {
+    const entry = character.dimensions[dimension.key];
+    return `
+      <div class="dimension-cell">
+        <span class="dimension-label">${escapeHtml(dimension.label)}</span>
+        <span class="dimension-value">常态【${escapeHtml(entry.normal)}】/ 峰值【${escapeHtml(entry.peak)}】</span>
+      </div>
+    `;
+  }
+
+  function renderCharacter(target, stageKey = "") {
+    const character = typeof target === "string" ? characters.find((item) => item.id === target) : target;
+    if (!character) {
+      renderMissing("未找到角色", "#/", "返回角色检索");
+      return;
+    }
+    const panels = getTimelineEntries(character);
+    const activeIndex = resolveTimelineIndex(panels, stageKey, character.defaultTimelineKey);
+    const activePanel = panels[activeIndex];
+
+    app.innerHTML = `
+      <section class="detail-page">
+        <div class="back-line"><a href="#/">← 返回角色检索</a></div>
+        <article class="detail-card">
+          <header class="detail-header">
+            <h1>${escapeHtml(character.name)}</h1>
+            <p class="detail-subtitle">${escapeHtml(character.en)} · ${escapeHtml(character.ja || "")}</p>
+            <div class="detail-meta">
+              <span class="badge is-category">${escapeHtml(character.category)}</span>
+              <a class="badge is-work-link" href="${escapeAttribute(workHref(character.work))}">作品：${escapeHtml(character.work)}</a>
+              <span class="badge">${escapeHtml(character.affiliation)}</span>
+              <span class="badge is-grade">${escapeHtml(character.grade)}</span>
+              <span class="badge${confidenceBadgeClass(character.confidence)}">口径：${escapeHtml(confidenceLabel(character.confidence))}</span>
+              ${renderSourceQualityBadge(character)}
+              ${character.timelineStatus ? `<span class="badge">时间线状态：${escapeHtml(character.timelineStatus)}</span>` : ""}
+              ${character.appearances.map((appearance) => `<span class="badge">${escapeHtml(appearance)}</span>`).join("")}
+            </div>
+          </header>
+          <div class="detail-layout">
+            ${renderTimelineNav(character, panels, activeIndex)}
+            <div class="detail-body">
+              ${renderTimelineDetail(character, activePanel)}
+            </div>
+          </div>
+        </article>
+      </section>
+    `;
+  }
+
+  function getTimelineEntries(character) {
+    const panels = Array.isArray(character.timelinePanels) ? character.timelinePanels : [];
+    if (panels.length > 1) {
+      return panels.map((panel, index) => ({
+        key: panel.key || `stage-${index + 1}`,
+        label: panel.label || `时间线 ${index + 1}`,
+        status: panel.status || "",
+        dimensions: panel.dimensions || character.dimensions,
+        notes: panel.notes || "",
+        confidence: panel.confidence || character.confidence,
+        evidenceType: panel.evidenceType || character.evidenceType || []
+      }));
+    }
+    return [{
+      key: "current",
+      label: character.timelineStatus || "当前主面板",
+      status: character.timelineStatus || "",
+      dimensions: character.dimensions,
+      notes: "当前维护版本。",
+      confidence: character.confidence,
+      evidenceType: character.evidenceType || []
+    }];
+  }
+
+  function resolveTimelineIndex(panels, stageKey, defaultTimelineKey = "") {
+    if (stageKey) {
+      const index = panels.findIndex((panel) => panel.key === stageKey);
+      if (index >= 0) return index;
+    }
+    if (!stageKey && defaultTimelineKey) {
+      const defaultIndex = panels.findIndex((panel) => panel.key === defaultTimelineKey);
+      if (defaultIndex >= 0) return defaultIndex;
+    }
+    return Math.max(0, panels.length - 1);
+  }
+
+  function renderTimelineNav(character, panels, activeIndex) {
+    return `
+      <aside class="timeline-tabs" aria-label="角色时间线">
+        <div class="timeline-tabs-title">时间线</div>
+        ${panels.map((panel, index) => `
+          <a class="timeline-tab ${activeIndex === index ? "is-active" : ""}" href="${escapeAttribute(characterHref(character, panel.key))}" aria-current="${activeIndex === index ? "page" : "false"}">
+            <span>${escapeHtml(panel.label)}</span>
+            ${panel.status ? `<small>${escapeHtml(panel.status)}</small>` : ""}
+          </a>
+        `).join("")}
+      </aside>
+    `;
+  }
+
+  function renderTimelineDetail(character, panel) {
+    return `
+      ${renderAuditWarnings(character)}
+      <section class="active-timeline-panel">
+        <header>
+          <h2>${escapeHtml(panel.label)}</h2>
+          ${panel.status ? `<p>${escapeHtml(panel.status)}</p>` : ""}
+        </header>
+        <table class="dimension-table">
+          <thead>
+            <tr>
+              <th scope="col">主维度</th>
+              <th scope="col">常态</th>
+              <th scope="col">峰值</th>
+              <th scope="col">简介</th>
+              <th scope="col">证据 / 限制</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${dimensions.map((dimension) => renderTimelineDimensionRow(panel, dimension)).join("")}
+          </tbody>
+        </table>
+        ${panel.notes ? `<p class="timeline-panel-note">${escapeHtml(panel.notes)}</p>` : ""}
+      </section>
+      <div class="notes-grid">
+        ${renderNote("攻击性质", character.notes.penetration)}
+        ${renderNote("防御抗性", character.notes.resistance)}
+        ${renderNote("特殊权能", character.notes.special)}
+        ${renderNote("角色短板", character.notes.weakness)}
+        ${renderNote("设定/旁白", character.notes.setting)}
+        ${renderNote("评级依据", character.notes.basis)}
+      </div>
+      ${renderRevisionNotes(character)}
+      ${renderEvidenceMeta(character)}
+      ${renderSourceLinks(character)}
+    `;
+  }
+
+  function renderTimelineDimensionRow(panel, dimension) {
+    const entry = panel.dimensions[dimension.key];
+    return `
+      <tr>
+        <th scope="row">${escapeHtml(dimension.label)}</th>
+        <td>【${escapeHtml(entry.normal)}】</td>
+        <td>【${escapeHtml(entry.peak)}】</td>
+        <td>${escapeHtml(entry.brief || "按常态/峰值双档记录。")}</td>
+        <td>${renderEvidenceList(entry.evidence && entry.evidence.length ? entry.evidence : [entry.brief || "按常态/峰值双档记录。"])}</td>
+      </tr>
+    `;
+  }
+
+  function renderSourceQualityBadge(character, includeLabel = true) {
+    const quality = evidenceQuality(character);
+    const source = workSources[character.work] || {};
+    const label = includeLabel ? "来源：" : "";
+    if (quality.hasRatingEvidence && quality.hasAuthoritative && (!source.originalLanguage || quality.hasOriginalLanguage)) {
+      return `<span class="badge is-source">${label}含原作/官方量级依据</span>`;
+    }
+    if (quality.hasRatingEvidence && quality.hasAuthoritative) return `<span class="badge is-source">${label}含官方量级依据</span>`;
+    if (quality.hasRatingEvidence) return `<span class="badge is-source">${label}含量级依据</span>`;
+    if (quality.hasLinks) return `<span class="badge is-warning">${label}仅入口/跨界参考</span>`;
+    return `<span class="badge is-warning">${label}待补具体依据</span>`;
+  }
+
+  function hasSpecificEvidence(character) {
+    return evidenceQuality(character).hasRatingEvidence;
+  }
+
+  function renderEvidenceMeta(character) {
+    const evidenceTypes = character.evidenceType && character.evidenceType.length ? character.evidenceType : inferEvidenceTypes(character);
+    return `
+      <section class="note-block">
+        <h3>评级与来源状态</h3>
+        <div class="evidence-status-grid">
+          <div class="evidence-status-row">
+            <span class="evidence-status-label">评级口径</span>
+            <div class="evidence-chip-list">
+              <span class="badge${confidenceBadgeClass(character.confidence)}">${escapeHtml(confidenceLabel(character.confidence))}</span>
+            </div>
+          </div>
+          <div class="evidence-status-row">
+            <span class="evidence-status-label">依据类型</span>
+            <div class="evidence-chip-list">
+              ${evidenceTypes.map((item) => `<span class="badge is-source">${escapeHtml(item)}</span>`).join("")}
+            </div>
+          </div>
+          <div class="evidence-status-row">
+            <span class="evidence-status-label">来源状态</span>
+            <div class="evidence-chip-list">
+              ${renderSourceQualityBadge(character, false)}
+            </div>
+          </div>
+        </div>
+      </section>
+    `;
+  }
+
+  function renderAuditWarnings(character) {
+    const warnings = character.auditWarnings || [];
+    if (!warnings.length) return "";
+    return `
+      <section class="audit-warning">
+        <h2>待审提示</h2>
+        <ul>
+          ${warnings.map((warning) => `<li>${escapeHtml(warning)}</li>`).join("")}
+        </ul>
+      </section>
+    `;
+  }
+
+  function renderEvidenceList(items) {
+    return `<ul class="evidence-list">${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
+  }
+
+  function sourceKey(link) {
+    const url = (link.url || "").split("#")[0].replace(/\/$/, "").toLowerCase();
+    if (url) return `url:${url}`;
+    return `text:${[link.type, link.scope, link.label, link.citation].filter(Boolean).join("|").toLowerCase()}`;
+  }
+
+  function uniqueSourceLinks(links, blockedKeys = new Set()) {
+    const seen = new Set(blockedKeys);
+    const result = [];
+    for (const link of links) {
+      const key = sourceKey(link);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      result.push(link);
+    }
+    return result;
+  }
+
+  function renderSourceItem(link) {
+    return `
+      <li>
+        ${renderSourceLink(link)}
+        ${renderSourceMeta(link)}
+        ${link.citation ? `<span class="source-citation">${escapeHtml(link.citation)}</span>` : ""}
+        ${link.claim ? `<span class="source-claim">${escapeHtml(link.claim)}</span>` : ""}
+      </li>
+    `;
+  }
+
+  function renderSourceLinks(character) {
+    const evidenceLinks = character.evidenceLinks || [];
+    const ratingLinks = uniqueSourceLinks(evidenceLinks.filter((link) => link.ratingEvidence));
+    const ratingKeys = new Set(ratingLinks.map(sourceKey));
+    const referenceLinks = uniqueSourceLinks([
+      ...evidenceLinks.filter((link) => !link.ratingEvidence),
+      ...(character.links || [])
+    ], ratingKeys);
+    return `
+      <section class="note-block">
+        <h3>来源</h3>
+        <p class="source-help">量级依据用于支撑定级、形态、换算或高风险档位，并参与待审检查；资料入口只用于追溯角色、作品和形态资料，不单独证明高风险量级。</p>
+        ${ratingLinks.length ? `
+          <h4 class="source-group-title">量级依据</h4>
+          <ul class="source-list source-list-block">
+            ${ratingLinks.map(renderSourceItem).join("")}
+          </ul>
+        ` : `<p>当前仍缺少章节、集数、设定书级量级依据；可在后续 PR 中补充到 <code>evidenceLinks</code>。</p>`}
+        ${referenceLinks.length ? `
+          <h4 class="source-group-title">资料入口</h4>
+          <ul class="source-list source-list-block">
+            ${referenceLinks.map(renderSourceItem).join("")}
+          </ul>
+        ` : ""}
+      </section>
+    `;
+  }
+
+  function renderRevisionNotes(character) {
+    const revisions = character.revisionNotes || [];
+    if (!revisions.length) return "";
+    return `
+      <section class="note-block">
+        <h3>定级变更记录</h3>
+        <ul class="evidence-list">
+          ${revisions.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
+        </ul>
+      </section>
+    `;
+  }
+
+  function renderAudit() {
+    const audited = characters.filter((character) => auditFindings(character).length);
+    const filtered = audited.filter(matchesAuditFilters);
+    const byWork = groupBy(filtered, (character) => character.work);
+    const auditWorks = ["all", ...collectValues((character) => [character.work], audited)];
+    app.innerHTML = `
+      <section class="audit-page">
+        <div class="back-line"><a href="#/">← 返回角色检索</a></div>
+        <header class="reference-header">
+          <div>
+            <h1>证据审计</h1>
+            <p>集中列出高风险量级、争议峰值或待补章节/集数/设定书级来源的角色，方便社区 PR 逐项补证据。</p>
+          </div>
+          <span class="badge is-warning">待审 ${audited.length}</span>
+        </header>
+        <form class="audit-filter-bar" id="auditFilterForm">
+          <div class="field">
+            <label for="auditWorkFilter">作品</label>
+            <select id="auditWorkFilter" name="auditWork">
+              ${renderSelectOptions(auditWorks, state.auditWork, "全部作品")}
+            </select>
+          </div>
+          <div class="field">
+            <label for="auditEvidenceFilter">来源质量</label>
+            <select id="auditEvidenceFilter" name="auditEvidence">
+              ${renderSelectOptions(["all", "needs-specific", "entry-only", "missing", "specific"], state.auditEvidence, "全部来源状态", {
+                "needs-specific": "缺直接量级证据",
+                "entry-only": "仅入口/非量级来源",
+                missing: "缺 evidenceLinks",
+                specific: "已有量级证据"
+              })}
+            </select>
+          </div>
+          <div class="field">
+            <label for="auditAuthorityFilter">来源权威</label>
+            <select id="auditAuthorityFilter" name="auditAuthority">
+              ${renderSelectOptions(["all", "needs-rating", "needs-authoritative", "needs-original", "reference-only", "authoritative"], state.auditAuthority, "全部权威状态", {
+                "needs-rating": "缺直接量级证据",
+                "needs-authoritative": "缺原作/官方来源",
+                "needs-original": "缺原作语言来源",
+                "reference-only": "仅入口/跨界参考",
+                authoritative: "已有权威量级来源"
+              })}
+            </select>
+          </div>
+          <span class="muted-line">当前显示 ${filtered.length} / ${audited.length} 个待审角色</span>
+        </form>
+        ${filtered.length ? Object.entries(byWork).map(([work, items]) => `
+          <section class="audit-work-section">
+            <header>
+              <h2><a href="${escapeAttribute(workHref(work))}">${escapeHtml(work)}</a></h2>
+              <span>${items.length} 个待审角色</span>
+            </header>
+            <div class="audit-list">
+              ${items.map((character) => renderAuditRow(character)).join("")}
+            </div>
+          </section>
+        `).join("") : `
+          <section class="empty-state">
+            <h2>没有符合筛选的待审条目</h2>
+            <p>当前筛选条件下没有角色触发证据审计结果。</p>
+          </section>
+        `}
+      </section>
+    `;
+    const form = document.getElementById("auditFilterForm");
+    form.addEventListener("change", () => {
+      state.auditWork = form.querySelector("[name='auditWork']").value;
+      state.auditEvidence = form.querySelector("[name='auditEvidence']").value;
+      state.auditAuthority = form.querySelector("[name='auditAuthority']").value;
+      renderAudit();
+    });
+  }
+
+  function renderSelectOptions(values, selected, allLabel, labels = {}) {
+    return values.map((value) => {
+      const label = value === "all" ? allLabel : labels[value] || value;
+      return `<option value="${escapeAttribute(value)}" ${value === selected ? "selected" : ""}>${escapeHtml(label)}</option>`;
+    }).join("");
+  }
+
+  function matchesAuditFilters(character) {
+    if (state.auditWork !== "all" && character.work !== state.auditWork) return false;
+    const quality = evidenceQuality(character);
+    if (state.auditEvidence !== "all") {
+      if (state.auditEvidence === "needs-specific" && quality.hasSpecific) return false;
+      if (state.auditEvidence === "entry-only" && (!quality.hasLinks || quality.hasSpecific)) return false;
+      if (state.auditEvidence === "missing" && quality.hasLinks) return false;
+      if (state.auditEvidence === "specific" && !quality.hasSpecific) return false;
+    }
+    return matchesAuditAuthority(quality);
+  }
+
+  function matchesAuditAuthority(quality) {
+    if (state.auditAuthority === "all") return true;
+    if (state.auditAuthority === "needs-rating") return !quality.hasRatingEvidence;
+    if (state.auditAuthority === "needs-authoritative") return !quality.hasAuthoritative;
+    if (state.auditAuthority === "needs-original") return quality.needsOriginalLanguage && !quality.hasOriginalLanguage;
+    if (state.auditAuthority === "reference-only") return quality.hasOnlyEntryOrReference;
+    if (state.auditAuthority === "authoritative") return quality.hasRatingEvidence && quality.hasAuthoritative;
+    return true;
+  }
+
+  function evidenceQuality(character) {
+    const links = character.evidenceLinks || [];
+    const source = workSources[character.work] || {};
+    const originalLanguage = source.originalLanguage || "";
+    const ratingLinks = links.filter(isRatingEvidence);
+    const hasRatingEvidence = ratingLinks.length > 0;
+    const hasAuthoritative = ratingLinks.some(isAuthoritativeEvidence);
+    const hasOriginalLanguage = Boolean(originalLanguage) && ratingLinks.some((link) => link.lang === originalLanguage);
+    return {
+      hasLinks: links.length > 0,
+      hasSpecific: hasRatingEvidence,
+      hasRatingEvidence,
+      hasAuthoritative,
+      hasOriginalLanguage,
+      needsOriginalLanguage: Boolean(originalLanguage),
+      hasOnlyEntryOrReference: links.length > 0 && !hasRatingEvidence
+    };
+  }
+
+  function isRatingEvidence(link) {
+    if (!link) return false;
+    if (link.ratingEvidence === true) return true;
+    return ["chapter", "episode", "setting"].includes(link.type) && Boolean(link.claim || link.citation);
+  }
+
+  function isAuthoritativeEvidence(link) {
+    if (!link) return false;
+    if (["primary", "official", "licensed"].includes(link.authority)) return true;
+    return ["chapter", "episode", "setting", "official"].includes(link.type) && !["wiki", "cross-reference"].includes(link.authority);
+  }
+
+  function renderAuditRow(character) {
+    const findings = auditFindings(character);
+    return `
+      <article class="audit-row">
+        <div>
+          <h3><a href="${escapeAttribute(characterHref(character))}">${escapeHtml(character.name)}</a></h3>
+          <p>${escapeHtml(character.grade)} · ${escapeHtml(character.timelineStatus || "当前主面板")}</p>
+        </div>
+        <ul class="audit-finding-list">
+          ${findings.map((finding) => `
+            <li>
+              <span class="severity-dot is-${escapeAttribute(finding.severity || "medium")}">${escapeHtml(severityLabel(finding.severity))}</span>
+              ${finding.dimensionLabel ? `<strong>${escapeHtml(finding.dimensionLabel)}</strong> ` : ""}
+              ${finding.value ? `<code>${escapeHtml(finding.value)}</code> ` : ""}
+              ${escapeHtml(finding.message)}
+            </li>
+          `).join("")}
+        </ul>
+      </article>
+    `;
+  }
+
+  function renderWorkPage(workKey) {
+    const workName = resolveWorkName(workKey);
+    if (!workName) {
+      renderMissing("未找到作品", "#/", "返回角色检索");
+      return;
+    }
+    const source = workSources[workName] || {};
+    const notes = source.scaleNotes || {};
+    const workCharacters = characters.filter((character) => character.work === workName);
+    if (!workCharacters.length && !source.pageLabel) {
+      renderMissing("未找到作品", "#/", "返回角色检索");
+      return;
+    }
+    const audited = workCharacters.filter((character) => auditFindings(character).length);
+    const highRisk = Array.isArray(notes.highRisk) ? notes.highRisk : [];
+    const workLinks = [...(source.canonicalLinks || []), ...(source.commonLinks || []), ...(source.scaleEvidenceLinks || [])];
+    app.innerHTML = `
+      <section class="work-page">
+        <div class="back-line"><a href="#/">← 返回角色检索</a></div>
+        <header class="reference-header">
+          <div>
+            <h1>${escapeHtml(workName)}</h1>
+            <p>${escapeHtml(notes.scope || "当前作品口径尚未补充。")}</p>
+          </div>
+          <span class="badge">${workCharacters.length} 个角色</span>
+        </header>
+        <section class="work-info-grid">
+          ${renderWorkInfoBlock("版本口径", notes.versionPolicy)}
+          ${renderWorkInfoBlock("保守说明", notes.conservativeNotes)}
+          ${renderWorkInfoBlock("来源策略", source.sourcePolicy)}
+          ${renderWorkInfoBlock("高风险机制", highRisk.length ? highRisk.join(" / ") : "暂无单独列出。")}
+        </section>
+        <section class="audit-work-section">
+          <header>
+            <h2>当前角色</h2>
+            <span>${workCharacters.length} 个</span>
+          </header>
+          <div class="work-character-list">
+            ${workCharacters.map((character) => `
+              <a href="${escapeAttribute(characterHref(character))}">
+                <strong>${escapeHtml(character.name)}</strong>
+                <span>${escapeHtml(character.category)} · ${escapeHtml(character.grade)}</span>
+              </a>
+            `).join("")}
+          </div>
+        </section>
+        <section class="audit-work-section">
+          <header>
+            <h2>待审条目</h2>
+            <span>${audited.length} 个</span>
+          </header>
+          ${audited.length ? `<div class="audit-list">${audited.map((character) => renderAuditRow(character)).join("")}</div>` : `<p class="muted-line">当前没有触发高风险证据警告。</p>`}
+        </section>
+        <section class="note-block">
+          <h3>作品来源</h3>
+          <ul class="source-list">
+            ${workLinks.map((link) => `<li>${renderSourceLink(link)}${renderSourceMeta(link)}${link.citation ? `<span class="source-citation">${escapeHtml(link.citation)}</span>` : ""}${link.claim ? `<span class="source-claim">${escapeHtml(link.claim)}</span>` : ""}</li>`).join("")}
+          </ul>
+        </section>
+      </section>
+    `;
+  }
+
+  function renderWorkInfoBlock(title, value) {
+    return `
+      <section class="note-block">
+        <h3>${escapeHtml(title)}</h3>
+        <p>${escapeHtml(value || "未补充。")}</p>
+      </section>
+    `;
+  }
+
+  function renderSourceLink(link) {
+    const label = link.scope ? `${link.scope}：${link.label}` : link.label;
+    if (link.url) {
+      return `<a href="${escapeAttribute(link.url)}" target="_blank" rel="noreferrer">${escapeHtml(label)}</a>`;
+    }
+    return `<span class="source-title">${escapeHtml(label)}</span>`;
+  }
+
+  function renderSourceMeta(link) {
+    const parts = [
+      sourceTypeLabel(link.type),
+      languageLabel(link.lang),
+      authorityLabel(link.authority),
+      mediumLabel(link.medium),
+      link.ratingEvidence ? "量级依据" : ""
+    ].filter(Boolean);
+    return parts.length ? `<span class="source-meta">${escapeHtml(parts.join(" / "))}</span>` : "";
+  }
+
+  function sourceTypeLabel(value) {
+    const labels = {
+      chapter: "章节",
+      episode: "集数",
+      setting: "设定",
+      official: "官方",
+      wiki: "维基",
+      source: "来源"
+    };
+    return labels[value] || value || "";
+  }
+
+  function languageLabel(value) {
+    const labels = {
+      ja: "日文",
+      zh: "中文",
+      en: "英文",
+      other: "其他语言"
+    };
+    return labels[value] || "";
+  }
+
+  function authorityLabel(value) {
+    const labels = {
+      primary: "原作",
+      official: "官方",
+      licensed: "授权",
+      wiki: "粉丝维基",
+      "cross-reference": "跨界参考",
+      analysis: "二次分析"
+    };
+    return labels[value] || value || "";
+  }
+
+  function mediumLabel(value) {
+    const labels = {
+      manga: "漫画",
+      anime: "动画",
+      databook: "设定书",
+      "official-site": "官方站",
+      publisher: "出版社",
+      wiki: "Wiki",
+      "cross-wiki": "跨界站",
+      print: "纸质",
+      other: "其他媒介"
+    };
+    return labels[value] || value || "";
+  }
+
+  function groupBy(items, project) {
+    return items.reduce((result, item) => {
+      const key = project(item);
+      result[key] = result[key] || [];
+      result[key].push(item);
+      return result;
+    }, {});
+  }
+
+  function workHref(work) {
+    const source = workSources[work] || {};
+    return `#/work/${encodeURIComponent(source.slug || work)}`;
+  }
+
+  function characterHref(character, stageKey = "") {
+    const base = `#/character/${encodeURIComponent(character.workSlug || workSlugForName(character.work) || character.work)}/${encodeURIComponent(character.id)}`;
+    return stageKey ? `${base}/${encodeURIComponent(stageKey)}` : base;
+  }
+
+  function resolveWorkName(key) {
+    if (workSources[key]) return key;
+    return Object.keys(workSources).find((work) => (workSources[work] && workSources[work].slug) === key) || "";
+  }
+
+  function workSlugForName(work) {
+    return workSources[work] && workSources[work].slug;
+  }
+
+  function timelineCount(character) {
+    return Array.isArray(character.timelinePanels) && character.timelinePanels.length > 1 ? character.timelinePanels.length : 1;
+  }
+
+  function auditFindings(character) {
+    if (Array.isArray(character.auditFindings) && character.auditFindings.length) return character.auditFindings;
+    return (character.auditWarnings || []).map((message) => ({
+      severity: "medium",
+      dimensionLabel: "",
+      value: "",
+      message
+    }));
+  }
+
+  function severityLabel(value) {
+    if (value === "high") return "高";
+    if (value === "low") return "低";
+    return "中";
+  }
+
+  function renderNote(title, content) {
+    return `
+      <section class="note-block">
+        <h3>${escapeHtml(title)}</h3>
+        <p>${escapeHtml(content || "未补充。")}</p>
+      </section>
+    `;
+  }
+
+  function confidenceLabel(value) {
+    return confidenceLabels[value] || "待审";
+  }
+
+  function confidenceBadgeClass(value) {
+    return value === "disputed" || value === "review" ? " is-warning" : "";
+  }
+
+  function inferEvidenceTypes(character) {
+    const text = characterAuditText(character);
+    const types = [];
+    if (/直接|表现|破坏|承受|战斗/.test(text)) types.push("表现");
+    if (/设定|旁白|宣称/.test(text)) types.push("设定");
+    if (/换算|约|km|Mach|光速|焦耳/.test(text)) types.push("换算");
+    if (/外源|装备|契约|仪式|一次性/.test(text)) types.push("条件峰值");
+    if (/权能|空间|时间|封印|支配|未来|预知/.test(text)) types.push("权能项");
+    return types.length ? [...new Set(types)] : ["初稿"];
+  }
+
+  function characterAuditText(character) {
+    return JSON.stringify({
+      confidence: character.confidence,
+      dimensions: character.dimensions,
+      notes: character.notes,
+      auditWarnings: character.auditWarnings,
+      evidenceType: character.evidenceType
+    });
+  }
+
+  function renderAbout() {
+    app.innerHTML = `
+      <section class="about-page">
+        <div class="back-line"><a href="#/">← 返回角色检索</a></div>
+        <header class="about-header detail-card">
+          <h1>录入口径</h1>
+          <p>本站是跨界战力维基，按仓库中的 <code>reference.md</code> 做纯裸面板录入：主表只展示 8 个主维度，不判定实战胜负，非战斗角色已从收录结果中跳过。</p>
+        </header>
+        <section class="about-section">
+          <h2>8 个主维度</h2>
+          <ul class="schema-list">
+            ${dimensions.map((dimension) => `<li>${escapeHtml(dimension.label)}</li>`).join("")}
+          </ul>
+        </section>
+        <section class="about-section">
+          <h2>静态部署</h2>
+          <p>项目没有后端、没有构建依赖。作品元数据放在 <code>data/works/*.js</code>，角色按单文件放在 <code>data/characters/&lt;work-slug&gt;/</code>，GitHub Pages 可直接发布仓库根目录，Vercel 可按静态站点导入并使用 <code>vercel.json</code> 的静态配置。</p>
+        </section>
+        <section class="about-section">
+          <h2>数据边界</h2>
+          <p>《咒术回战》只收录主角团和最终 Boss 两面宿傩；里香、魔虚罗等召唤/外置战力只写入对应角色的战力解释项，不再单独成条目。</p>
+          <p>《鬼灭之刃》当前只收录主角团和最终 Boss 鬼舞辻无惨；柱和十二鬼月暂不进入本版结果。</p>
+          <p>新增作品默认只收录核心队伍、核心战力和最终 Boss / 中央反派；长尾角色、非战斗角色和纯剧情人物等待明确需求或社区 PR。</p>
+          <p>每个作品都按 <code>reference.md</code> 的通用规则和自身证据定级，不维护隐藏的作品专属禁用上限。证据支持更高主档时，应逐条给出破坏、承受、速度或能量依据。</p>
+          <p>领域、必中、规则、灵魂、空间、黑洞、世界斩等特殊杀伤只进标签或战力解释项；除非原作给出可换算表现，否则不折算为更高主面板等级。</p>
+        </section>
+      </section>
+    `;
+  }
+
+  function renderReference() {
+    const source = window.POWER_WIKI_REFERENCE_MD || "";
+    const rendered = renderMarkdownDocument(source);
+    app.innerHTML = `
+      <section class="reference-page">
+        <div class="back-line"><a href="#/">← 返回角色检索</a></div>
+        <header class="reference-header">
+          <div>
+            <h1>量级体系</h1>
+            <p>站内渲染版来自 <code>reference.md</code>，用于社区维护时快速阅读 8 维主表、量级边界和保守定级规则。</p>
+          </div>
+          <a class="small-action" href="reference.md">查看 Markdown 原文</a>
+        </header>
+        <div class="reference-layout">
+          <aside class="reference-toc" aria-label="量级体系目录">
+            <h2>目录</h2>
+            <nav>
+              ${rendered.toc.map((item) => `<a class="toc-level-${item.level}" href="#/reference" data-reference-target="${escapeAttribute(item.id)}">${escapeHtml(item.text)}</a>`).join("")}
+            </nav>
+          </aside>
+          <article class="reference-content">
+            ${rendered.html}
+          </article>
+        </div>
+      </section>
+    `;
+    app.querySelectorAll("[data-reference-target]").forEach((link) => {
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        const target = document.getElementById(link.getAttribute("data-reference-target"));
+        if (target) {
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      });
+    });
+  }
+
+  function renderMarkdownDocument(markdown) {
+    const lines = String(markdown || "").replace(/\r\n?/g, "\n").split("\n");
+    const html = [];
+    const toc = [];
+    let paragraph = [];
+    let listType = "";
+    let listItems = [];
+    let codeLines = null;
+    let codeLang = "";
+    let headingCount = 0;
+
+    function flushParagraph() {
+      if (!paragraph.length) return;
+      html.push(`<p>${renderInline(paragraph.join(" "))}</p>`);
+      paragraph = [];
+    }
+
+    function flushList() {
+      if (!listType) return;
+      html.push(`<${listType}>${listItems.map((item) => `<li>${renderInline(item)}</li>`).join("")}</${listType}>`);
+      listType = "";
+      listItems = [];
+    }
+
+    function flushCode() {
+      if (!codeLines) return;
+      const langClass = codeLang ? ` class="language-${escapeAttribute(codeLang)}"` : "";
+      html.push(`<pre><code${langClass}>${escapeHtml(codeLines.join("\n"))}</code></pre>`);
+      codeLines = null;
+      codeLang = "";
+    }
+
+    for (let index = 0; index < lines.length; index += 1) {
+      const line = lines[index];
+      const trimmed = line.trim();
+
+      if (codeLines) {
+        if (trimmed.startsWith("```")) {
+          flushCode();
+        } else {
+          codeLines.push(line);
+        }
+        continue;
+      }
+
+      if (trimmed.startsWith("```")) {
+        flushParagraph();
+        flushList();
+        codeLines = [];
+        codeLang = trimmed.replace(/^```/, "").trim();
+        continue;
+      }
+
+      if (!trimmed) {
+        flushParagraph();
+        flushList();
+        continue;
+      }
+
+      const heading = /^(#{1,6})\s+(.+)$/.exec(trimmed);
+      if (heading) {
+        flushParagraph();
+        flushList();
+        const level = heading[1].length;
+        const text = stripMarkdown(heading[2]);
+        headingCount += 1;
+        const id = `ref-${headingCount}`;
+        if (level <= 3) {
+          toc.push({ id, level, text });
+        }
+        html.push(`<h${level} id="${id}">${renderInline(heading[2])}</h${level}>`);
+        continue;
+      }
+
+      if (isTableStart(lines, index)) {
+        flushParagraph();
+        flushList();
+        const tableLines = [lines[index], lines[index + 1]];
+        index += 2;
+        while (index < lines.length && lines[index].includes("|") && lines[index].trim()) {
+          tableLines.push(lines[index]);
+          index += 1;
+        }
+        index -= 1;
+        html.push(renderTable(tableLines));
+        continue;
+      }
+
+      const unordered = /^[-*]\s+(.+)$/.exec(trimmed);
+      const ordered = /^\d+\.\s+(.+)$/.exec(trimmed);
+      if (unordered || ordered) {
+        flushParagraph();
+        const nextType = unordered ? "ul" : "ol";
+        if (listType && listType !== nextType) {
+          flushList();
+        }
+        listType = nextType;
+        listItems.push(unordered ? unordered[1] : ordered[1]);
+        continue;
+      }
+
+      paragraph.push(trimmed);
+    }
+
+    flushParagraph();
+    flushList();
+    flushCode();
+    return { html: html.join("\n"), toc };
+  }
+
+  function isTableStart(lines, index) {
+    const current = lines[index] || "";
+    const next = lines[index + 1] || "";
+    return current.includes("|") && /^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$/.test(next);
+  }
+
+  function renderTable(lines) {
+    const rows = lines.map((line) => splitTableRow(line));
+    const head = rows[0] || [];
+    const body = rows.slice(2);
+    return `
+      <div class="reference-table-wrap">
+        <table>
+          <thead><tr>${head.map((cell) => `<th>${renderInline(cell)}</th>`).join("")}</tr></thead>
+          <tbody>
+            ${body.map((row) => `<tr>${row.map((cell) => `<td>${renderInline(cell)}</td>`).join("")}</tr>`).join("")}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  function splitTableRow(line) {
+    return line
+      .trim()
+      .replace(/^\|/, "")
+      .replace(/\|$/, "")
+      .split("|")
+      .map((cell) => cell.trim());
+  }
+
+  function renderInline(value) {
+    const escaped = escapeHtml(value);
+    return escaped
+      .replace(/`([^`]+)`/g, "<code>$1</code>")
+      .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  }
+
+  function stripMarkdown(value) {
+    return String(value || "")
+      .replace(/`([^`]+)`/g, "$1")
+      .replace(/\*\*([^*]+)\*\*/g, "$1")
+      .replace(/<[^>]*>/g, "")
+      .trim();
+  }
+
+  function normalize(value) {
+    return String(value || "")
+      .toLowerCase()
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function baseRank(value) {
+    return String(value || "")
+      .split(/[｜|]/)[0]
+      .trim();
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function escapeAttribute(value) {
+    return escapeHtml(value).replace(/`/g, "&#096;");
+  }
+})();
