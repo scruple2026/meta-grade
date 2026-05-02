@@ -268,6 +268,13 @@ button {
   outline: 3px solid rgba(11, 127, 120, 0.16);
 }
 
+.field-hint {
+  margin: -1px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
 .dimension-filter-grid {
   display: grid;
   grid-template-columns: 1fr;

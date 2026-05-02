@@ -27,6 +27,7 @@
     work: "all",
     affiliation: "all",
     evidenceStatus: "all",
+    dimensionScope: "any",
     auditWork: "all",
     auditEvidence: "all",
     auditAuthority: "all",
@@ -126,6 +127,15 @@
                 <option value="external">外源 / 一次性 / 特殊峰值</option>
               </select>
             </div>
+            <div class="field">
+              <label for="dimensionScopeFilter">8 维筛选对象</label>
+              <select id="dimensionScopeFilter" name="dimensionScope">
+                <option value="any">常态或峰值</option>
+                <option value="normal">仅常态</option>
+                <option value="peak">仅峰值</option>
+              </select>
+              <p class="field-hint">默认任一命中；切到仅常态可排除一次性或外源峰值。</p>
+            </div>
             <div class="dimension-filter-grid" aria-label="8 个主维度筛选">
               ${dimensions
                 .map(
@@ -178,6 +188,7 @@
     form.querySelector("[name='query']").value = state.query;
     form.querySelector("[name='work']").value = state.work;
     form.querySelector("[name='evidenceStatus']").value = state.evidenceStatus;
+    form.querySelector("[name='dimensionScope']").value = state.dimensionScope;
     hydrateScopedFilters(form);
 
     form.addEventListener("input", (event) => {
@@ -188,7 +199,7 @@
     });
     form.addEventListener("change", (event) => {
       readForm(form);
-      if (event.target.name === "work") {
+      if (event.target.name === "work" || event.target.name === "dimensionScope") {
         hydrateScopedFilters(form);
       }
       renderResults();
@@ -204,6 +215,7 @@
       state.work = "all";
       state.affiliation = "all";
       state.evidenceStatus = "all";
+      state.dimensionScope = "any";
       dimensions.forEach((dimension) => {
         state.dimensionFilters[dimension.key] = { min: "all", max: "all" };
       });
@@ -239,6 +251,7 @@
     state.work = form.querySelector("[name='work']").value;
     state.affiliation = form.querySelector("[name='affiliation']").value;
     state.evidenceStatus = form.querySelector("[name='evidenceStatus']").value;
+    state.dimensionScope = form.querySelector("[name='dimensionScope']").value;
     dimensions.forEach((dimension) => {
       const filter = normalizeDimensionFilter(dimension.key, {
         min: form.querySelector(`[name='${dimension.key}Min']`).value,
@@ -271,7 +284,7 @@
 
   function hydrateDimensionFilters(form, scopedCharacters) {
     dimensions.forEach((dimension) => {
-      const values = collectRankValues(dimension.key, scopedCharacters);
+      const values = collectRankValues(dimension.key, scopedCharacters, state.dimensionScope);
       const filter = normalizeDimensionFilter(dimension.key, state.dimensionFilters[dimension.key], values);
       state.dimensionFilters[dimension.key] = filter;
       setSelectOptions(`${dimension.key}MinFilter`, ["all", ...values], "不限下限");
@@ -281,14 +294,14 @@
     });
   }
 
-  function collectRankValues(key, source = characters) {
+  function collectRankValues(key, source = characters, scope = "any") {
     const order = rankOrders[key] || [];
     return [
       ...new Set(
         source
           .flatMap((item) => {
             const entry = item.dimensions[key];
-            return [baseRank(entry.normal), baseRank(entry.peak)];
+            return getDimensionRanks(entry, scope);
           })
           .filter(Boolean)
           .map((value) => String(value).trim())
@@ -344,7 +357,7 @@
           const filter = state.dimensionFilters[dimension.key];
           if (!filter || (filter.min === "all" && filter.max === "all")) return true;
           const entry = item.dimensions[dimension.key];
-          return matchesDimensionRange(dimension.key, entry, filter);
+          return matchesDimensionRange(dimension.key, entry, filter, state.dimensionScope);
         });
       })
       .sort(sortCharacters);
@@ -361,16 +374,23 @@
     return true;
   }
 
-  function matchesDimensionRange(key, entry, filter) {
+  function matchesDimensionRange(key, entry, filter, scope = "any") {
     const order = rankOrders[key] || [];
     if (!order.length) return true;
     const minIndex = filter.min === "all" ? 0 : order.indexOf(filter.min);
     const maxIndex = filter.max === "all" ? order.length - 1 : order.indexOf(filter.max);
     if (minIndex < 0 || maxIndex < 0) return true;
-    return [entry.normal, entry.peak].some((value) => {
-      const index = order.indexOf(baseRank(value));
+    return getDimensionRanks(entry, scope).some((rank) => {
+      const index = order.indexOf(rank);
       return index >= minIndex && index <= maxIndex;
     });
+  }
+
+  function getDimensionRanks(entry, scope) {
+    if (!entry) return [];
+    if (scope === "normal") return [baseRank(entry.normal)];
+    if (scope === "peak") return [baseRank(entry.peak)];
+    return [baseRank(entry.normal), baseRank(entry.peak)];
   }
 
   function sortCharacters(a, b) {
