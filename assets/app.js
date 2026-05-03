@@ -35,7 +35,7 @@
     { key: "open-ocean", label: "海上船战", description: "主要落点是船只或漂浮平台，落水、远距追击和水面机动很关键。" },
     { key: "underwater", label: "深水水下", description: "呼吸、水压、视线、阻力和水下机动成为核心限制。" },
     { key: "cave-underground", label: "地下洞窟", description: "封闭、黑暗、狭窄通道、岩体和回声影响机动、感知与大范围破坏。" },
-    { key: "sealed-small-arena", label: "封闭小型场", description: "边界明确、空间有限、难以拉开距离或脱战。" },
+    { key: "sealed-small-arena", label: "封闭小型场", description: "边界明确、空间有限、难以拉开距离或绕开接战。" },
     { key: "long-range-open", label: "远距开阔地", description: "大范围无遮挡，远程火力、索敌和接近能力更重要。" },
     { key: "sky-platform", label: "高空平台", description: "落点有限、坠落风险高，飞行、滞空、抓取和空间位移影响很大。" },
     { key: "resource-rich", label: "资源丰富场", description: "可利用材料、武器、金属、植物、水源和地形机关较多。" },
@@ -56,11 +56,6 @@
     { key: "encounter", label: "陌生遭遇", description: "双方只知道眼前可见信息，不自动知道隐藏底牌。" },
     { key: "rough-info", label: "大致情报", description: "双方知道对方能力类型和常见战斗方式，不知道精确数值与隐藏条件。" },
     { key: "panel-info", label: "面板情报", description: "双方知道本站面板级信息，但仍需按自身能力、反应与战术执行。" }
-  ];
-  const battleVictoryRules = [
-    { key: "ko", label: "战斗不能", description: "以击倒、封印、控制、无法继续战斗或明确投降为胜。" },
-    { key: "no-retreat", label: "禁止脱战", description: "不能单靠逃离或拖出场地判胜，必须形成战斗不能或稳定压制。" },
-    { key: "ring-out-valid", label: "可场外胜", description: "可通过放逐、击出边界或让对方无法返回来获胜。" }
   ];
   const workSources = window.POWER_WIKI_WORK_SOURCES || {};
   const confidenceLabels = {
@@ -106,7 +101,6 @@
       environmentKey: "standard-arena",
       distanceKey: "standard-100m",
       intelPolicyKey: "encounter",
-      victoryRuleKey: "ko",
       loading: false,
       cancelled: false,
       error: "",
@@ -1289,7 +1283,6 @@
     const environment = battleEnvironmentByKey(state.battle.environmentKey);
     const distance = battleDistanceByKey(state.battle.distanceKey);
     const intel = battleIntelPolicyByKey(state.battle.intelPolicyKey);
-    const victory = battleVictoryRuleByKey(state.battle.victoryRuleKey);
     return `
       <section class="battle-environment-control">
         <header>
@@ -1318,18 +1311,11 @@
               ${renderSelectOptions(battleIntelPolicies.map((item) => item.key), state.battle.intelPolicyKey, "", battleIntelPolicyLabels())}
             </select>
           </div>
-          <div class="field">
-            <label for="battleVictoryRule">胜利条件</label>
-            <select id="battleVictoryRule" name="victoryRuleKey" ${disabled}>
-              ${renderSelectOptions(battleVictoryRules.map((item) => item.key), state.battle.victoryRuleKey, "", battleVictoryRuleLabels())}
-            </select>
-          </div>
         </div>
         <div class="battle-environment-detail">
           <p><strong>${escapeHtml(environment.label)}</strong>：${escapeHtml(environment.description)}</p>
           <p><strong>${escapeHtml(distance.label)}</strong>：${escapeHtml(distance.description)}</p>
           <p><strong>${escapeHtml(intel.label)}</strong>：${escapeHtml(intel.description)}</p>
-          <p><strong>${escapeHtml(victory.label)}</strong>：${escapeHtml(victory.description)}</p>
         </div>
       </section>
     `;
@@ -1352,10 +1338,6 @@
     return Object.fromEntries(battleIntelPolicies.map((policy) => [policy.key, policy.label]));
   }
 
-  function battleVictoryRuleLabels() {
-    return Object.fromEntries(battleVictoryRules.map((rule) => [rule.key, rule.label]));
-  }
-
   function battleEnvironmentByKey(key) {
     return battleEnvironments.find((environment) => environment.key === key) || battleEnvironments[0];
   }
@@ -1368,16 +1350,11 @@
     return battleIntelPolicies.find((policy) => policy.key === key) || battleIntelPolicies[0];
   }
 
-  function battleVictoryRuleByKey(key) {
-    return battleVictoryRules.find((rule) => rule.key === key) || battleVictoryRules[0];
-  }
-
   function battleEnvironmentSummary() {
     const environment = battleEnvironmentByKey(state.battle.environmentKey);
     const distance = battleDistanceByKey(state.battle.distanceKey);
     const intel = battleIntelPolicyByKey(state.battle.intelPolicyKey);
-    const victory = battleVictoryRuleByKey(state.battle.victoryRuleKey);
-    return [environment.label, distance.label, intel.label, victory.label].filter(Boolean).join(" / ");
+    return [environment.label, distance.label, intel.label].filter(Boolean).join(" / ");
   }
 
   function formatDuration(ms) {
@@ -2032,7 +2009,6 @@
     state.battle.environmentKey = readOptionalFormValue(form, "environmentKey", state.battle.environmentKey);
     state.battle.distanceKey = readOptionalFormValue(form, "distanceKey", state.battle.distanceKey);
     state.battle.intelPolicyKey = readOptionalFormValue(form, "intelPolicyKey", state.battle.intelPolicyKey);
-    state.battle.victoryRuleKey = readOptionalFormValue(form, "victoryRuleKey", state.battle.victoryRuleKey);
     normalizeBattleState();
   }
 
@@ -2078,7 +2054,6 @@
     state.battle.environmentKey = normalizeBattleEnvironmentKey(state.battle.environmentKey);
     state.battle.distanceKey = normalizeBattleDistanceKey(state.battle.distanceKey);
     state.battle.intelPolicyKey = normalizeBattleIntelPolicyKey(state.battle.intelPolicyKey);
-    state.battle.victoryRuleKey = normalizeBattleVictoryRuleKey(state.battle.victoryRuleKey);
   }
 
   function normalizeBattleFilters(side) {
@@ -2224,10 +2199,6 @@
     return battleIntelPolicies.some((policy) => policy.key === value) ? value : "encounter";
   }
 
-  function normalizeBattleVictoryRuleKey(value) {
-    return battleVictoryRules.some((rule) => rule.key === value) ? value : "ko";
-  }
-
   function battlePanelFor(character, stageKey) {
     const panels = getTimelineEntries(character);
     return panels[resolveTimelineIndex(panels, stageKey, character.defaultTimelineKey)];
@@ -2251,7 +2222,6 @@
     const environment = battleEnvironmentByKey(state.battle.environmentKey);
     const distance = battleDistanceByKey(state.battle.distanceKey);
     const intel = battleIntelPolicyByKey(state.battle.intelPolicyKey);
-    const victory = battleVictoryRuleByKey(state.battle.victoryRuleKey);
     return {
       key: environment.key,
       label: environment.label,
@@ -2261,10 +2231,7 @@
       distanceDescription: distance.description,
       intelPolicyKey: intel.key,
       intelPolicyLabel: intel.label,
-      intelPolicyDescription: intel.description,
-      victoryRuleKey: victory.key,
-      victoryRuleLabel: victory.label,
-      victoryRuleDescription: victory.description
+      intelPolicyDescription: intel.description
     };
   }
 
