@@ -42,7 +42,6 @@
       rightSearchOpen: false,
       leftFilters: createBattleFilters(),
       rightFilters: createBattleFilters(),
-      specialPolicy: "conservative",
       outputStyle: "analysis",
       loading: false,
       error: "",
@@ -826,16 +825,6 @@
           </div>
           <div class="battle-option-grid">
             <div class="field">
-              <label for="battleSpecialPolicy">特殊权能</label>
-              <select id="battleSpecialPolicy" name="specialPolicy" ${state.battle.loading ? "disabled" : ""}>
-                ${renderSelectOptions(["conservative", "allow", "panel-only"], state.battle.specialPolicy, "", {
-                  conservative: "保守处理条件",
-                  allow: "允许按说明使用",
-                  "panel-only": "只看 8 维面板"
-                })}
-              </select>
-            </div>
-            <div class="field">
               <label for="battleOutputStyle">输出风格</label>
               <select id="battleOutputStyle" name="outputStyle" ${state.battle.loading ? "disabled" : ""}>
                 ${renderSelectOptions(["analysis", "narrative"], state.battle.outputStyle, "", {
@@ -1305,7 +1294,6 @@
     state.battle.rightStageKey = form.querySelector("[name='rightStageKey']").value;
     readBattleFilters(form, "left");
     readBattleFilters(form, "right");
-    state.battle.specialPolicy = form.querySelector("[name='specialPolicy']").value;
     state.battle.outputStyle = form.querySelector("[name='outputStyle']").value;
     normalizeBattleState();
   }
@@ -1341,7 +1329,6 @@
     const right = battleCharacterByKey(state.battle.rightKey);
     state.battle.leftStageKey = normalizeBattleStageKey(left, state.battle.leftStageKey);
     state.battle.rightStageKey = normalizeBattleStageKey(right, state.battle.rightStageKey);
-    if (!["allow", "conservative", "panel-only"].includes(state.battle.specialPolicy)) state.battle.specialPolicy = "conservative";
     if (!["analysis", "narrative"].includes(state.battle.outputStyle)) state.battle.outputStyle = "analysis";
   }
 
@@ -1392,7 +1379,6 @@
       left: buildBattleFighterPayload(left, state.battle.leftStageKey),
       right: buildBattleFighterPayload(right, state.battle.rightStageKey),
       options: {
-        specialPolicy: state.battle.specialPolicy,
         outputStyle: state.battle.outputStyle
       }
     };

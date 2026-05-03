@@ -235,7 +235,6 @@ function normalizeFighter(value, side) {
 
 function normalizeOptions(value) {
   return {
-    specialPolicy: pick(value.specialPolicy, ["allow", "conservative", "panel-only"], "conservative"),
     outputStyle: pick(value.outputStyle, ["analysis", "narrative"], "analysis")
   };
 }
@@ -297,7 +296,7 @@ function buildSystemPrompt() {
     "必须同时考虑常态和峰值：常态决定基础交换和持续表现，峰值决定爆发、特殊权能窗口和短时上限。",
     "能量总量和能量回复速度必须参与判断，用来解释续航、峰值维持时间、爆发频率、消耗战和是否会因资源不足失去优势。",
     "不要把峰值当作无限常态；如果峰值依赖外源、一次性、短时、领域、仪式、装备或条件命中，必须说明触发和维持限制。",
-    "特殊权能、领域、封印、空间、灵魂、一次性、外源、仪式、装备等只能按 notes 和峰值标签解释；条件不明时必须写入 caveats。",
+    "必须默认考虑 notes 中的特殊权能、领域、封印、空间、灵魂、一次性、外源、仪式、装备等，但只能按 notes 和峰值标签解释；条件不明时必须写入 caveats。",
     "允许输出 draw 或 unclear。证据不足、命中条件不明、速度/破防关系无法稳定判断时，不要强判。",
     "输出必须精炼：summary、verdict、panelUse 各 1 句；keyFactors 3-5 条；phases 2-4 段；caveats 2-4 条。",
     "每个字符串尽量少于 120 个汉字，phases[].text 不写长篇剧情，不要输出解释 JSON 之外的任何前后缀。",
@@ -315,6 +314,7 @@ async function streamBattleResponse(req, res, baseUrl, model, request) {
   let outputText = "";
   let usage = null;
   let upstreamStatus = 0;
+  const eventTypes = new Set();
   try {
     const response = await fetch(`${baseUrl}${OPENAI_RESPONSES_PATH}`, {
       method: "POST",
@@ -347,6 +347,7 @@ async function streamBattleResponse(req, res, baseUrl, model, request) {
     sendSse(res, "status", { message: "upstream_connected", requestId });
     await readSseStream(response.body, (event) => {
       const type = event.type || event.event || "";
+      if (type) eventTypes.add(type);
       if (type === "response.output_text.delta") {
         const delta = event.delta || "";
         outputText += delta;
@@ -357,8 +358,19 @@ async function streamBattleResponse(req, res, baseUrl, model, request) {
         outputText = event.text;
         return;
       }
+      if (type === "response.content_part.done" && event.part) {
+        const text = extractTextFromContentPart(event.part);
+        if (text) outputText = text;
+        return;
+      }
+      if (type === "response.output_item.done" && event.item) {
+        const text = extractTextFromOutputItem(event.item);
+        if (text) outputText = text;
+        return;
+      }
       if (type === "response.completed") {
         usage = event.response && event.response.usage ? event.response.usage : usage;
+        if (!outputText && event.response) outputText = extractOutputText(event.response);
         if (event.response && event.response.status === "incomplete") {
           const reason = event.response.incomplete_details && event.response.incomplete_details.reason
             ? event.response.incomplete_details.reason
@@ -406,6 +418,7 @@ async function streamBattleResponse(req, res, baseUrl, model, request) {
       upstreamStatus,
       elapsedMs: Date.now() - startedAt,
       error: message,
+      eventTypes: [...eventTypes],
       outputPreview: previewText(outputText)
     });
     sendSse(res, "error", { error: message, requestId });
@@ -460,14 +473,33 @@ function sendSse(res, event, data) {
 
 function extractOutputText(data) {
   if (typeof data.output_text === "string" && data.output_text.trim()) return data.output_text;
+  if (typeof data.content === "string" && data.content.trim()) return data.content;
   for (const item of data.output || []) {
-    if (item.type !== "message") continue;
-    for (const content of item.content || []) {
-      if (content.type === "refusal") throw httpError(400, content.refusal || "模型拒绝生成该对战。");
-      if (content.type === "output_text" && content.text) return content.text;
-    }
+    const text = extractTextFromOutputItem(item);
+    if (text) return text;
   }
   throw httpError(502, "LLM 响应缺少文本输出。");
+}
+
+function extractTextFromOutputItem(item) {
+  if (!item) return "";
+  if (item.type === "refusal") throw httpError(400, item.refusal || "模型拒绝生成该对战。");
+  if (item.type === "output_text" && item.text) return item.text;
+  if (item.type === "text" && item.text) return item.text;
+  if (typeof item.content === "string") return item.content;
+  for (const content of item.content || []) {
+    const text = extractTextFromContentPart(content);
+    if (text) return text;
+  }
+  return "";
+}
+
+function extractTextFromContentPart(content) {
+  if (!content) return "";
+  if (content.type === "refusal") throw httpError(400, content.refusal || "模型拒绝生成该对战。");
+  if ((content.type === "output_text" || content.type === "text") && content.text) return content.text;
+  if (typeof content.content === "string") return content.content;
+  return "";
 }
 
 function parseBattleResult(outputText) {
