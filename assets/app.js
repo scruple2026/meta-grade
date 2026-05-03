@@ -56,6 +56,7 @@
       apiStatusLoading: false,
       apiStatusCheckedAt: 0,
       shareMessage: "",
+      resultMessage: "",
       abortController: null
     }
   };
@@ -885,6 +886,10 @@
     if (refreshStatus) {
       refreshStatus.addEventListener("click", () => ensureBattleApiStatus(true));
     }
+    const copyResult = document.getElementById("copyBattleResult");
+    if (copyResult) {
+      copyResult.addEventListener("click", handleBattleResultCopy);
+    }
     const cancelButton = document.getElementById("cancelBattleGeneration");
     if (cancelButton) {
       cancelButton.addEventListener("click", cancelBattleGeneration);
@@ -937,6 +942,7 @@
     state.battle.usage = null;
     state.battle.statusTrail = [];
     state.battle.shareMessage = "";
+    state.battle.resultMessage = "";
   }
 
   function renderBattleApiStatus() {
@@ -1009,6 +1015,21 @@
     renderBattle();
   }
 
+  async function handleBattleResultCopy() {
+    if (!state.battle.result) return;
+    const text = formatBattleResultForCopy();
+    try {
+      if (!navigator.clipboard || !window.isSecureContext) {
+        throw new Error("clipboard unavailable");
+      }
+      await navigator.clipboard.writeText(text);
+      state.battle.resultMessage = "已复制对战结果。";
+    } catch (error) {
+      state.battle.resultMessage = "当前浏览器不允许自动复制，可手动选择结果文本。";
+    }
+    renderBattle();
+  }
+
   function cancelBattleGeneration() {
     if (state.battle.abortController) {
       state.battle.abortController.abort();
@@ -1057,6 +1078,65 @@
     const url = new URL(window.location.href);
     url.hash = battleRouteHash();
     return url.toString();
+  }
+
+  function formatBattleResultForCopy() {
+    const result = state.battle.result || {};
+    const left = battleCharacterByKey(state.battle.leftKey);
+    const right = battleCharacterByKey(state.battle.rightKey);
+    const lines = [
+      "AI 对战演绎",
+      left ? `角色 A：${formatBattleFighterForCopy(left, state.battle.leftStageKey)}` : "角色 A：未选择",
+      right ? `角色 B：${formatBattleFighterForCopy(right, state.battle.rightStageKey)}` : "角色 B：未选择",
+      `输出风格：${battleOutputStyleLabel(state.battle.outputStyle)}`,
+      state.battle.model ? `模型：${state.battle.model}` : "",
+      state.battle.statusTrail.length ? `路径：${state.battle.statusTrail.join(" / ")}` : "",
+      "",
+      `胜负：${winnerLabel(result.winner)}`,
+      `置信度：${confidenceText(result.confidence)}`,
+      result.summary ? `摘要：${result.summary}` : "",
+      result.verdict ? `裁定：${result.verdict}` : "",
+      result.panelUse ? `口径：${result.panelUse}` : ""
+    ].filter(Boolean);
+    appendBattleCopyList(lines, "关键因素", result.keyFactors);
+    appendBattleCopyPhases(lines, result.phases);
+    appendBattleCopyList(lines, "限制与变数", result.caveats);
+    lines.push("", `链接：${battleShareUrl()}`);
+    return lines.join("\n");
+  }
+
+  function formatBattleFighterForCopy(character, stageKey) {
+    const panel = battlePanelFor(character, stageKey);
+    return `${character.name}（${character.work} / ${panel.label}${panel.status ? ` / ${panel.status}` : ""}）`;
+  }
+
+  function battleOutputStyleLabel(value) {
+    const labels = {
+      verdict: "结论速览",
+      analysis: "裁定分析",
+      narrative: "分阶段战报",
+      mechanics: "机制拆解",
+      audit: "证据审计"
+    };
+    return labels[value] || "结论速览";
+  }
+
+  function appendBattleCopyList(lines, title, items) {
+    const values = Array.isArray(items) ? items.filter(Boolean) : [];
+    if (!values.length) return;
+    lines.push("", `${title}：`);
+    values.forEach((item, index) => {
+      lines.push(`${index + 1}. ${item}`);
+    });
+  }
+
+  function appendBattleCopyPhases(lines, phases) {
+    const values = Array.isArray(phases) ? phases.filter((phase) => phase && phase.text) : [];
+    if (!values.length) return;
+    lines.push("", "对战过程：");
+    values.forEach((phase, index) => {
+      lines.push(`${index + 1}. ${phase.title || `阶段 ${index + 1}`}：${phase.text}`);
+    });
   }
 
   function renderBattlePicker(side, title, character, stageKey) {
@@ -1296,12 +1376,16 @@
             <h2>${escapeHtml(winnerLabel(result.winner))}</h2>
             <p>${escapeHtml(result.summary)}</p>
           </div>
-          <div class="badge-list">
-            <span class="badge">置信度：${escapeHtml(confidenceText(result.confidence))}</span>
-            ${state.battle.model ? `<span class="badge is-source">${escapeHtml(state.battle.model)}</span>` : ""}
-            ${state.battle.statusTrail.length ? `<span class="badge">路径：${escapeHtml(state.battle.statusTrail.join(" / "))}</span>` : ""}
+          <div class="battle-result-tools">
+            <div class="badge-list">
+              <span class="badge">置信度：${escapeHtml(confidenceText(result.confidence))}</span>
+              ${state.battle.model ? `<span class="badge is-source">${escapeHtml(state.battle.model)}</span>` : ""}
+              ${state.battle.statusTrail.length ? `<span class="badge">路径：${escapeHtml(state.battle.statusTrail.join(" / "))}</span>` : ""}
+            </div>
+            <button class="small-action" type="button" id="copyBattleResult">复制结果</button>
           </div>
         </header>
+        ${state.battle.resultMessage ? `<p class="battle-share-status">${escapeHtml(state.battle.resultMessage)}</p>` : ""}
         <div class="battle-verdict">${escapeHtml(result.verdict)}</div>
         <section class="battle-result-block">
           <h3>口径</h3>

@@ -976,6 +976,17 @@ button {
   justify-content: flex-end;
 }
 
+.battle-result-tools {
+  display: grid;
+  justify-items: end;
+  gap: 8px;
+  min-width: min(100%, 260px);
+}
+
+.battle-result-tools .badge-list {
+  justify-content: flex-end;
+}
+
 .battle-picker-grid,
 .battle-preview-grid {
   display: grid;
@@ -1641,6 +1652,14 @@ button {
   }
 
   .battle-api-status .badge-list {
+    justify-content: flex-start;
+  }
+
+  .battle-result-tools {
+    justify-items: start;
+  }
+
+  .battle-result-tools .badge-list {
     justify-content: flex-start;
   }
 
