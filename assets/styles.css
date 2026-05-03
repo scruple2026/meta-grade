@@ -1009,6 +1009,10 @@ button {
   gap: 12px;
 }
 
+.battle-picker-header > div {
+  min-width: 0;
+}
+
 .battle-picker-header p,
 .battle-search-toolbar span {
   margin: 4px 0 0;
@@ -1021,6 +1025,7 @@ button {
 .battle-result h2 {
   margin: 0;
   font-size: 18px;
+  overflow-wrap: anywhere;
 }
 
 .battle-option-grid {

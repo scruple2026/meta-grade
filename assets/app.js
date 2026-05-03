@@ -1205,8 +1205,8 @@
       <section class="battle-picker">
         <header class="battle-picker-header">
           <div>
-            <h2>${escapeHtml(title)}</h2>
-            ${character ? `<p>${escapeHtml(character.work)} / ${escapeHtml(character.name)}</p>` : `<p>未选择角色</p>`}
+            <h2>${escapeHtml(character ? `${title}：${character.name}` : title)}</h2>
+            ${character ? `<p>${escapeHtml(character.work)}</p>` : `<p>未选择角色</p>`}
           </div>
           <button class="small-action" type="button" data-battle-toggle="${side}" ${disabled}>${isOpen ? "收起检索" : "检索角色"}</button>
         </header>
