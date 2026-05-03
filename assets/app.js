@@ -38,7 +38,6 @@
       rightKey: "",
       leftStageKey: "",
       rightStageKey: "",
-      panelMode: "peak",
       specialPolicy: "conservative",
       outputStyle: "analysis",
       loading: false,
@@ -793,7 +792,7 @@
         <header class="reference-header">
           <div>
             <h1>AI 对战演绎</h1>
-            <p>选择两个角色后，由 Vercel Function 调用 LLM，根据本站 8 维面板、时间线、特殊权能和待审提示生成对战过程。结果是 AI 演绎，不写回角色定级。</p>
+            <p>选择两个角色后，由 Vercel Function 调用 LLM，根据本站 8 维常态/峰值面板、能量与续航、时间线、特殊权能和待审提示生成对战过程。结果是 AI 演绎，不写回角色定级。</p>
           </div>
           <span class="badge is-source">/api/battle</span>
         </header>
@@ -803,16 +802,6 @@
             ${renderBattlePicker("right", "角色 B", right, state.battle.rightStageKey)}
           </div>
           <div class="battle-option-grid">
-            <div class="field">
-              <label for="battlePanelMode">面板口径</label>
-              <select id="battlePanelMode" name="panelMode" ${state.battle.loading ? "disabled" : ""}>
-                ${renderSelectOptions(["normal", "peak", "both"], state.battle.panelMode, "", {
-                  normal: "仅常态",
-                  peak: "仅峰值",
-                  both: "先常态，再看峰值"
-                })}
-              </select>
-            </div>
             <div class="field">
               <label for="battleSpecialPolicy">特殊权能</label>
               <select id="battleSpecialPolicy" name="specialPolicy" ${state.battle.loading ? "disabled" : ""}>
@@ -979,7 +968,7 @@
       return `
         <section class="battle-result">
           <h2>等待生成</h2>
-          <p>选择角色和口径后点击“生成对战”。公开站点请留意调用成本，后续可继续加限流或登录保护。</p>
+          <p>选择角色后点击“生成对战”。公开站点请留意调用成本，后续可继续加限流或登录保护。</p>
         </section>
       `;
     }
@@ -1142,7 +1131,6 @@
     state.battle.rightKey = form.querySelector("[name='rightKey']").value;
     state.battle.leftStageKey = form.querySelector("[name='leftStageKey']").value;
     state.battle.rightStageKey = form.querySelector("[name='rightStageKey']").value;
-    state.battle.panelMode = form.querySelector("[name='panelMode']").value;
     state.battle.specialPolicy = form.querySelector("[name='specialPolicy']").value;
     state.battle.outputStyle = form.querySelector("[name='outputStyle']").value;
     normalizeBattleState();
@@ -1157,7 +1145,6 @@
     const right = battleCharacterByKey(state.battle.rightKey);
     state.battle.leftStageKey = normalizeBattleStageKey(left, state.battle.leftStageKey);
     state.battle.rightStageKey = normalizeBattleStageKey(right, state.battle.rightStageKey);
-    if (!["normal", "peak", "both"].includes(state.battle.panelMode)) state.battle.panelMode = "peak";
     if (!["allow", "conservative", "panel-only"].includes(state.battle.specialPolicy)) state.battle.specialPolicy = "conservative";
     if (!["analysis", "narrative"].includes(state.battle.outputStyle)) state.battle.outputStyle = "analysis";
   }
@@ -1190,7 +1177,6 @@
       left: buildBattleFighterPayload(left, state.battle.leftStageKey),
       right: buildBattleFighterPayload(right, state.battle.rightStageKey),
       options: {
-        panelMode: state.battle.panelMode,
         specialPolicy: state.battle.specialPolicy,
         outputStyle: state.battle.outputStyle
       }

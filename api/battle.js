@@ -235,7 +235,6 @@ function normalizeFighter(value, side) {
 
 function normalizeOptions(value) {
   return {
-    panelMode: pick(value.panelMode, ["normal", "peak", "both"], "peak"),
     specialPolicy: pick(value.specialPolicy, ["allow", "conservative", "panel-only"], "conservative"),
     outputStyle: pick(value.outputStyle, ["analysis", "narrative"], "analysis")
   };
@@ -295,7 +294,9 @@ function buildSystemPrompt() {
   return [
     "你是跨作品战力维基的对战演绎器，只能基于用户提供的 JSON 角色资料做推断。",
     "不要引入外部剧情、粉丝设定、未提供资料或你自己的作品知识。不要把称号、危险等级、剧情地位直接换算成主量级。",
-    "必须区分常态和峰值。panelMode=normal 时只按常态；panelMode=peak 时按峰值；panelMode=both 时先看常态，再说明峰值是否改变结论。",
+    "必须同时考虑常态和峰值：常态决定基础交换和持续表现，峰值决定爆发、特殊权能窗口和短时上限。",
+    "能量总量和能量回复速度必须参与判断，用来解释续航、峰值维持时间、爆发频率、消耗战和是否会因资源不足失去优势。",
+    "不要把峰值当作无限常态；如果峰值依赖外源、一次性、短时、领域、仪式、装备或条件命中，必须说明触发和维持限制。",
     "特殊权能、领域、封印、空间、灵魂、一次性、外源、仪式、装备等只能按 notes 和峰值标签解释；条件不明时必须写入 caveats。",
     "允许输出 draw 或 unclear。证据不足、命中条件不明、速度/破防关系无法稳定判断时，不要强判。",
     "输出必须精炼：summary、verdict、panelUse 各 1 句；keyFactors 3-5 条；phases 2-4 段；caveats 2-4 条。",
