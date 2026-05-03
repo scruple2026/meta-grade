@@ -1427,7 +1427,7 @@
         <header>
           <div>
             <h2>面板对照</h2>
-            <p>按五条属性对照，内部仍保留 8 维常态/峰值。</p>
+            <p>纵向按五条属性分组对照，内部仍保留 8 维常态/峰值。</p>
           </div>
           <div class="battle-fighter-summary">
             ${renderBattleFighterSummary("A", left, leftPanel)}
