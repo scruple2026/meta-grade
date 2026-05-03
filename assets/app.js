@@ -677,7 +677,10 @@
         return `
           <div class="dimension-subrow">
             <span class="dimension-sub-label">${escapeHtml(dimension.label)}</span>
-            <span class="dimension-value">常态【${escapeHtml(entry.normal)}】/ 峰值【${escapeHtml(entry.peak)}】</span>
+            <span class="dimension-value">
+              <span>常态【${escapeHtml(entry.normal)}】</span>
+              <span>峰值【${escapeHtml(entry.peak)}】</span>
+            </span>
           </div>
         `;
       }).filter(Boolean).join("");

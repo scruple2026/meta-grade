@@ -547,6 +547,10 @@ button {
   overflow-wrap: anywhere;
 }
 
+.dimension-value span {
+  display: block;
+}
+
 .list-mode .character-row {
   gap: 10px;
 }
@@ -1231,8 +1235,34 @@ button {
 
 .battle-dimension-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 8px;
+}
+
+.battle-dimension-grid .dimension-group-card {
+  min-width: 0;
+  padding: 8px;
+}
+
+.battle-dimension-grid .dimension-group-title {
+  font-size: 13px;
+}
+
+.battle-dimension-grid .dimension-subrows {
+  gap: 7px;
+}
+
+.battle-dimension-grid .dimension-subrow {
+  gap: 3px;
+  padding-top: 7px;
+}
+
+.battle-dimension-grid .dimension-sub-label {
+  font-size: 11px;
+}
+
+.battle-dimension-grid .dimension-value {
+  font-size: 12px;
 }
 
 .battle-note-grid {
@@ -1623,9 +1653,12 @@ button {
   .battle-option-grid,
   .battle-search-grid,
   .battle-dimension-filter-grid,
-  .battle-dimension-grid,
   .battle-note-grid {
     grid-template-columns: 1fr;
+  }
+
+  .battle-dimension-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 
   .detail-layout {
@@ -1745,6 +1778,10 @@ button {
 
   .battle-result-tools .badge-list {
     justify-content: flex-start;
+  }
+
+  .battle-dimension-grid {
+    grid-template-columns: 1fr;
   }
 
   .reference-content {
