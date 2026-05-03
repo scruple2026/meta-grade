@@ -38,7 +38,7 @@
       rightKey: "",
       leftStageKey: "",
       rightStageKey: "",
-      leftSearchOpen: true,
+      leftSearchOpen: false,
       rightSearchOpen: false,
       leftFilters: createBattleFilters(),
       rightFilters: createBattleFilters(),
