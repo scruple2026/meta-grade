@@ -1,4 +1,5 @@
 const OPENAI_RESPONSES_PATH = "/responses";
+const OPENAI_CHAT_COMPLETIONS_PATH = "/chat/completions";
 const MAX_BODY_LENGTH = 28000;
 const MAX_TEXT_LENGTH = 420;
 const MAX_OUTPUT_TOKENS = 2600;
@@ -289,6 +290,29 @@ function buildProviderPayload(model, request, stream) {
   };
 }
 
+function buildChatProviderPayload(model, request, stream, useResponseFormat = true) {
+  const payload = {
+    model,
+    stream,
+    max_tokens: MAX_OUTPUT_TOKENS,
+    temperature: 0.3,
+    messages: [
+      {
+        role: "system",
+        content: buildSystemPrompt()
+      },
+      {
+        role: "user",
+        content: JSON.stringify(request)
+      }
+    ]
+  };
+  if (useResponseFormat) {
+    payload.response_format = { type: "json_object" };
+  }
+  return payload;
+}
+
 function buildSystemPrompt() {
   return [
     "你是跨作品战力维基的对战演绎器，只能基于用户提供的 JSON 角色资料做推断。",
@@ -401,6 +425,10 @@ async function streamBattleResponse(req, res, baseUrl, model, request) {
       }
     });
 
+    if (!outputText) {
+      eventTypes.add("fallback.chat_completions");
+      outputText = await streamChatCompletionFallback(res, baseUrl, model, request, requestId);
+    }
     const result = parseBattleResult(outputText);
     sendSse(res, "done", {
       ok: true,
@@ -424,6 +452,52 @@ async function streamBattleResponse(req, res, baseUrl, model, request) {
     sendSse(res, "error", { error: message, requestId });
     res.end();
   }
+}
+
+async function streamChatCompletionFallback(res, baseUrl, model, request, requestId) {
+  sendSse(res, "status", { message: "fallback_chat_completions", requestId });
+  let response = await fetchChatCompletion(baseUrl, model, request, true, true);
+  if (!response.ok && response.status === 400) {
+    response = await fetchChatCompletion(baseUrl, model, request, true, false);
+  }
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    const message = data && data.error && data.error.message ? data.error.message : "LLM chat fallback request failed.";
+    throw httpError(response.status, message);
+  }
+
+  const contentType = response.headers.get("content-type") || "";
+  if (!contentType.includes("text/event-stream") || !response.body) {
+    const data = await response.json().catch(() => ({}));
+    return extractChatCompletionText(data);
+  }
+
+  let outputText = "";
+  await readSseStream(response.body, (event) => {
+    const choice = event.choices && event.choices[0];
+    if (!choice) return;
+    const delta = choice.delta && (choice.delta.content || choice.delta.reasoning_content || "");
+    if (delta) {
+      outputText += delta;
+      sendSse(res, "delta", { delta, requestId });
+    }
+    const message = choice.message && (choice.message.content || "");
+    if (message) outputText = message;
+  });
+  if (!outputText) throw httpError(502, "Chat fallback 响应缺少文本输出。");
+  return outputText;
+}
+
+function fetchChatCompletion(baseUrl, model, request, stream, useResponseFormat) {
+  return fetch(`${baseUrl}${OPENAI_CHAT_COMPLETIONS_PATH}`, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+      "Content-Type": "application/json",
+      "Accept": stream ? "text/event-stream" : "application/json"
+    },
+    body: JSON.stringify(buildChatProviderPayload(model, request, stream, useResponseFormat))
+  });
 }
 
 async function readSseStream(body, onEvent) {
@@ -479,6 +553,18 @@ function extractOutputText(data) {
     if (text) return text;
   }
   throw httpError(502, "LLM 响应缺少文本输出。");
+}
+
+function extractChatCompletionText(data) {
+  for (const choice of data.choices || []) {
+    if (choice.message && typeof choice.message.content === "string" && choice.message.content.trim()) {
+      return choice.message.content;
+    }
+    if (choice.delta && typeof choice.delta.content === "string" && choice.delta.content.trim()) {
+      return choice.delta.content;
+    }
+  }
+  throw httpError(502, "Chat fallback 响应缺少文本输出。");
 }
 
 function extractTextFromOutputItem(item) {
