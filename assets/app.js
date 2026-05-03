@@ -50,6 +50,7 @@
       result: null,
       model: "",
       usage: null,
+      elapsedMs: 0,
       statusTrail: [],
       apiStatus: null,
       apiStatusError: "",
@@ -940,6 +941,7 @@
     state.battle.result = null;
     state.battle.model = "";
     state.battle.usage = null;
+    state.battle.elapsedMs = 0;
     state.battle.statusTrail = [];
     state.battle.shareMessage = "";
     state.battle.resultMessage = "";
@@ -1091,6 +1093,8 @@
       `输出风格：${battleOutputStyleLabel(state.battle.outputStyle)}`,
       state.battle.model ? `模型：${state.battle.model}` : "",
       state.battle.statusTrail.length ? `路径：${state.battle.statusTrail.join(" / ")}` : "",
+      state.battle.elapsedMs ? `耗时：${formatDuration(state.battle.elapsedMs)}` : "",
+      usageSummary(state.battle.usage),
       "",
       `胜负：${winnerLabel(result.winner)}`,
       `置信度：${confidenceText(result.confidence)}`,
@@ -1119,6 +1123,22 @@
       audit: "证据审计"
     };
     return labels[value] || "结论速览";
+  }
+
+  function formatDuration(ms) {
+    const seconds = Math.max(0, Number(ms) || 0) / 1000;
+    if (seconds < 10) return `${seconds.toFixed(1)}s`;
+    return `${Math.round(seconds)}s`;
+  }
+
+  function usageSummary(usage) {
+    if (!usage || typeof usage !== "object") return "";
+    const total = usage.total_tokens || usage.totalTokens;
+    const input = usage.input_tokens || usage.prompt_tokens || usage.inputTokens;
+    const output = usage.output_tokens || usage.completion_tokens || usage.outputTokens;
+    if (total) return `Token：${total}`;
+    if (input || output) return `Token：${input || 0}+${output || 0}`;
+    return "";
   }
 
   function appendBattleCopyList(lines, title, items) {
@@ -1381,6 +1401,8 @@
               <span class="badge">置信度：${escapeHtml(confidenceText(result.confidence))}</span>
               ${state.battle.model ? `<span class="badge is-source">${escapeHtml(state.battle.model)}</span>` : ""}
               ${state.battle.statusTrail.length ? `<span class="badge">路径：${escapeHtml(state.battle.statusTrail.join(" / "))}</span>` : ""}
+              ${state.battle.elapsedMs ? `<span class="badge">耗时：${escapeHtml(formatDuration(state.battle.elapsedMs))}</span>` : ""}
+              ${usageSummary(state.battle.usage) ? `<span class="badge">${escapeHtml(usageSummary(state.battle.usage))}</span>` : ""}
             </div>
             <button class="small-action" type="button" id="copyBattleResult">复制结果</button>
           </div>
@@ -1427,6 +1449,7 @@
       return;
     }
     const controller = new AbortController();
+    const startedAt = Date.now();
     state.battle.loading = true;
     state.battle.abortController = controller;
     clearBattleOutput();
@@ -1451,11 +1474,13 @@
         state.battle.result = data.result;
         state.battle.model = data.model || "";
         state.battle.usage = data.usage || null;
+        state.battle.elapsedMs = Date.now() - startedAt;
       }
     } catch (error) {
       if (state.battle.abortController !== controller) {
         return;
       }
+      state.battle.elapsedMs = Date.now() - startedAt;
       if (error && error.name === "AbortError") {
         state.battle.cancelled = true;
         state.battle.error = "";
@@ -1550,6 +1575,7 @@
       state.battle.result = data.result || null;
       state.battle.model = data.model || state.battle.model;
       state.battle.usage = data.usage || null;
+      state.battle.elapsedMs = data.elapsedMs || state.battle.elapsedMs;
       state.battle.loading = false;
       renderBattle();
       return;
