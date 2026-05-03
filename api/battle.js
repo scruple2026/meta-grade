@@ -337,6 +337,10 @@ function buildSystemPrompt() {
 async function streamBattleResponse(req, res, baseUrl, model, request) {
   const startedAt = Date.now();
   const requestId = makeRequestId();
+  const abortController = new AbortController();
+  res.on("close", () => {
+    if (!res.writableEnded) abortController.abort();
+  });
   setSseHeaders(res);
   res.write(": connected\n\n");
   sendSse(res, "meta", { ok: true, model, requestId });
@@ -353,6 +357,7 @@ async function streamBattleResponse(req, res, baseUrl, model, request) {
         "Content-Type": "application/json",
         "Accept": "text/event-stream"
       },
+      signal: abortController.signal,
       body: JSON.stringify(buildProviderPayload(model, request, true))
     });
     upstreamStatus = response.status;
@@ -433,7 +438,7 @@ async function streamBattleResponse(req, res, baseUrl, model, request) {
 
     if (!outputText) {
       eventTypes.add("fallback.chat_completions");
-      outputText = await streamChatCompletionFallback(res, baseUrl, model, request, requestId);
+      outputText = await streamChatCompletionFallback(res, baseUrl, model, request, requestId, abortController.signal);
     }
     const result = parseBattleResult(outputText, request);
     sendSse(res, "done", {
@@ -446,6 +451,16 @@ async function streamBattleResponse(req, res, baseUrl, model, request) {
     });
     res.end();
   } catch (error) {
+    if (error && error.name === "AbortError") {
+      console.warn("[battle]", {
+        requestId,
+        upstreamStatus,
+        elapsedMs: Date.now() - startedAt,
+        aborted: true,
+        eventTypes: [...eventTypes]
+      });
+      return;
+    }
     const message = error && error.message ? error.message : "Battle generation failed.";
     console.error("[battle]", {
       requestId,
@@ -460,11 +475,11 @@ async function streamBattleResponse(req, res, baseUrl, model, request) {
   }
 }
 
-async function streamChatCompletionFallback(res, baseUrl, model, request, requestId) {
+async function streamChatCompletionFallback(res, baseUrl, model, request, requestId, signal) {
   sendSse(res, "status", { message: "fallback_chat_completions", requestId });
-  let response = await fetchChatCompletion(baseUrl, model, request, true, true);
+  let response = await fetchChatCompletion(baseUrl, model, request, true, true, signal);
   if (!response.ok && response.status === 400) {
-    response = await fetchChatCompletion(baseUrl, model, request, true, false);
+    response = await fetchChatCompletion(baseUrl, model, request, true, false, signal);
   }
   if (!response.ok) {
     const data = await response.json().catch(() => ({}));
@@ -494,7 +509,7 @@ async function streamChatCompletionFallback(res, baseUrl, model, request, reques
   return outputText;
 }
 
-function fetchChatCompletion(baseUrl, model, request, stream, useResponseFormat) {
+function fetchChatCompletion(baseUrl, model, request, stream, useResponseFormat, signal) {
   return fetch(`${baseUrl}${OPENAI_CHAT_COMPLETIONS_PATH}`, {
     method: "POST",
     headers: {
@@ -502,6 +517,7 @@ function fetchChatCompletion(baseUrl, model, request, stream, useResponseFormat)
       "Content-Type": "application/json",
       "Accept": stream ? "text/event-stream" : "application/json"
     },
+    signal,
     body: JSON.stringify(buildChatProviderPayload(model, request, stream, useResponseFormat))
   });
 }
