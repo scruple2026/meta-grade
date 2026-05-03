@@ -1352,11 +1352,14 @@
         <header>
           <div>
             <h2>${escapeHtml(title)}：${escapeHtml(character.name)}</h2>
-            <p>${escapeHtml(character.work)} · ${escapeHtml(character.affiliation)} · ${escapeHtml(character.grade)}</p>
           </div>
-          <span class="badge${confidenceBadgeClass(character.confidence)}">${escapeHtml(confidenceLabel(character.confidence))}</span>
         </header>
-        <p class="battle-stage-line">${escapeHtml(panel.label)}${panel.status ? ` / ${escapeHtml(panel.status)}` : ""}</p>
+        <details class="battle-preview-meta">
+          <summary>角色信息</summary>
+          <p>${escapeHtml(character.work)} · ${escapeHtml(character.affiliation)} · ${escapeHtml(character.grade)}</p>
+          <p><span class="badge${confidenceBadgeClass(character.confidence)}">${escapeHtml(confidenceLabel(character.confidence))}</span></p>
+          <p class="battle-stage-line">${escapeHtml(panel.label)}${panel.status ? ` / ${escapeHtml(panel.status)}` : ""}</p>
+        </details>
         <div class="battle-dimension-grid">
           ${dimensions.map((dimension) => {
             const entry = panel.dimensions[dimension.key];
@@ -1380,10 +1383,10 @@
 
   function renderBattleMiniNote(title, value) {
     return `
-      <section>
-        <strong>${escapeHtml(title)}</strong>
+      <details class="battle-mini-note">
+        <summary>${escapeHtml(title)}</summary>
         <p>${escapeHtml(value || "未补充。")}</p>
-      </section>
+      </details>
     `;
   }
 

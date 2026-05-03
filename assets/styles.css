@@ -1151,6 +1151,23 @@ button {
   font-size: 13px;
 }
 
+.battle-preview-meta {
+  margin: -2px 0 0;
+}
+
+.battle-preview-meta summary {
+  color: #324039;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.battle-preview-meta p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
 .battle-dimension-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(130px, 1fr));
@@ -1164,6 +1181,7 @@ button {
 }
 
 .battle-note-grid section,
+.battle-mini-note,
 .battle-result-block {
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -1172,10 +1190,15 @@ button {
 }
 
 .battle-note-grid strong,
+.battle-mini-note summary,
 .battle-result-block h3 {
   color: #324039;
   font-size: 12px;
   font-weight: 900;
+}
+
+.battle-mini-note summary {
+  cursor: pointer;
 }
 
 .battle-note-grid p,
