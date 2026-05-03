@@ -4,6 +4,13 @@
   const app = document.getElementById("app");
   const characters = window.POWER_WIKI_CHARACTERS || window.JJK_CHARACTERS || [];
   const dimensions = window.POWER_WIKI_DIMENSIONS || window.JJK_DIMENSIONS || [];
+  const dimensionGroups = [
+    { key: "attack", label: "攻击", dimensionKeys: ["attack"] },
+    { key: "defense", label: "防御", dimensionKeys: ["defense"] },
+    { key: "speed", label: "速度", dimensionKeys: ["movement", "reaction"] },
+    { key: "vitality", label: "生命", dimensionKeys: ["vitality", "healing"] },
+    { key: "energy", label: "能量", dimensionKeys: ["energy", "energyRegen"] }
+  ];
   const workSources = window.POWER_WIKI_WORK_SOURCES || {};
   const confidenceLabels = {
     stable: "稳定",
@@ -528,20 +535,10 @@
             ${character.auditWarnings && character.auditWarnings.length ? `<span class="badge is-warning">待审 ${character.auditWarnings.length}</span>` : ""}
           </div>
         </div>
-        <div class="dimension-grid" aria-label="${escapeAttribute(character.name)} 的 8 个主维度简介">
-          ${dimensions.map((dimension) => renderDimensionCell(character, dimension)).join("")}
+        <div class="dimension-grid" aria-label="${escapeAttribute(character.name)} 的 5 条属性分组，含 8 个主维度简介">
+          ${renderDimensionGroupCards(character.dimensions)}
         </div>
       </article>
-    `;
-  }
-
-  function renderDimensionCell(character, dimension) {
-    const entry = character.dimensions[dimension.key];
-    return `
-      <div class="dimension-cell">
-        <span class="dimension-label">${escapeHtml(dimension.label)}</span>
-        <span class="dimension-value">常态【${escapeHtml(entry.normal)}】/ 峰值【${escapeHtml(entry.peak)}】</span>
-      </div>
     `;
   }
 
@@ -641,20 +638,7 @@
           <h2>${escapeHtml(panel.label)}</h2>
           ${panel.status ? `<p>${escapeHtml(panel.status)}</p>` : ""}
         </header>
-        <table class="dimension-table">
-          <thead>
-            <tr>
-              <th scope="col">主维度</th>
-              <th scope="col">常态</th>
-              <th scope="col">峰值</th>
-              <th scope="col">简介</th>
-              <th scope="col">证据 / 限制</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${dimensions.map((dimension) => renderTimelineDimensionRow(panel, dimension)).join("")}
-          </tbody>
-        </table>
+        ${renderTimelineDimensionGroups(panel)}
         ${panel.notes ? `<p class="timeline-panel-note">${escapeHtml(panel.notes)}</p>` : ""}
       </section>
       <div class="notes-grid">
@@ -682,6 +666,63 @@
         <td>${renderEvidenceList(entry.evidence && entry.evidence.length ? entry.evidence : [entry.brief || "按常态/峰值双档记录。"])}</td>
       </tr>
     `;
+  }
+
+  function renderDimensionGroupCards(dimensionValues) {
+    return dimensionGroups.map((group) => {
+      const items = group.dimensionKeys.map((key) => {
+        const dimension = dimensionByKey(key);
+        const entry = dimensionValues && dimensionValues[key];
+        if (!dimension || !entry) return "";
+        return `
+          <div class="dimension-subrow">
+            <span class="dimension-sub-label">${escapeHtml(dimension.label)}</span>
+            <span class="dimension-value">常态【${escapeHtml(entry.normal)}】/ 峰值【${escapeHtml(entry.peak)}】</span>
+          </div>
+        `;
+      }).filter(Boolean).join("");
+      return `
+        <section class="dimension-group-card is-${escapeAttribute(group.key)}">
+          <h3 class="dimension-group-title">${escapeHtml(group.label)}</h3>
+          <div class="dimension-subrows">
+            ${items}
+          </div>
+        </section>
+      `;
+    }).join("");
+  }
+
+  function renderTimelineDimensionGroups(panel) {
+    return `
+      <div class="dimension-detail-groups" aria-label="${escapeAttribute(panel.label)} 的 5 条属性分组">
+        ${dimensionGroups.map((group) => `
+          <section class="dimension-detail-group dimension-group-card is-${escapeAttribute(group.key)}">
+            <h3 class="dimension-group-title">${escapeHtml(group.label)}</h3>
+            <table class="dimension-table">
+              <thead>
+                <tr>
+                  <th scope="col">主维度</th>
+                  <th scope="col">常态</th>
+                  <th scope="col">峰值</th>
+                  <th scope="col">简介</th>
+                  <th scope="col">证据 / 限制</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${group.dimensionKeys.map((key) => {
+                  const dimension = dimensionByKey(key);
+                  return dimension ? renderTimelineDimensionRow(panel, dimension) : "";
+                }).join("")}
+              </tbody>
+            </table>
+          </section>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  function dimensionByKey(key) {
+    return dimensions.find((dimension) => dimension.key === key) || null;
   }
 
   function renderSourceQualityBadge(character, includeLabel = true) {
@@ -1367,16 +1408,8 @@
           <p><span class="badge${confidenceBadgeClass(character.confidence)}">${escapeHtml(confidenceLabel(character.confidence))}</span></p>
           <p class="battle-stage-line">${escapeHtml(panel.label)}${panel.status ? ` / ${escapeHtml(panel.status)}` : ""}</p>
         </details>
-        <div class="battle-dimension-grid">
-          ${dimensions.map((dimension) => {
-            const entry = panel.dimensions[dimension.key];
-            return `
-              <div class="dimension-cell">
-                <span class="dimension-label">${escapeHtml(dimension.label)}</span>
-                <span class="dimension-value">常态【${escapeHtml(entry.normal)}】/ 峰值【${escapeHtml(entry.peak)}】</span>
-              </div>
-            `;
-          }).join("")}
+        <div class="battle-dimension-grid" aria-label="${escapeAttribute(character.name)} 的 5 条属性分组，含 8 个主维度简介">
+          ${renderDimensionGroupCards(panel.dimensions)}
         </div>
         <div class="battle-note-grid">
           ${renderBattleMiniNote("攻击性质", character.notes.penetration)}

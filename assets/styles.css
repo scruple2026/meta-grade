@@ -472,20 +472,67 @@ button {
 
 .dimension-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(155px, 1fr));
+  grid-template-columns: repeat(5, minmax(155px, 1fr));
   gap: 8px;
 }
 
-.dimension-cell {
-  min-height: 86px;
+.dimension-group-card {
   border: 1px solid var(--line);
+  border-top: 3px solid #6f8478;
   border-radius: var(--radius);
   background: #fbfcfa;
   padding: 10px;
+  display: grid;
+  align-content: start;
+  gap: 8px;
 }
 
-.dimension-label {
-  display: block;
+.dimension-group-card.is-attack {
+  border-top-color: #a75f45;
+}
+
+.dimension-group-card.is-defense {
+  border-top-color: #527a68;
+}
+
+.dimension-group-card.is-speed {
+  border-top-color: #4c7095;
+}
+
+.dimension-group-card.is-vitality {
+  border-top-color: #8a6d3b;
+}
+
+.dimension-group-card.is-energy {
+  border-top-color: #7765a7;
+}
+
+.dimension-group-title {
+  margin: 0;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.dimension-subrows {
+  display: grid;
+  gap: 8px;
+}
+
+.dimension-subrow {
+  display: grid;
+  gap: 4px;
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+}
+
+.dimension-subrow:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.dimension-label,
+.dimension-sub-label {
   color: var(--muted);
   font-size: 12px;
   font-weight: 800;
@@ -505,12 +552,12 @@ button {
 }
 
 .list-mode .dimension-grid {
-  grid-template-columns: repeat(8, minmax(112px, 1fr));
+  grid-template-columns: repeat(5, minmax(168px, 1fr));
   overflow-x: auto;
 }
 
-.list-mode .dimension-cell {
-  min-height: 76px;
+.list-mode .dimension-group-card {
+  min-width: 168px;
 }
 
 .empty-state {
@@ -646,6 +693,15 @@ button {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   overflow: hidden;
+}
+
+.dimension-detail-groups {
+  display: grid;
+  gap: 12px;
+}
+
+.dimension-detail-group {
+  padding: 12px;
 }
 
 .dimension-table th,
@@ -1175,7 +1231,7 @@ button {
 
 .battle-dimension-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(130px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 8px;
 }
 
