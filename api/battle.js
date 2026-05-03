@@ -117,7 +117,7 @@ module.exports = async function handler(req, res) {
     }
 
     const outputText = extractOutputText(data);
-    const result = parseBattleResult(outputText);
+    const result = parseBattleResult(outputText, request);
     res.status(200).json({
       ok: true,
       model,
@@ -362,7 +362,7 @@ async function streamBattleResponse(req, res, baseUrl, model, request) {
     if (!contentType.includes("text/event-stream") || !response.body) {
       const data = await response.json().catch(() => ({}));
       outputText = extractOutputText(data);
-      const result = parseBattleResult(outputText);
+      const result = parseBattleResult(outputText, request);
       sendSse(res, "done", { ok: true, model, result, usage: data.usage || null, requestId });
       res.end();
       return;
@@ -429,7 +429,7 @@ async function streamBattleResponse(req, res, baseUrl, model, request) {
       eventTypes.add("fallback.chat_completions");
       outputText = await streamChatCompletionFallback(res, baseUrl, model, request, requestId);
     }
-    const result = parseBattleResult(outputText);
+    const result = parseBattleResult(outputText, request);
     sendSse(res, "done", {
       ok: true,
       model,
@@ -596,15 +596,15 @@ function extractTextFromContentPart(content) {
   return "";
 }
 
-function parseBattleResult(outputText) {
+function parseBattleResult(outputText, request = null) {
   const text = String(outputText || "").trim();
   try {
-    return JSON.parse(text);
+    return normalizeBattleResult(JSON.parse(text), request);
   } catch (firstError) {
     const extracted = extractFirstJsonObject(text);
     if (extracted && extracted !== text) {
       try {
-        return JSON.parse(extracted);
+        return normalizeBattleResult(JSON.parse(extracted), request);
       } catch (_secondError) {
         // Fall through to the structured error below.
       }
@@ -612,6 +612,71 @@ function parseBattleResult(outputText) {
     const reason = looksTruncatedJson(text) ? "输出被截断" : "模型没有严格返回 JSON";
     throw httpError(502, `模型返回的 JSON 不完整或格式错误：${reason}。`);
   }
+}
+
+function normalizeBattleResult(result, request) {
+  const value = result && typeof result === "object" ? result : {};
+  return {
+    winner: normalizeWinner(value.winner, value, request),
+    confidence: pick(value.confidence, ["low", "medium", "high"], "medium"),
+    summary: cleanText(value.summary, 900) || "模型未给出摘要。",
+    verdict: cleanText(value.verdict, 900) || "模型未给出明确裁定。",
+    panelUse: cleanText(value.panelUse, 900) || "综合常态、峰值、能量与特殊权能判断。",
+    keyFactors: normalizeResultList(value.keyFactors, 6, 260),
+    phases: normalizeResultPhases(value.phases),
+    caveats: normalizeResultList(value.caveats, 5, 260)
+  };
+}
+
+function normalizeWinner(winner, result, request) {
+  if (["left", "right", "draw", "unclear"].includes(winner)) return winner;
+  const inferred = inferWinner(result, request);
+  return inferred || "unclear";
+}
+
+function inferWinner(result, request) {
+  if (!request) return "";
+  const text = collectResultText(result);
+  const leftName = request.left && request.left.name ? request.left.name : "";
+  const rightName = request.right && request.right.name ? request.right.name : "";
+  const leftWins = hasWinnerLanguage(text, leftName);
+  const rightWins = hasWinnerLanguage(text, rightName);
+  if (leftWins && !rightWins) return "left";
+  if (rightWins && !leftWins) return "right";
+  if (/平局|僵持|draw/i.test(text)) return "draw";
+  return "";
+}
+
+function hasWinnerLanguage(text, name) {
+  if (!name) return false;
+  const escaped = escapeRegExp(name);
+  return new RegExp(`${escaped}.{0,24}(胜|优势|占优|取胜|获胜|压制|决定性)`).test(text)
+    || new RegExp(`(胜者|赢家|裁定).{0,16}${escaped}`).test(text);
+}
+
+function collectResultText(result) {
+  const value = result && typeof result === "object" ? result : {};
+  return [
+    value.summary,
+    value.verdict,
+    value.panelUse,
+    ...(Array.isArray(value.keyFactors) ? value.keyFactors : []),
+    ...(Array.isArray(value.caveats) ? value.caveats : []),
+    ...(Array.isArray(value.phases) ? value.phases.flatMap((phase) => [phase.title, phase.phase, phase.stage, phase.text]) : [])
+  ].filter(Boolean).join(" ");
+}
+
+function normalizeResultList(value, maxItems, maxLength) {
+  if (!Array.isArray(value)) return [];
+  return value.slice(0, maxItems).map((item) => cleanText(item, maxLength)).filter(Boolean);
+}
+
+function normalizeResultPhases(value) {
+  if (!Array.isArray(value)) return [];
+  return value.slice(0, 5).map((phase, index) => ({
+    title: cleanText(phase && (phase.title || phase.phase || phase.stage), 80) || `阶段 ${index + 1}`,
+    text: cleanText(phase && phase.text, 360)
+  })).filter((phase) => phase.text);
 }
 
 function extractFirstJsonObject(text) {
@@ -694,6 +759,10 @@ function pick(value, allowed, fallback) {
 
 function makeRequestId() {
   return `battle_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function httpError(status, message) {
