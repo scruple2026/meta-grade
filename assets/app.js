@@ -965,6 +965,7 @@
           <span class="${className}">${escapeHtml(label)}</span>
           ${status && status.model ? `<span class="badge">${escapeHtml(status.model)}</span>` : ""}
           ${status && status.chatFallback ? `<span class="badge">Chat fallback</span>` : ""}
+          ${status && status.rateLimit ? `<span class="badge">限流：${escapeHtml(formatRateLimit(status.rateLimit))}</span>` : ""}
         </div>
         <button class="small-action" type="button" id="refreshBattleStatus" ${state.battle.apiStatusLoading ? "disabled" : ""}>刷新状态</button>
       </div>
@@ -1129,6 +1130,13 @@
     const seconds = Math.max(0, Number(ms) || 0) / 1000;
     if (seconds < 10) return `${seconds.toFixed(1)}s`;
     return `${Math.round(seconds)}s`;
+  }
+
+  function formatRateLimit(rateLimit) {
+    const max = Number(rateLimit && rateLimit.max) || 0;
+    const windowMs = Number(rateLimit && rateLimit.windowMs) || 0;
+    if (max <= 0) return "关闭";
+    return `${max}/${formatDuration(windowMs)}`;
   }
 
   function usageSummary(usage) {

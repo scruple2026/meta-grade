@@ -6,6 +6,10 @@ const MAX_OUTPUT_TOKENS = 2600;
 const DEFAULT_MODEL = "gpt-4o-mini";
 const STREAM_DONE = "[DONE]";
 const OUTPUT_STYLES = ["verdict", "analysis", "narrative", "mechanics", "audit"];
+const DEFAULT_RATE_LIMIT_WINDOW_MS = 60000;
+const DEFAULT_RATE_LIMIT_MAX = 12;
+const RATE_LIMITS = globalThis.__META_GRADE_BATTLE_RATE_LIMITS || new Map();
+globalThis.__META_GRADE_BATTLE_RATE_LIMITS = RATE_LIMITS;
 
 const DIMENSIONS = [
   ["attack", "攻击能级"],
@@ -73,7 +77,8 @@ module.exports = async function handler(req, res) {
       baseUrlConfigured: Boolean(process.env.OPENAI_BASE_URL),
       streaming: true,
       chatFallback: true,
-      outputStyles: OUTPUT_STYLES
+      outputStyles: OUTPUT_STYLES,
+      rateLimit: rateLimitConfig()
     });
     return;
   }
@@ -85,6 +90,17 @@ module.exports = async function handler(req, res) {
   }
 
   try {
+    const rateLimit = checkRateLimit(req);
+    if (!rateLimit.allowed) {
+      setJsonHeaders(res);
+      res.setHeader("Retry-After", String(Math.ceil(rateLimit.retryAfterMs / 1000)));
+      res.status(429).json({
+        ok: false,
+        error: `对战生成过于频繁，请 ${Math.ceil(rateLimit.retryAfterMs / 1000)} 秒后再试。`
+      });
+      return;
+    }
+
     const body = await parseJsonBody(req);
     const request = normalizeBattleRequest(body);
 
@@ -156,6 +172,53 @@ function setSseHeaders(res) {
     "Connection": "keep-alive",
     "X-Accel-Buffering": "no"
   });
+}
+
+function rateLimitConfig() {
+  return {
+    windowMs: readPositiveInteger(process.env.BATTLE_RATE_LIMIT_WINDOW_MS, DEFAULT_RATE_LIMIT_WINDOW_MS),
+    max: readPositiveInteger(process.env.BATTLE_RATE_LIMIT_MAX, DEFAULT_RATE_LIMIT_MAX)
+  };
+}
+
+function checkRateLimit(req) {
+  const config = rateLimitConfig();
+  if (config.max <= 0) return { allowed: true, retryAfterMs: 0 };
+  const now = Date.now();
+  const key = clientKey(req);
+  const current = RATE_LIMITS.get(key);
+  if (!current || current.resetAt <= now) {
+    RATE_LIMITS.set(key, { count: 1, resetAt: now + config.windowMs });
+    pruneRateLimits(now);
+    return { allowed: true, retryAfterMs: 0 };
+  }
+  if (current.count >= config.max) {
+    return { allowed: false, retryAfterMs: Math.max(1000, current.resetAt - now) };
+  }
+  current.count += 1;
+  return { allowed: true, retryAfterMs: 0 };
+}
+
+function clientKey(req) {
+  const forwarded = String(req.headers && req.headers["x-forwarded-for"] || "");
+  const firstForwarded = forwarded.split(",")[0].trim();
+  return firstForwarded
+    || String(req.headers && req.headers["x-real-ip"] || "").trim()
+    || req.socket && req.socket.remoteAddress
+    || "unknown";
+}
+
+function pruneRateLimits(now) {
+  if (RATE_LIMITS.size < 2000) return;
+  for (const [key, value] of RATE_LIMITS) {
+    if (!value || value.resetAt <= now) RATE_LIMITS.delete(key);
+  }
+}
+
+function readPositiveInteger(value, fallback) {
+  const number = Number(value);
+  if (!Number.isFinite(number) || number < 0) return fallback;
+  return Math.floor(number);
 }
 
 function acceptsStream(req) {
