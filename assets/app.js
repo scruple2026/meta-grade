@@ -1343,6 +1343,7 @@
         </div>
         <div class="battle-note-grid">
           ${renderBattleMiniNote("攻击性质", character.notes.penetration)}
+          ${renderBattleMiniNote("防御抗性", character.notes.resistance)}
           ${renderBattleMiniNote("特殊权能", character.notes.special)}
           ${renderBattleMiniNote("短板", character.notes.weakness)}
         </div>
@@ -1731,7 +1732,7 @@
         notes: panel.notes || "",
         dimensions: panel.dimensions
       },
-      notes: character.notes || {},
+      notes: buildBattleNotesPayload(character, panel),
       evidenceLinks: (character.evidenceLinks || []).map((link) => ({
         type: link.type || "",
         label: link.label || "",
@@ -1739,6 +1740,19 @@
         citation: link.citation || "",
         ratingEvidence: link.ratingEvidence === true
       }))
+    };
+  }
+
+  function buildBattleNotesPayload(character, panel) {
+    const notes = character.notes || {};
+    return {
+      penetration: notes.penetration || "未补充攻击性质。",
+      resistance: notes.resistance || "未补充防御抗性。",
+      special: notes.special || "未补充特殊权能。",
+      weakness: notes.weakness || "未补充角色短板。",
+      setting: notes.setting || "未补充设定/旁白。",
+      basis: notes.basis || "未补充评级依据。",
+      timeline: [panel.label, panel.status, panel.notes].filter(Boolean).join(" / ")
     };
   }
 

@@ -1,7 +1,7 @@
 const OPENAI_RESPONSES_PATH = "/responses";
 const OPENAI_CHAT_COMPLETIONS_PATH = "/chat/completions";
 const MAX_BODY_LENGTH = 28000;
-const MAX_TEXT_LENGTH = 420;
+const MAX_TEXT_LENGTH = 900;
 const MAX_OUTPUT_TOKENS = 2600;
 const DEFAULT_MODEL = "gpt-4o-mini";
 const STREAM_DONE = "[DONE]";
@@ -316,7 +316,8 @@ function normalizeNotes(notes) {
     special: cleanText(value.special, MAX_TEXT_LENGTH),
     weakness: cleanText(value.weakness, MAX_TEXT_LENGTH),
     setting: cleanText(value.setting, MAX_TEXT_LENGTH),
-    basis: cleanText(value.basis, MAX_TEXT_LENGTH)
+    basis: cleanText(value.basis, MAX_TEXT_LENGTH),
+    timeline: cleanText(value.timeline, MAX_TEXT_LENGTH)
   };
 }
 
@@ -388,7 +389,8 @@ function buildSystemPrompt() {
     "必须同时考虑常态和峰值：常态决定基础交换和持续表现，峰值决定爆发、特殊权能窗口和短时上限。",
     "能量总量和能量回复速度必须参与判断，用来解释续航、峰值维持时间、爆发频率、消耗战和是否会因资源不足失去优势。",
     "不要把峰值当作无限常态；如果峰值依赖外源、一次性、短时、领域、仪式、装备或条件命中，必须说明触发和维持限制。",
-    "必须默认考虑 notes 中的特殊权能、领域、封印、空间、灵魂、一次性、外源、仪式、装备等，但只能按 notes 和峰值标签解释；条件不明时必须写入 caveats。",
+    "必须完整阅读并使用 notes.penetration、notes.resistance、notes.special、notes.weakness、notes.setting、notes.basis 和 notes.timeline；这些解释项不能因为主面板已简写而省略。",
+    "必须默认考虑 notes 中的攻击性质、防御抗性、特殊权能、领域、封印、空间、灵魂、一次性、外源、仪式、装备等，但只能按 notes 和峰值标签解释；条件不明时必须写入 caveats。",
     "允许输出 draw 或 unclear。证据不足、命中条件不明、速度/破防关系无法稳定判断时，不要强判。",
     "必须按 options.outputStyle 调整侧重点：verdict=快速结论，直接给胜负、胜率区间和3条主因；analysis=完整裁定，按8维、能量、特殊权能和反制关系说明；narrative=分阶段战报，写开局、中盘、峰值窗口、终局；mechanics=机制拆解，重点写权能命中条件、反制链、资源维持和失效条件；audit=证据审计，重点写资料缺口、不确定性、哪些结论只能低置信度，不足时优先 unclear。",
     "输出必须精炼：summary、verdict、panelUse 各 1 句；keyFactors 3-5 条；phases 2-4 段；caveats 2-4 条。",
