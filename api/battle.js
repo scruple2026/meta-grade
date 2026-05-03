@@ -5,6 +5,7 @@ const MAX_TEXT_LENGTH = 420;
 const MAX_OUTPUT_TOKENS = 2600;
 const DEFAULT_MODEL = "gpt-4o-mini";
 const STREAM_DONE = "[DONE]";
+const OUTPUT_STYLES = ["verdict", "analysis", "narrative", "mechanics", "audit"];
 
 const DIMENSIONS = [
   ["attack", "攻击能级"],
@@ -68,7 +69,11 @@ module.exports = async function handler(req, res) {
     res.status(200).json({
       ok: true,
       configured: Boolean(process.env.OPENAI_API_KEY),
-      model: process.env.OPENAI_MODEL || DEFAULT_MODEL
+      model: process.env.OPENAI_MODEL || DEFAULT_MODEL,
+      baseUrlConfigured: Boolean(process.env.OPENAI_BASE_URL),
+      streaming: true,
+      chatFallback: true,
+      outputStyles: OUTPUT_STYLES
     });
     return;
   }
@@ -236,7 +241,7 @@ function normalizeFighter(value, side) {
 
 function normalizeOptions(value) {
   return {
-    outputStyle: pick(value.outputStyle, ["verdict", "analysis", "narrative", "mechanics", "audit"], "verdict")
+    outputStyle: pick(value.outputStyle, OUTPUT_STYLES, "verdict")
   };
 }
 

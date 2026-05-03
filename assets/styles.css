@@ -965,6 +965,17 @@ button {
   padding: 16px;
 }
 
+.battle-api-status {
+  display: grid;
+  justify-items: end;
+  gap: 8px;
+  min-width: min(100%, 260px);
+}
+
+.battle-api-status .badge-list {
+  justify-content: flex-end;
+}
+
 .battle-picker-grid,
 .battle-preview-grid {
   display: grid;
@@ -1623,6 +1634,14 @@ button {
 
   .reference-header {
     flex-direction: column;
+  }
+
+  .battle-api-status {
+    justify-items: start;
+  }
+
+  .battle-api-status .badge-list {
+    justify-content: flex-start;
   }
 
   .reference-content {

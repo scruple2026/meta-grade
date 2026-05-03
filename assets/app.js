@@ -50,6 +50,11 @@
       result: null,
       model: "",
       usage: null,
+      statusTrail: [],
+      apiStatus: null,
+      apiStatusError: "",
+      apiStatusLoading: false,
+      apiStatusCheckedAt: 0,
       shareMessage: "",
       abortController: null
     }
@@ -824,7 +829,7 @@
             <h1>AI 对战演绎</h1>
             <p>选择两个角色后，由 Vercel Function 调用 LLM，根据本站 8 维常态/峰值面板、能量与续航、时间线、特殊权能和待审提示生成对战过程。结果是 AI 演绎，不写回角色定级。</p>
           </div>
-          <span class="badge is-source">/api/battle</span>
+          ${renderBattleApiStatus()}
         </header>
         <form class="battle-builder" id="battleForm">
           <div class="battle-picker-grid">
@@ -876,6 +881,10 @@
     });
     form.addEventListener("submit", handleBattleSubmit);
     document.getElementById("shareBattleLink").addEventListener("click", handleBattleShare);
+    const refreshStatus = document.getElementById("refreshBattleStatus");
+    if (refreshStatus) {
+      refreshStatus.addEventListener("click", () => ensureBattleApiStatus(true));
+    }
     const cancelButton = document.getElementById("cancelBattleGeneration");
     if (cancelButton) {
       cancelButton.addEventListener("click", cancelBattleGeneration);
@@ -916,6 +925,7 @@
         renderBattle();
       });
     });
+    ensureBattleApiStatus();
   }
 
   function clearBattleOutput() {
@@ -925,7 +935,62 @@
     state.battle.result = null;
     state.battle.model = "";
     state.battle.usage = null;
+    state.battle.statusTrail = [];
     state.battle.shareMessage = "";
+  }
+
+  function renderBattleApiStatus() {
+    const status = state.battle.apiStatus;
+    const error = state.battle.apiStatusError;
+    let label = "接口状态：检测中";
+    let className = "badge";
+    if (status) {
+      label = status.configured ? "接口状态：已配置" : "接口状态：缺少 Key";
+      className = status.configured ? "badge is-source" : "badge is-warning";
+    } else if (error) {
+      label = "接口状态：检测失败";
+      className = "badge is-warning";
+    }
+    return `
+      <div class="battle-api-status">
+        <div class="badge-list">
+          <span class="${className}">${escapeHtml(label)}</span>
+          ${status && status.model ? `<span class="badge">${escapeHtml(status.model)}</span>` : ""}
+          ${status && status.chatFallback ? `<span class="badge">Chat fallback</span>` : ""}
+        </div>
+        <button class="small-action" type="button" id="refreshBattleStatus" ${state.battle.apiStatusLoading ? "disabled" : ""}>刷新状态</button>
+      </div>
+    `;
+  }
+
+  async function ensureBattleApiStatus(force = false) {
+    const now = Date.now();
+    if (state.battle.apiStatusLoading) return;
+    if (!force && state.battle.apiStatusCheckedAt && now - state.battle.apiStatusCheckedAt < 60000) return;
+    state.battle.apiStatusLoading = true;
+    if (force) {
+      state.battle.apiStatusError = "";
+      renderBattle();
+    }
+    try {
+      const response = await fetch("/api/battle", {
+        method: "GET",
+        headers: { "Accept": "application/json" }
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error || "接口状态检测失败。");
+      }
+      state.battle.apiStatus = data;
+      state.battle.apiStatusError = "";
+    } catch (error) {
+      state.battle.apiStatus = null;
+      state.battle.apiStatusError = error && error.message ? error.message : "接口状态检测失败。";
+    } finally {
+      state.battle.apiStatusLoading = false;
+      state.battle.apiStatusCheckedAt = Date.now();
+      if (location.hash.startsWith("#/battle")) renderBattle();
+    }
   }
 
   async function handleBattleShare() {
@@ -1193,6 +1258,7 @@
           <h2>正在生成</h2>
           <p>正在流式调用 <code>/api/battle</code>，页面会在模型开始输出后持续接收片段。</p>
           ${state.battle.model ? `<p class="battle-stream-meta">模型：${escapeHtml(state.battle.model)}</p>` : ""}
+          ${state.battle.statusTrail.length ? `<p class="battle-stream-meta">路径：${state.battle.statusTrail.map(escapeHtml).join(" / ")}</p>` : ""}
           ${state.battle.streamText ? `<pre class="battle-stream-preview">${escapeHtml(trimStreamPreview(state.battle.streamText))}</pre>` : ""}
         </section>
       `;
@@ -1233,6 +1299,7 @@
           <div class="badge-list">
             <span class="badge">置信度：${escapeHtml(confidenceText(result.confidence))}</span>
             ${state.battle.model ? `<span class="badge is-source">${escapeHtml(state.battle.model)}</span>` : ""}
+            ${state.battle.statusTrail.length ? `<span class="badge">路径：${escapeHtml(state.battle.statusTrail.join(" / "))}</span>` : ""}
           </div>
         </header>
         <div class="battle-verdict">${escapeHtml(result.verdict)}</div>
@@ -1385,6 +1452,11 @@
       renderBattle();
       return;
     }
+    if (item.event === "status") {
+      addBattleStatus(data.message);
+      renderBattle();
+      return;
+    }
     if (item.event === "delta") {
       state.battle.streamText += data.delta || "";
       renderBattle();
@@ -1401,6 +1473,22 @@
     if (item.event === "error") {
       throw new Error(data.error || "对战生成失败。");
     }
+  }
+
+  function addBattleStatus(message) {
+    const label = battleStatusLabel(message);
+    if (!label || state.battle.statusTrail.includes(label)) return;
+    state.battle.statusTrail.push(label);
+  }
+
+  function battleStatusLabel(message) {
+    if (message === "upstream_connected") return "Responses 已连接";
+    if (message === "fallback_chat_completions") return "Chat fallback";
+    return cleanInlineLabel(message);
+  }
+
+  function cleanInlineLabel(value) {
+    return String(value || "").replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim().slice(0, 80);
   }
 
   function trimStreamPreview(text) {
