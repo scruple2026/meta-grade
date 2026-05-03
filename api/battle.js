@@ -701,6 +701,7 @@ function parseBattleResult(outputText, request = null) {
 
 function normalizeBattleResult(result, request) {
   const value = result && typeof result === "object" ? result : {};
+  const phases = normalizeResultPhases(value.phases);
   return {
     winner: normalizeWinner(value.winner, value, request),
     confidence: pick(value.confidence, ["low", "medium", "high"], "medium"),
@@ -708,13 +709,13 @@ function normalizeBattleResult(result, request) {
     verdict: cleanText(value.verdict, 900) || "模型未给出明确裁定。",
     panelUse: cleanText(value.panelUse, 900) || "综合常态、峰值、能量与特殊权能判断。",
     keyFactors: normalizeResultList(value.keyFactors, 6, 260),
-    phases: normalizeResultPhases(value.phases),
+    phases: phases.length ? phases : fallbackResultPhases(value),
     caveats: normalizeResultList(value.caveats, 5, 260)
   };
 }
 
 function normalizeWinner(winner, result, request) {
-  if (["left", "right", "draw", "unclear"].includes(winner)) return winner;
+  if (["left", "right", "draw"].includes(winner)) return winner;
   const inferred = inferWinner(result, request);
   return inferred || "unclear";
 }
@@ -724,8 +725,8 @@ function inferWinner(result, request) {
   const text = collectResultText(result);
   const leftName = request.left && request.left.name ? request.left.name : "";
   const rightName = request.right && request.right.name ? request.right.name : "";
-  const leftWins = hasWinnerLanguage(text, leftName);
-  const rightWins = hasWinnerLanguage(text, rightName);
+  const leftWins = hasWinnerLanguage(text, leftName) || hasSideWinnerLanguage(text, "left");
+  const rightWins = hasWinnerLanguage(text, rightName) || hasSideWinnerLanguage(text, "right");
   if (leftWins && !rightWins) return "left";
   if (rightWins && !leftWins) return "right";
   if (/平局|僵持|draw/i.test(text)) return "draw";
@@ -737,6 +738,17 @@ function hasWinnerLanguage(text, name) {
   const escaped = escapeRegExp(name);
   return new RegExp(`${escaped}.{0,24}(胜|优势|占优|取胜|获胜|压制|决定性)`).test(text)
     || new RegExp(`(胜者|赢家|裁定).{0,16}${escaped}`).test(text);
+}
+
+function hasSideWinnerLanguage(text, side) {
+  const labels = side === "left"
+    ? ["左方", "左侧", "角色A", "角色 A", "A方"]
+    : ["右方", "右侧", "角色B", "角色 B", "B方"];
+  return labels.some((label) => {
+    const escaped = escapeRegExp(label);
+    return new RegExp(`${escaped}.{0,24}(胜|优势|占优|取胜|获胜|压制|决定性|胜率)`).test(text)
+      || new RegExp(`(胜者|赢家|裁定).{0,16}${escaped}`).test(text);
+  });
 }
 
 function collectResultText(result) {
@@ -762,6 +774,19 @@ function normalizeResultPhases(value) {
     title: cleanText(phase && (phase.title || phase.phase || phase.stage), 80) || `阶段 ${index + 1}`,
     text: cleanText(phase && phase.text, 360)
   })).filter((phase) => phase.text);
+}
+
+function fallbackResultPhases(value) {
+  return [
+    {
+      title: "主要交换",
+      text: cleanText(value && value.summary, 360)
+    },
+    {
+      title: "裁定窗口",
+      text: cleanText(value && value.verdict, 360)
+    }
+  ].filter((phase) => phase.text);
 }
 
 function extractFirstJsonObject(text) {
