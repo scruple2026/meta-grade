@@ -972,7 +972,7 @@
       <div class="battle-api-status">
         <div class="badge-list">
           <span class="${className}">${escapeHtml(label)}</span>
-          ${status && status.model ? `<span class="badge">${escapeHtml(status.model)}</span>` : ""}
+          ${status && status.model ? `<span class="badge">${escapeHtml(displayModelName(status.model))}</span>` : ""}
           ${status && status.chatFallback ? `<span class="badge">Chat fallback</span>` : ""}
           ${status && status.rateLimit ? `<span class="badge">限流：${escapeHtml(formatRateLimit(status.rateLimit))}</span>` : ""}
         </div>
@@ -1119,7 +1119,7 @@
       left ? `角色 A：${formatBattleFighterForCopy(left, state.battle.leftStageKey)}` : "角色 A：未选择",
       right ? `角色 B：${formatBattleFighterForCopy(right, state.battle.rightStageKey)}` : "角色 B：未选择",
       `输出风格：${battleOutputStyleLabel(state.battle.outputStyle)}`,
-      state.battle.model ? `模型：${state.battle.model}` : "",
+      state.battle.model ? `模型：${displayModelName(state.battle.model)}` : "",
       state.battle.statusTrail.length ? `路径：${state.battle.statusTrail.join(" / ")}` : "",
       state.battle.elapsedMs ? `耗时：${formatDuration(state.battle.elapsedMs)}` : "",
       usageSummary(state.battle.usage),
@@ -1164,6 +1164,13 @@
     const windowMs = Number(rateLimit && rateLimit.windowMs) || 0;
     if (max <= 0) return "关闭";
     return `${max}/${formatDuration(windowMs)}`;
+  }
+
+  function displayModelName(value) {
+    const raw = String(value || "").trim();
+    if (!raw) return "";
+    const parts = raw.split("/").filter(Boolean);
+    return parts.length ? parts[parts.length - 1] : raw;
   }
 
   function usageSummary(usage) {
@@ -1396,7 +1403,7 @@
         <section class="battle-result is-loading">
           <h2>正在生成</h2>
           <p>正在流式调用 <code>/api/battle</code>，页面会在模型开始输出后持续接收片段。</p>
-          ${state.battle.model ? `<p class="battle-stream-meta">模型：${escapeHtml(state.battle.model)}</p>` : ""}
+          ${state.battle.model ? `<p class="battle-stream-meta">模型：${escapeHtml(displayModelName(state.battle.model))}</p>` : ""}
           ${state.battle.statusTrail.length ? `<p class="battle-stream-meta">路径：${state.battle.statusTrail.map(escapeHtml).join(" / ")}</p>` : ""}
           ${state.battle.streamText ? `<pre class="battle-stream-preview">${escapeHtml(trimStreamPreview(state.battle.streamText))}</pre>` : ""}
         </section>
@@ -1438,7 +1445,7 @@
           <div class="battle-result-tools">
             <div class="badge-list">
               <span class="badge">置信度：${escapeHtml(confidenceText(result.confidence))}</span>
-              ${state.battle.model ? `<span class="badge is-source">${escapeHtml(state.battle.model)}</span>` : ""}
+              ${state.battle.model ? `<span class="badge is-source">${escapeHtml(displayModelName(state.battle.model))}</span>` : ""}
               ${state.battle.statusTrail.length ? `<span class="badge">路径：${escapeHtml(state.battle.statusTrail.join(" / "))}</span>` : ""}
               ${state.battle.elapsedMs ? `<span class="badge">耗时：${escapeHtml(formatDuration(state.battle.elapsedMs))}</span>` : ""}
               ${usageSummary(state.battle.usage) ? `<span class="badge">${escapeHtml(usageSummary(state.battle.usage))}</span>` : ""}
