@@ -43,6 +43,7 @@
       outputStyle: "analysis",
       loading: false,
       error: "",
+      streamText: "",
       result: null,
       model: "",
       usage: null
@@ -804,7 +805,7 @@
           <div class="battle-option-grid">
             <div class="field">
               <label for="battlePanelMode">面板口径</label>
-              <select id="battlePanelMode" name="panelMode">
+              <select id="battlePanelMode" name="panelMode" ${state.battle.loading ? "disabled" : ""}>
                 ${renderSelectOptions(["normal", "peak", "both"], state.battle.panelMode, "", {
                   normal: "仅常态",
                   peak: "仅峰值",
@@ -814,7 +815,7 @@
             </div>
             <div class="field">
               <label for="battleSpecialPolicy">特殊权能</label>
-              <select id="battleSpecialPolicy" name="specialPolicy">
+              <select id="battleSpecialPolicy" name="specialPolicy" ${state.battle.loading ? "disabled" : ""}>
                 ${renderSelectOptions(["conservative", "allow", "panel-only"], state.battle.specialPolicy, "", {
                   conservative: "保守处理条件",
                   allow: "允许按说明使用",
@@ -824,7 +825,7 @@
             </div>
             <div class="field">
               <label for="battleOutputStyle">输出风格</label>
-              <select id="battleOutputStyle" name="outputStyle">
+              <select id="battleOutputStyle" name="outputStyle" ${state.battle.loading ? "disabled" : ""}>
                 ${renderSelectOptions(["analysis", "narrative"], state.battle.outputStyle, "", {
                   analysis: "裁定分析",
                   narrative: "分阶段演绎"
@@ -832,7 +833,7 @@
               </select>
             </div>
             <div class="battle-actions">
-              <button class="small-action" type="button" id="swapBattleSides">交换</button>
+              <button class="small-action" type="button" id="swapBattleSides" ${state.battle.loading ? "disabled" : ""}>交换</button>
               <button class="primary-action" type="submit" ${state.battle.loading ? "disabled" : ""}>${state.battle.loading ? "生成中..." : "生成对战"}</button>
             </div>
           </div>
@@ -850,6 +851,7 @@
     form.addEventListener("change", () => {
       readBattleForm(form);
       state.battle.error = "";
+      state.battle.streamText = "";
       state.battle.result = null;
       state.battle.model = "";
       state.battle.usage = null;
@@ -864,6 +866,7 @@
       state.battle.leftKey = nextLeftKey;
       state.battle.leftStageKey = nextLeftStage;
       state.battle.error = "";
+      state.battle.streamText = "";
       state.battle.result = null;
       renderBattle();
     });
@@ -871,18 +874,19 @@
 
   function renderBattlePicker(side, title, character, stageKey) {
     const panels = character ? getTimelineEntries(character) : [];
+    const disabled = state.battle.loading ? "disabled" : "";
     return `
       <section class="battle-picker">
         <h2>${escapeHtml(title)}</h2>
         <div class="field">
           <label for="${side}BattleCharacter">角色</label>
-          <select id="${side}BattleCharacter" name="${side}Key">
+          <select id="${side}BattleCharacter" name="${side}Key" ${disabled}>
             ${renderBattleCharacterOptions(character ? battleCharacterKey(character) : "")}
           </select>
         </div>
         <div class="field">
           <label for="${side}BattleStage">时间线</label>
-          <select id="${side}BattleStage" name="${side}StageKey">
+          <select id="${side}BattleStage" name="${side}StageKey" ${disabled}>
             ${panels.map((panel) => `<option value="${escapeAttribute(panel.key)}" ${panel.key === stageKey ? "selected" : ""}>${escapeHtml(panel.label)}</option>`).join("")}
           </select>
         </div>
@@ -956,7 +960,9 @@
       return `
         <section class="battle-result is-loading">
           <h2>正在生成</h2>
-          <p>正在调用 <code>/api/battle</code>。如果首次调用较慢，通常是 Vercel Function 冷启动或模型响应延迟。</p>
+          <p>正在流式调用 <code>/api/battle</code>，页面会在模型开始输出后持续接收片段。</p>
+          ${state.battle.model ? `<p class="battle-stream-meta">模型：${escapeHtml(state.battle.model)}</p>` : ""}
+          ${state.battle.streamText ? `<pre class="battle-stream-preview">${escapeHtml(trimStreamPreview(state.battle.streamText))}</pre>` : ""}
         </section>
       `;
     }
@@ -1023,6 +1029,7 @@
     readBattleForm(form);
     state.battle.loading = true;
     state.battle.error = "";
+    state.battle.streamText = "";
     state.battle.result = null;
     state.battle.model = "";
     state.battle.usage = null;
@@ -1030,22 +1037,104 @@
     try {
       const response = await fetch("/api/battle", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Accept": "text/event-stream",
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify(buildBattlePayload())
       });
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok || !data.ok) {
-        throw new Error(data.error || "对战 API 调用失败。");
+      if (isBattleStream(response)) {
+        await readBattleEventStream(response);
+      } else {
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || !data.ok) {
+          throw new Error(data.error || "对战 API 调用失败。");
+        }
+        state.battle.result = data.result;
+        state.battle.model = data.model || "";
+        state.battle.usage = data.usage || null;
       }
-      state.battle.result = data.result;
-      state.battle.model = data.model || "";
-      state.battle.usage = data.usage || null;
     } catch (error) {
       state.battle.error = error && error.message ? error.message : "对战生成失败。";
     } finally {
       state.battle.loading = false;
       renderBattle();
     }
+  }
+
+  function isBattleStream(response) {
+    const contentType = response.headers.get("content-type") || "";
+    return Boolean(response.body) && contentType.includes("text/event-stream");
+  }
+
+  async function readBattleEventStream(response) {
+    if (!response.ok) {
+      throw new Error("对战 API 调用失败。");
+    }
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const parts = buffer.split(/\r?\n\r?\n/);
+      buffer = parts.pop() || "";
+      for (const part of parts) {
+        handleBattleStreamEvent(parseBattleStreamEvent(part));
+      }
+    }
+    buffer += decoder.decode();
+    if (buffer.trim()) handleBattleStreamEvent(parseBattleStreamEvent(buffer));
+    if (!state.battle.result && !state.battle.error) {
+      throw new Error("对战 API 流式响应提前结束。");
+    }
+  }
+
+  function parseBattleStreamEvent(part) {
+    let event = "message";
+    const data = [];
+    part.split(/\r?\n/).forEach((line) => {
+      if (!line || line.startsWith(":")) return;
+      const separator = line.indexOf(":");
+      const field = separator >= 0 ? line.slice(0, separator) : line;
+      const value = separator >= 0 ? line.slice(separator + 1).replace(/^ /, "") : "";
+      if (field === "event") event = value;
+      if (field === "data") data.push(value);
+    });
+    if (!data.length) return null;
+    return { event, data: JSON.parse(data.join("\n")) };
+  }
+
+  function handleBattleStreamEvent(item) {
+    if (!item) return;
+    const data = item.data || {};
+    if (item.event === "meta") {
+      state.battle.model = data.model || state.battle.model;
+      renderBattle();
+      return;
+    }
+    if (item.event === "delta") {
+      state.battle.streamText += data.delta || "";
+      renderBattle();
+      return;
+    }
+    if (item.event === "done") {
+      state.battle.result = data.result || null;
+      state.battle.model = data.model || state.battle.model;
+      state.battle.usage = data.usage || null;
+      state.battle.loading = false;
+      renderBattle();
+      return;
+    }
+    if (item.event === "error") {
+      throw new Error(data.error || "对战生成失败。");
+    }
+  }
+
+  function trimStreamPreview(text) {
+    const value = String(text || "");
+    return value.length > 1800 ? `...${value.slice(-1800)}` : value;
   }
 
   function readBattleForm(form) {

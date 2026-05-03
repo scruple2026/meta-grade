@@ -1,7 +1,8 @@
 const OPENAI_RESPONSES_PATH = "/responses";
 const MAX_BODY_LENGTH = 28000;
-const MAX_TEXT_LENGTH = 900;
+const MAX_TEXT_LENGTH = 420;
 const DEFAULT_MODEL = "gpt-4o-mini";
+const STREAM_DONE = "[DONE]";
 
 const DIMENSIONS = [
   ["attack", "攻击能级"],
@@ -54,14 +55,14 @@ const RESULT_SCHEMA = {
 };
 
 module.exports = async function handler(req, res) {
-  setJsonHeaders(res);
-
   if (req.method === "OPTIONS") {
+    setJsonHeaders(res);
     res.status(204).end();
     return;
   }
 
   if (req.method === "GET") {
+    setJsonHeaders(res);
     res.status(200).json({
       ok: true,
       configured: Boolean(process.env.OPENAI_API_KEY),
@@ -71,6 +72,7 @@ module.exports = async function handler(req, res) {
   }
 
   if (req.method !== "POST") {
+    setJsonHeaders(res);
     res.status(405).json({ ok: false, error: "Only POST is supported." });
     return;
   }
@@ -80,6 +82,7 @@ module.exports = async function handler(req, res) {
     const request = normalizeBattleRequest(body);
 
     if (!process.env.OPENAI_API_KEY) {
+      setJsonHeaders(res);
       res.status(503).json({
         ok: false,
         error: "Vercel 环境变量 OPENAI_API_KEY 尚未配置，无法生成 AI 对战演绎。"
@@ -89,35 +92,19 @@ module.exports = async function handler(req, res) {
 
     const model = cleanToken(process.env.OPENAI_MODEL || DEFAULT_MODEL, DEFAULT_MODEL);
     const baseUrl = String(process.env.OPENAI_BASE_URL || "https://api.openai.com/v1").replace(/\/+$/, "");
+    const wantsStream = acceptsStream(req);
+    if (wantsStream) {
+      await streamBattleResponse(req, res, baseUrl, model, request);
+      return;
+    }
+
     const response = await fetch(`${baseUrl}${OPENAI_RESPONSES_PATH}`, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        model,
-        store: false,
-        max_output_tokens: 1800,
-        input: [
-          {
-            role: "system",
-            content: buildSystemPrompt()
-          },
-          {
-            role: "user",
-            content: JSON.stringify(request, null, 2)
-          }
-        ],
-        text: {
-          format: {
-            type: "json_schema",
-            name: "battle_result",
-            strict: true,
-            schema: RESULT_SCHEMA
-          }
-        }
-      })
+      body: JSON.stringify(buildProviderPayload(model, request, false))
     });
 
     const data = await response.json().catch(() => ({}));
@@ -136,6 +123,12 @@ module.exports = async function handler(req, res) {
       usage: data.usage || null
     });
   } catch (error) {
+    if (res.headersSent) {
+      sendSse(res, "error", { error: error && error.message ? error.message : "Battle generation failed." });
+      res.end();
+      return;
+    }
+    setJsonHeaders(res);
     const status = error && error.status ? error.status : 500;
     res.status(status).json({
       ok: false,
@@ -147,6 +140,20 @@ module.exports = async function handler(req, res) {
 function setJsonHeaders(res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.setHeader("Cache-Control", "no-store");
+}
+
+function setSseHeaders(res) {
+  res.writeHead(200, {
+    "Content-Type": "text/event-stream; charset=utf-8",
+    "Cache-Control": "no-cache, no-transform",
+    "Connection": "keep-alive",
+    "X-Accel-Buffering": "no"
+  });
+}
+
+function acceptsStream(req) {
+  const accept = String(req.headers && req.headers.accept || "");
+  return accept.includes("text/event-stream");
 }
 
 async function parseJsonBody(req) {
@@ -217,7 +224,7 @@ function normalizeFighter(value, side) {
       key: cleanToken(value.stage && value.stage.key, "current"),
       label: cleanText(value.stage && value.stage.label, 80),
       status: cleanText(value.stage && value.stage.status, 180),
-      notes: cleanText(value.stage && value.stage.notes, 260),
+      notes: cleanText(value.stage && value.stage.notes, 160),
       dimensions
     },
     notes: normalizeNotes(value.notes),
@@ -247,13 +254,40 @@ function normalizeNotes(notes) {
 
 function cleanEvidenceLinks(value) {
   if (!Array.isArray(value)) return [];
-  return value.slice(0, 8).map((link) => ({
+  return value.slice(0, 4).map((link) => ({
     type: cleanText(link && link.type, 30),
     label: cleanText(link && link.label, 80),
-    claim: cleanText(link && link.claim, 220),
-    citation: cleanText(link && link.citation, 160),
+    claim: cleanText(link && link.claim, 160),
+    citation: cleanText(link && link.citation, 120),
     ratingEvidence: Boolean(link && link.ratingEvidence)
   }));
+}
+
+function buildProviderPayload(model, request, stream) {
+  return {
+    model,
+    store: false,
+    stream,
+    max_output_tokens: 1100,
+    input: [
+      {
+        role: "system",
+        content: buildSystemPrompt()
+      },
+      {
+        role: "user",
+        content: JSON.stringify(request)
+      }
+    ],
+    text: {
+      format: {
+        type: "json_schema",
+        name: "battle_result",
+        strict: true,
+        schema: RESULT_SCHEMA
+      }
+    }
+  };
 }
 
 function buildSystemPrompt() {
@@ -263,8 +297,149 @@ function buildSystemPrompt() {
     "必须区分常态和峰值。panelMode=normal 时只按常态；panelMode=peak 时按峰值；panelMode=both 时先看常态，再说明峰值是否改变结论。",
     "特殊权能、领域、封印、空间、灵魂、一次性、外源、仪式、装备等只能按 notes 和峰值标签解释；条件不明时必须写入 caveats。",
     "允许输出 draw 或 unclear。证据不足、命中条件不明、速度/破防关系无法稳定判断时，不要强判。",
+    "输出必须精炼：summary、verdict、panelUse 各 1 句；keyFactors 3-5 条；phases 2-4 段；caveats 2-4 条。",
     "输出必须是符合 JSON Schema 的中文 JSON，不要 Markdown，不要代码块。"
   ].join("\n");
+}
+
+async function streamBattleResponse(req, res, baseUrl, model, request) {
+  const startedAt = Date.now();
+  const requestId = makeRequestId();
+  setSseHeaders(res);
+  res.write(": connected\n\n");
+  sendSse(res, "meta", { ok: true, model, requestId });
+
+  let outputText = "";
+  let usage = null;
+  let upstreamStatus = 0;
+  try {
+    const response = await fetch(`${baseUrl}${OPENAI_RESPONSES_PATH}`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+        "Content-Type": "application/json",
+        "Accept": "text/event-stream"
+      },
+      body: JSON.stringify(buildProviderPayload(model, request, true))
+    });
+    upstreamStatus = response.status;
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      const message = data && data.error && data.error.message ? data.error.message : "LLM provider request failed.";
+      sendSse(res, "error", { error: message, status: response.status, requestId });
+      res.end();
+      return;
+    }
+
+    const contentType = response.headers.get("content-type") || "";
+    if (!contentType.includes("text/event-stream") || !response.body) {
+      const data = await response.json().catch(() => ({}));
+      outputText = extractOutputText(data);
+      const result = JSON.parse(outputText);
+      sendSse(res, "done", { ok: true, model, result, usage: data.usage || null, requestId });
+      res.end();
+      return;
+    }
+
+    sendSse(res, "status", { message: "upstream_connected", requestId });
+    await readSseStream(response.body, (event) => {
+      const type = event.type || event.event || "";
+      if (type === "response.output_text.delta") {
+        const delta = event.delta || "";
+        outputText += delta;
+        sendSse(res, "delta", { delta, requestId });
+        return;
+      }
+      if (type === "response.output_text.done" && event.text) {
+        outputText = event.text;
+        return;
+      }
+      if (type === "response.completed") {
+        usage = event.response && event.response.usage ? event.response.usage : usage;
+        return;
+      }
+      if (type === "response.failed") {
+        const message = event.response && event.response.error && event.response.error.message
+          ? event.response.error.message
+          : "模型生成失败。";
+        throw httpError(502, message);
+      }
+      if (type === "error") {
+        const message = event.error && event.error.message ? event.error.message : event.message || "模型流式响应错误。";
+        throw httpError(502, message);
+      }
+      if (type === "response.refusal.delta" || type === "response.refusal.done") {
+        const message = event.refusal || "模型拒绝生成该对战。";
+        throw httpError(400, message);
+      }
+    });
+
+    const result = JSON.parse(outputText);
+    sendSse(res, "done", {
+      ok: true,
+      model,
+      result,
+      usage,
+      requestId,
+      elapsedMs: Date.now() - startedAt
+    });
+    res.end();
+  } catch (error) {
+    const message = error && error.message ? error.message : "Battle generation failed.";
+    console.error("[battle]", {
+      requestId,
+      upstreamStatus,
+      elapsedMs: Date.now() - startedAt,
+      error: message
+    });
+    sendSse(res, "error", { error: message, requestId });
+    res.end();
+  }
+}
+
+async function readSseStream(body, onEvent) {
+  const reader = body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const parts = buffer.split(/\r?\n\r?\n/);
+    buffer = parts.pop() || "";
+    for (const part of parts) {
+      const event = parseSseEvent(part);
+      if (event) onEvent(event);
+    }
+  }
+  buffer += decoder.decode();
+  if (buffer.trim()) {
+    const event = parseSseEvent(buffer);
+    if (event) onEvent(event);
+  }
+}
+
+function parseSseEvent(part) {
+  let eventType = "message";
+  const data = [];
+  for (const line of part.split(/\r?\n/)) {
+    if (!line || line.startsWith(":")) continue;
+    const separator = line.indexOf(":");
+    const field = separator >= 0 ? line.slice(0, separator) : line;
+    const value = separator >= 0 ? line.slice(separator + 1).replace(/^ /, "") : "";
+    if (field === "event") eventType = value;
+    if (field === "data") data.push(value);
+  }
+  if (!data.length) return null;
+  const raw = data.join("\n");
+  if (raw === STREAM_DONE) return null;
+  const parsed = JSON.parse(raw);
+  return { event: eventType, ...parsed };
+}
+
+function sendSse(res, event, data) {
+  res.write(`event: ${event}\n`);
+  res.write(`data: ${JSON.stringify(data)}\n\n`);
 }
 
 function extractOutputText(data) {
@@ -298,6 +473,10 @@ function cleanList(value, maxItems, maxLength) {
 
 function pick(value, allowed, fallback) {
   return allowed.includes(value) ? value : fallback;
+}
+
+function makeRequestId() {
+  return `battle_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
 function httpError(status, message) {
