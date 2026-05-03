@@ -7,7 +7,7 @@ description: Project-specific rules for updating the meta-grade cross-series pow
 
 ## Core Identity
 
-This project is a cross-series power wiki, not a single-work fan wiki. The site is a pure static wiki with no backend, no images, and no generated marketing pages. Keep it deployable on GitHub Pages by editing static files only; do not reintroduce Vercel-specific deployment config unless explicitly requested.
+This project is a cross-series power wiki, not a single-work fan wiki. The main wiki is static HTML/CSS/JS with no images and no generated marketing pages. Vercel is the preferred deployment target when the AI battle page is enabled because `/api/battle` must keep the LLM API key server-side; GitHub Pages may remain a static mirror without battle generation.
 
 Keep agent-maintenance guidance in this skill or a local `AGENTS.md`, not in community PR templates or copyable character proposal snippets. PR templates should stay proposer-facing: data shape, source expectations, review checklist, and directly reusable JS proposals. Do not put internal agent workflow, source-crawling tactics, token-budget policy, delegation policy, or S3 operation rules into PR artifacts.
 

@@ -32,7 +32,21 @@
     auditEvidence: "all",
     auditAuthority: "all",
     dimensionFilters: {},
-    mode: "grid"
+    mode: "grid",
+    battle: {
+      leftKey: "",
+      rightKey: "",
+      leftStageKey: "",
+      rightStageKey: "",
+      panelMode: "peak",
+      specialPolicy: "conservative",
+      outputStyle: "analysis",
+      loading: false,
+      error: "",
+      result: null,
+      model: "",
+      usage: null
+    }
   };
 
   dimensions.forEach((dimension) => {
@@ -60,6 +74,10 @@
     }
     if (route === "/audit") {
       renderAudit();
+      return;
+    }
+    if (route === "/battle") {
+      renderBattle();
       return;
     }
     if (route === "/about") {
@@ -764,6 +782,382 @@
     `;
   }
 
+  function renderBattle() {
+    normalizeBattleState();
+    const left = battleCharacterByKey(state.battle.leftKey);
+    const right = battleCharacterByKey(state.battle.rightKey);
+    app.innerHTML = `
+      <section class="battle-page">
+        <div class="back-line"><a href="#/">← 返回角色检索</a></div>
+        <header class="reference-header">
+          <div>
+            <h1>AI 对战演绎</h1>
+            <p>选择两个角色后，由 Vercel Function 调用 LLM，根据本站 8 维面板、时间线、特殊权能和待审提示生成对战过程。结果是 AI 演绎，不写回角色定级。</p>
+          </div>
+          <span class="badge is-source">/api/battle</span>
+        </header>
+        <form class="battle-builder" id="battleForm">
+          <div class="battle-picker-grid">
+            ${renderBattlePicker("left", "角色 A", left, state.battle.leftStageKey)}
+            ${renderBattlePicker("right", "角色 B", right, state.battle.rightStageKey)}
+          </div>
+          <div class="battle-option-grid">
+            <div class="field">
+              <label for="battlePanelMode">面板口径</label>
+              <select id="battlePanelMode" name="panelMode">
+                ${renderSelectOptions(["normal", "peak", "both"], state.battle.panelMode, "", {
+                  normal: "仅常态",
+                  peak: "仅峰值",
+                  both: "先常态，再看峰值"
+                })}
+              </select>
+            </div>
+            <div class="field">
+              <label for="battleSpecialPolicy">特殊权能</label>
+              <select id="battleSpecialPolicy" name="specialPolicy">
+                ${renderSelectOptions(["conservative", "allow", "panel-only"], state.battle.specialPolicy, "", {
+                  conservative: "保守处理条件",
+                  allow: "允许按说明使用",
+                  "panel-only": "只看 8 维面板"
+                })}
+              </select>
+            </div>
+            <div class="field">
+              <label for="battleOutputStyle">输出风格</label>
+              <select id="battleOutputStyle" name="outputStyle">
+                ${renderSelectOptions(["analysis", "narrative"], state.battle.outputStyle, "", {
+                  analysis: "裁定分析",
+                  narrative: "分阶段演绎"
+                })}
+              </select>
+            </div>
+            <div class="battle-actions">
+              <button class="small-action" type="button" id="swapBattleSides">交换</button>
+              <button class="primary-action" type="submit" ${state.battle.loading ? "disabled" : ""}>${state.battle.loading ? "生成中..." : "生成对战"}</button>
+            </div>
+          </div>
+          <p class="field-hint battle-hint">需要在 Vercel 上配置 <code>OPENAI_API_KEY</code>；可选 <code>OPENAI_MODEL</code> 覆盖默认模型，<code>OPENAI_BASE_URL</code> 覆盖上游 base URL。直接打开本地 HTML 时只能预览页面，不能调用 API。</p>
+        </form>
+        <div class="battle-preview-grid">
+          ${renderBattlePreview("角色 A", left, state.battle.leftStageKey)}
+          ${renderBattlePreview("角色 B", right, state.battle.rightStageKey)}
+        </div>
+        ${renderBattleResult()}
+      </section>
+    `;
+
+    const form = document.getElementById("battleForm");
+    form.addEventListener("change", () => {
+      readBattleForm(form);
+      state.battle.error = "";
+      state.battle.result = null;
+      state.battle.model = "";
+      state.battle.usage = null;
+      renderBattle();
+    });
+    form.addEventListener("submit", handleBattleSubmit);
+    document.getElementById("swapBattleSides").addEventListener("click", () => {
+      const nextLeftKey = state.battle.rightKey;
+      const nextLeftStage = state.battle.rightStageKey;
+      state.battle.rightKey = state.battle.leftKey;
+      state.battle.rightStageKey = state.battle.leftStageKey;
+      state.battle.leftKey = nextLeftKey;
+      state.battle.leftStageKey = nextLeftStage;
+      state.battle.error = "";
+      state.battle.result = null;
+      renderBattle();
+    });
+  }
+
+  function renderBattlePicker(side, title, character, stageKey) {
+    const panels = character ? getTimelineEntries(character) : [];
+    return `
+      <section class="battle-picker">
+        <h2>${escapeHtml(title)}</h2>
+        <div class="field">
+          <label for="${side}BattleCharacter">角色</label>
+          <select id="${side}BattleCharacter" name="${side}Key">
+            ${renderBattleCharacterOptions(character ? battleCharacterKey(character) : "")}
+          </select>
+        </div>
+        <div class="field">
+          <label for="${side}BattleStage">时间线</label>
+          <select id="${side}BattleStage" name="${side}StageKey">
+            ${panels.map((panel) => `<option value="${escapeAttribute(panel.key)}" ${panel.key === stageKey ? "selected" : ""}>${escapeHtml(panel.label)}</option>`).join("")}
+          </select>
+        </div>
+      </section>
+    `;
+  }
+
+  function renderBattleCharacterOptions(selectedKey) {
+    return characters
+      .slice()
+      .sort(sortCharacters)
+      .map((character) => {
+        const key = battleCharacterKey(character);
+        const label = `${character.work} / ${character.name}`;
+        return `<option value="${escapeAttribute(key)}" ${key === selectedKey ? "selected" : ""}>${escapeHtml(label)}</option>`;
+      })
+      .join("");
+  }
+
+  function renderBattlePreview(title, character, stageKey) {
+    if (!character) {
+      return `
+        <section class="battle-preview-card">
+          <h2>${escapeHtml(title)}</h2>
+          <p class="muted-copy">暂无可选角色。</p>
+        </section>
+      `;
+    }
+    const panel = battlePanelFor(character, stageKey);
+    return `
+      <section class="battle-preview-card">
+        <header>
+          <div>
+            <h2>${escapeHtml(title)}：${escapeHtml(character.name)}</h2>
+            <p>${escapeHtml(character.work)} · ${escapeHtml(character.affiliation)} · ${escapeHtml(character.grade)}</p>
+          </div>
+          <span class="badge${confidenceBadgeClass(character.confidence)}">${escapeHtml(confidenceLabel(character.confidence))}</span>
+        </header>
+        <p class="battle-stage-line">${escapeHtml(panel.label)}${panel.status ? ` / ${escapeHtml(panel.status)}` : ""}</p>
+        <div class="battle-dimension-grid">
+          ${dimensions.map((dimension) => {
+            const entry = panel.dimensions[dimension.key];
+            return `
+              <div class="dimension-cell">
+                <span class="dimension-label">${escapeHtml(dimension.label)}</span>
+                <span class="dimension-value">常态【${escapeHtml(entry.normal)}】/ 峰值【${escapeHtml(entry.peak)}】</span>
+              </div>
+            `;
+          }).join("")}
+        </div>
+        <div class="battle-note-grid">
+          ${renderBattleMiniNote("攻击性质", character.notes.penetration)}
+          ${renderBattleMiniNote("特殊权能", character.notes.special)}
+          ${renderBattleMiniNote("短板", character.notes.weakness)}
+        </div>
+      </section>
+    `;
+  }
+
+  function renderBattleMiniNote(title, value) {
+    return `
+      <section>
+        <strong>${escapeHtml(title)}</strong>
+        <p>${escapeHtml(value || "未补充。")}</p>
+      </section>
+    `;
+  }
+
+  function renderBattleResult() {
+    if (state.battle.loading) {
+      return `
+        <section class="battle-result is-loading">
+          <h2>正在生成</h2>
+          <p>正在调用 <code>/api/battle</code>。如果首次调用较慢，通常是 Vercel Function 冷启动或模型响应延迟。</p>
+        </section>
+      `;
+    }
+    if (state.battle.error) {
+      return `
+        <section class="battle-result is-error">
+          <h2>生成失败</h2>
+          <p>${escapeHtml(state.battle.error)}</p>
+        </section>
+      `;
+    }
+    const result = state.battle.result;
+    if (!result) {
+      return `
+        <section class="battle-result">
+          <h2>等待生成</h2>
+          <p>选择角色和口径后点击“生成对战”。公开站点请留意调用成本，后续可继续加限流或登录保护。</p>
+        </section>
+      `;
+    }
+    return `
+      <section class="battle-result">
+        <header>
+          <div>
+            <h2>${escapeHtml(winnerLabel(result.winner))}</h2>
+            <p>${escapeHtml(result.summary)}</p>
+          </div>
+          <div class="badge-list">
+            <span class="badge">置信度：${escapeHtml(confidenceText(result.confidence))}</span>
+            ${state.battle.model ? `<span class="badge is-source">${escapeHtml(state.battle.model)}</span>` : ""}
+          </div>
+        </header>
+        <div class="battle-verdict">${escapeHtml(result.verdict)}</div>
+        <section class="battle-result-block">
+          <h3>口径</h3>
+          <p>${escapeHtml(result.panelUse)}</p>
+        </section>
+        <section class="battle-result-block">
+          <h3>关键因素</h3>
+          <ul>${(result.keyFactors || []).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+        </section>
+        <section class="battle-result-block">
+          <h3>对战过程</h3>
+          <div class="battle-phase-list">
+            ${(result.phases || []).map((phase) => `
+              <article>
+                <h4>${escapeHtml(phase.title)}</h4>
+                <p>${escapeHtml(phase.text)}</p>
+              </article>
+            `).join("")}
+          </div>
+        </section>
+        <section class="battle-result-block">
+          <h3>限制与变数</h3>
+          <ul>${(result.caveats || []).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+        </section>
+      </section>
+    `;
+  }
+
+  async function handleBattleSubmit(event) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    readBattleForm(form);
+    state.battle.loading = true;
+    state.battle.error = "";
+    state.battle.result = null;
+    state.battle.model = "";
+    state.battle.usage = null;
+    renderBattle();
+    try {
+      const response = await fetch("/api/battle", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(buildBattlePayload())
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error || "对战 API 调用失败。");
+      }
+      state.battle.result = data.result;
+      state.battle.model = data.model || "";
+      state.battle.usage = data.usage || null;
+    } catch (error) {
+      state.battle.error = error && error.message ? error.message : "对战生成失败。";
+    } finally {
+      state.battle.loading = false;
+      renderBattle();
+    }
+  }
+
+  function readBattleForm(form) {
+    state.battle.leftKey = form.querySelector("[name='leftKey']").value;
+    state.battle.rightKey = form.querySelector("[name='rightKey']").value;
+    state.battle.leftStageKey = form.querySelector("[name='leftStageKey']").value;
+    state.battle.rightStageKey = form.querySelector("[name='rightStageKey']").value;
+    state.battle.panelMode = form.querySelector("[name='panelMode']").value;
+    state.battle.specialPolicy = form.querySelector("[name='specialPolicy']").value;
+    state.battle.outputStyle = form.querySelector("[name='outputStyle']").value;
+    normalizeBattleState();
+  }
+
+  function normalizeBattleState() {
+    if (!characters.length) return;
+    const keys = characters.map(battleCharacterKey);
+    if (!keys.includes(state.battle.leftKey)) state.battle.leftKey = keys[0];
+    if (!keys.includes(state.battle.rightKey)) state.battle.rightKey = keys[1] || keys[0];
+    const left = battleCharacterByKey(state.battle.leftKey);
+    const right = battleCharacterByKey(state.battle.rightKey);
+    state.battle.leftStageKey = normalizeBattleStageKey(left, state.battle.leftStageKey);
+    state.battle.rightStageKey = normalizeBattleStageKey(right, state.battle.rightStageKey);
+    if (!["normal", "peak", "both"].includes(state.battle.panelMode)) state.battle.panelMode = "peak";
+    if (!["allow", "conservative", "panel-only"].includes(state.battle.specialPolicy)) state.battle.specialPolicy = "conservative";
+    if (!["analysis", "narrative"].includes(state.battle.outputStyle)) state.battle.outputStyle = "analysis";
+  }
+
+  function normalizeBattleStageKey(character, stageKey) {
+    if (!character) return "";
+    const panels = getTimelineEntries(character);
+    if (panels.some((panel) => panel.key === stageKey)) return stageKey;
+    return panels[resolveTimelineIndex(panels, "", character.defaultTimelineKey)].key;
+  }
+
+  function battleCharacterByKey(key) {
+    return characters.find((character) => battleCharacterKey(character) === key) || null;
+  }
+
+  function battleCharacterKey(character) {
+    return `${character.workSlug || workSlugForName(character.work) || character.work}::${character.id}`;
+  }
+
+  function battlePanelFor(character, stageKey) {
+    const panels = getTimelineEntries(character);
+    return panels[resolveTimelineIndex(panels, stageKey, character.defaultTimelineKey)];
+  }
+
+  function buildBattlePayload() {
+    const left = battleCharacterByKey(state.battle.leftKey);
+    const right = battleCharacterByKey(state.battle.rightKey);
+    if (!left || !right) throw new Error("请选择两个角色。");
+    return {
+      left: buildBattleFighterPayload(left, state.battle.leftStageKey),
+      right: buildBattleFighterPayload(right, state.battle.rightStageKey),
+      options: {
+        panelMode: state.battle.panelMode,
+        specialPolicy: state.battle.specialPolicy,
+        outputStyle: state.battle.outputStyle
+      }
+    };
+  }
+
+  function buildBattleFighterPayload(character, stageKey) {
+    const panel = battlePanelFor(character, stageKey);
+    return {
+      id: character.id,
+      name: character.name,
+      en: character.en || "",
+      ja: character.ja || "",
+      work: character.work,
+      affiliation: character.affiliation || "",
+      grade: character.grade || "",
+      confidence: character.confidence || "",
+      evidenceType: character.evidenceType || [],
+      auditWarnings: character.auditWarnings || [],
+      stage: {
+        key: panel.key,
+        label: panel.label,
+        status: panel.status || "",
+        notes: panel.notes || "",
+        dimensions: panel.dimensions
+      },
+      notes: character.notes || {},
+      evidenceLinks: (character.evidenceLinks || []).map((link) => ({
+        type: link.type || "",
+        label: link.label || "",
+        claim: link.claim || "",
+        citation: link.citation || "",
+        ratingEvidence: link.ratingEvidence === true
+      }))
+    };
+  }
+
+  function winnerLabel(value) {
+    const labels = {
+      left: "角色 A 优势",
+      right: "角色 B 优势",
+      draw: "接近平局",
+      unclear: "无法稳定裁定"
+    };
+    return labels[value] || "无法稳定裁定";
+  }
+
+  function confidenceText(value) {
+    const labels = {
+      low: "低",
+      medium: "中",
+      high: "高"
+    };
+    return labels[value] || "中";
+  }
+
   function renderAudit() {
     const audited = characters.filter((character) => auditFindings(character).length);
     const filtered = audited.filter(matchesAuditFilters);
@@ -1165,8 +1559,8 @@
           <p>社区 PR 是本站核心维护入口。Fork 或开始编辑前先看根目录 <code>CONTRIBUTING.md</code>；创建 PR 时 GitHub 会自动套用 <code>.github/PULL_REQUEST_TEMPLATE.md</code>。新增角色、大幅修订角色或补高风险证据时，PR 最前面应先放完整角色文件提案，第一段代码块要能直接落成 <code>data/characters/&lt;work-slug&gt;/&lt;character-id&gt;.js</code>；说明文字和 checklist 放在代码块后面。仓库地址是 <a href="https://github.com/scruple2026/meta-grade" target="_blank" rel="noopener">https://github.com/scruple2026/meta-grade</a>。</p>
         </section>
         <section class="about-section">
-          <h2>静态部署</h2>
-          <p>项目没有后端、没有构建依赖。作品元数据放在 <code>data/works/*.js</code>，角色按单文件放在 <code>data/characters/&lt;work-slug&gt;/</code>。当前以 GitHub Pages 发布为主，仓库根目录可直接作为静态站点发布；暂不维护 Vercel 独立部署配置。</p>
+          <h2>部署</h2>
+          <p>主体页面仍是静态 HTML/CSS/JS，没有前端构建步骤。AI 对战演绎通过 Vercel Function 的 <code>/api/battle</code> 调用 LLM，因此推荐用 Vercel 作为主部署，并在 Vercel 环境变量中配置 <code>OPENAI_API_KEY</code>；GitHub Pages 只能作为静态镜像，无法生成对战结果。</p>
         </section>
         <section class="about-section">
           <h2>数据边界</h2>

@@ -1,6 +1,6 @@
 # 跨界战力维基
 
-这是一个纯静态跨作品战力维基，按 `reference.md` 的 8 个主维度录入不同作品战斗角色的常态/峰值面板。当前按作品维护核心战斗角色、核心反派和最终 Boss 级条目，长尾角色等待明确需求或社区 PR。站点不包含图片、不需要后端、不需要构建步骤。
+这是一个跨作品战力维基，按 `reference.md` 的 8 个主维度录入不同作品战斗角色的常态/峰值面板。主体页面仍是静态 HTML/CSS/JS；AI 对战演绎通过 Vercel Function 的 `/api/battle` 调用 LLM。当前按作品维护核心战斗角色、核心反派和最终 Boss 级条目，长尾角色等待明确需求或社区 PR。站点不包含图片，不需要前端构建步骤。
 
 ## 社区 PR（核心入口）
 
@@ -22,15 +22,41 @@
 
 ## 本地查看
 
-直接用浏览器打开 `index.html` 即可。公共数据注册器写在 `data/core.js`，作品来源元数据写在 `data/works/*.js`，每个角色独立写在 `data/characters/<work-slug>/<character-id>.js`，前端交互写在 `assets/app.js`。站内 `#/reference` 会渲染量级体系文档，`#/audit` 会集中展示待补具体证据的高风险条目，`#/work/<work-slug>` 会展示作品口径、角色清单和待审条目。角色稳定链接使用 `#/character/<work-slug>/<character-id>/<timeline-key>`，旧的 `#/character/<character-id>` 仍保留兼容。Markdown 原文仍保留在 `reference.md`。
+直接用浏览器打开 `index.html` 可以查看静态维基。公共数据注册器写在 `data/core.js`，作品来源元数据写在 `data/works/*.js`，每个角色独立写在 `data/characters/<work-slug>/<character-id>.js`，前端交互写在 `assets/app.js`。站内 `#/reference` 会渲染量级体系文档，`#/audit` 会集中展示待补具体证据的高风险条目，`#/battle` 会选择两个角色并调用 `/api/battle` 生成 AI 对战演绎，`#/work/<work-slug>` 会展示作品口径、角色清单和待审条目。角色稳定链接使用 `#/character/<work-slug>/<character-id>/<timeline-key>`，旧的 `#/character/<character-id>` 仍保留兼容。Markdown 原文仍保留在 `reference.md`。
 
-## 部署到 GitHub Pages
+本地要测试 AI 对战接口时，用 Vercel 本地开发环境，并配置环境变量：
+
+```bash
+cp .env.example .env.local
+# 然后把 .env.local 里的 OPENAI_API_KEY 改成真实 key
+vercel dev
+```
+
+不要把真实 key 写进前端 JS、README、PR 或提交记录；本仓库只提交 `.env.example` 这种占位样例。
+
+## 部署到 Vercel（推荐）
+
+1. 在 Vercel 导入该仓库。
+2. Framework Preset 选择 Other；`vercel.json` 已设置 `"framework": null`。
+3. Build Command 留空。本站前端没有构建步骤。
+4. 在 Vercel Project Settings → Environment Variables 填下面这些变量。
+5. 部署后访问 `/#/battle`，前端会调用同源 `/api/battle`。
+
+| 变量名 | 必填 | 填什么 | 说明 |
+| --- | --- | --- | --- |
+| `OPENAI_API_KEY` | 是 | 你的 LLM API key | 只放在 Vercel 环境变量或本地 `.env.local`，不要提交到仓库。 |
+| `OPENAI_MODEL` | 否 | 例如 `gpt-4o-mini` | 不填时默认用 `gpt-4o-mini`。 |
+| `OPENAI_BASE_URL` | 否 | 例如 `https://api.openai.com/v1` | 只填 base URL，不要带 `/responses`；`api/battle.js` 会自动拼成 `${OPENAI_BASE_URL}/responses`。如果换兼容服务商，该服务商必须支持本项目使用的 Responses API / JSON Schema 输出格式。 |
+
+生产环境的 API endpoint 不需要在前端填写：页面固定请求同源 `/api/battle`，真正的上游 endpoint 由 Vercel 环境变量 `OPENAI_BASE_URL` 控制。
+
+## 部署到 GitHub Pages（静态镜像）
 
 1. 将仓库推送到 GitHub。
 2. 在仓库 Settings → Pages 中选择 Deploy from a branch。
 3. Source 选择目标分支和 `/root` 目录。
 4. `.nojekyll` 已放在根目录，GitHub Pages 会按普通静态文件发布。
-5. 当前以 GitHub Pages 为默认发布目标，暂不维护 Vercel 独立部署配置。
+5. GitHub Pages 只能发布静态页面，`/#/battle` 页面可浏览但不能调用 `/api/battle` 生成结果。
 
 ## 数据维护
 
@@ -58,6 +84,7 @@
 - 领域、必中、规则、灵魂、空间、黑洞、世界斩等特殊杀伤只写入峰值标签或战力解释项；除非原作给出可换算表现，否则不折算为更高主面板等级。
 - 搜索结果页只展示 8 个主维度简介。
 - 8 维量级筛选可以选择“常态或峰值”“仅常态”或“仅峰值”；默认“常态或峰值”沿用任一命中的检索行为。
+- AI 对战页只基于用户选中的两名角色、时间线面板、8 维数据和战力解释项生成演绎；结果是临时 AI 输出，不作为正式定级依据。
 - 角色页展示战力解释项和来源；来源区块会区分 `量级依据` 与 `资料入口`，并在页面说明二者用途差异。
 - 所属和维度筛选选项会随当前作品筛选收敛；不再维护前台“分类”字段，`grade` 字段只作为“身份 / 能力”描述展示，不进入筛选项，避免头衔、能力名和角色职能膨胀成一人一个选项。每个维度筛选使用“下限 / 上限”左闭右闭区间，匹配时只看 `｜` 前的主档名。
 - 普通人、纯剧情人物、辅助监督、低优先级泳者和普通一级术师不进入本版结果。
@@ -77,6 +104,7 @@ node --check scripts/sync-reference.js
 node --check scripts/check-links.js
 node --check scripts/check-source-content.js
 node --check assets/app.js
+node --check api/battle.js
 node --check data/core.js
 node --check data/characters.js
 ```

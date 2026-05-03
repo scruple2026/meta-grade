@@ -7,6 +7,7 @@ Fork 或开始改文件前，先按这个顺序看：
 3. PR 正文最前面必须放完整角色文件提案。GitHub 创建 PR 时会自动套用 `.github/PULL_REQUEST_TEMPLATE.md`，但开始编辑前也可以先打开这个文件看模板。
 4. 高风险量级要补 `evidenceLinks`，写清 `claim`、`lang`、`authority`、`medium`、`ratingEvidence`。缺少章节、集数、设定书或官方资料时，保留待审说明，不要把称号、危险等级或剧情评价直接换算成主量级。
 5. 改完至少运行 `node scripts/validate-data.js`；改到 JS 文件时，再跑对应的 `node --check <file>`。
+6. 如果改到 AI 对战页或 `/api/battle`，要确认没有把 LLM API key 写入前端或仓库；密钥只放在 Vercel 环境变量或本地 `.env.local` 里。仓库里只能提交 `.env.example` 这种占位样例。
 
 ## 常用入口
 
@@ -35,6 +36,8 @@ data/characters/<work-slug>/<character-id>.js
 ```bash
 node scripts/validate-data.js
 node --check data/characters/<work-slug>/<character-id>.js
+node --check assets/app.js
+node --check api/battle.js
 ```
 
 涉及来源链接时，再跑：
