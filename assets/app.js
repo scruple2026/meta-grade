@@ -44,11 +44,14 @@
       rightFilters: createBattleFilters(),
       outputStyle: "verdict",
       loading: false,
+      cancelled: false,
       error: "",
       streamText: "",
       result: null,
       model: "",
-      usage: null
+      usage: null,
+      shareMessage: "",
+      abortController: null
     }
   };
 
@@ -74,7 +77,10 @@
   renderRoute();
 
   function renderRoute() {
-    const route = location.hash.replace(/^#/, "") || "/";
+    const rawRoute = location.hash.replace(/^#/, "") || "/";
+    const queryIndex = rawRoute.indexOf("?");
+    const route = queryIndex >= 0 ? rawRoute.slice(0, queryIndex) || "/" : rawRoute;
+    const routeParams = new URLSearchParams(queryIndex >= 0 ? rawRoute.slice(queryIndex + 1) : "");
     const segments = route.split("/").filter(Boolean).map((part) => decodeURIComponent(part));
     if (segments[0] === "character") {
       const target = resolveCharacterRoute(segments.slice(1));
@@ -93,8 +99,8 @@
       renderAudit();
       return;
     }
-    if (route === "/battle") {
-      renderBattle();
+    if (segments[0] === "battle") {
+      renderBattle(routeParams);
       return;
     }
     if (route === "/about") {
@@ -804,8 +810,10 @@
     `;
   }
 
-  function renderBattle() {
+  function renderBattle(routeParams) {
+    if (routeParams) applyBattleRouteParams(routeParams);
     normalizeBattleState();
+    syncBattleRoute();
     const left = battleCharacterByKey(state.battle.leftKey);
     const right = battleCharacterByKey(state.battle.rightKey);
     app.innerHTML = `
@@ -837,11 +845,14 @@
               </select>
             </div>
             <div class="battle-actions">
+              <button class="small-action" type="button" id="shareBattleLink" ${state.battle.loading ? "disabled" : ""}>复制链接</button>
+              ${state.battle.loading ? `<button class="small-action is-danger" type="button" id="cancelBattleGeneration">取消</button>` : ""}
               <button class="small-action" type="button" id="swapBattleSides" ${state.battle.loading ? "disabled" : ""}>交换</button>
               <button class="primary-action" type="submit" ${state.battle.loading ? "disabled" : ""}>${state.battle.loading ? "生成中..." : "生成对战"}</button>
             </div>
           </div>
           <p class="field-hint battle-hint">需要在 Vercel 上配置 <code>OPENAI_API_KEY</code>；可选 <code>OPENAI_MODEL</code> 覆盖默认模型，<code>OPENAI_BASE_URL</code> 覆盖上游 base URL。直接打开本地 HTML 时只能预览页面，不能调用 API。</p>
+          ${state.battle.shareMessage ? `<p class="field-hint battle-share-status">${escapeHtml(state.battle.shareMessage)}</p>` : ""}
         </form>
         <div class="battle-preview-grid">
           ${renderBattlePreview("角色 A", left, state.battle.leftStageKey)}
@@ -854,24 +865,21 @@
     const form = document.getElementById("battleForm");
     form.addEventListener("change", () => {
       readBattleForm(form);
-      state.battle.error = "";
-      state.battle.streamText = "";
-      state.battle.result = null;
-      state.battle.model = "";
-      state.battle.usage = null;
+      clearBattleOutput();
       renderBattle();
     });
     form.addEventListener("input", (event) => {
       if (!event.target.name || !/^(left|right)Query$/.test(event.target.name)) return;
       readBattleForm(form);
-      state.battle.error = "";
-      state.battle.streamText = "";
-      state.battle.result = null;
-      state.battle.model = "";
-      state.battle.usage = null;
+      clearBattleOutput();
       renderBattle();
     });
     form.addEventListener("submit", handleBattleSubmit);
+    document.getElementById("shareBattleLink").addEventListener("click", handleBattleShare);
+    const cancelButton = document.getElementById("cancelBattleGeneration");
+    if (cancelButton) {
+      cancelButton.addEventListener("click", cancelBattleGeneration);
+    }
     document.getElementById("swapBattleSides").addEventListener("click", () => {
       const nextLeftKey = state.battle.rightKey;
       const nextLeftStage = state.battle.rightStageKey;
@@ -879,9 +887,7 @@
       state.battle.rightStageKey = state.battle.leftStageKey;
       state.battle.leftKey = nextLeftKey;
       state.battle.leftStageKey = nextLeftStage;
-      state.battle.error = "";
-      state.battle.streamText = "";
-      state.battle.result = null;
+      clearBattleOutput();
       renderBattle();
     });
     form.querySelectorAll("[data-battle-toggle]").forEach((button) => {
@@ -895,9 +901,7 @@
       button.addEventListener("click", () => {
         const side = button.dataset.battleReset;
         state.battle[`${side}Filters`] = createBattleFilters();
-        state.battle.error = "";
-        state.battle.streamText = "";
-        state.battle.result = null;
+        clearBattleOutput();
         renderBattle();
       });
     });
@@ -908,12 +912,86 @@
         const character = battleCharacterByKey(button.dataset.battleKey);
         state.battle[`${side}StageKey`] = normalizeBattleStageKey(character, "");
         state.battle[`${side}SearchOpen`] = false;
-        state.battle.error = "";
-        state.battle.streamText = "";
-        state.battle.result = null;
+        clearBattleOutput();
         renderBattle();
       });
     });
+  }
+
+  function clearBattleOutput() {
+    state.battle.error = "";
+    state.battle.cancelled = false;
+    state.battle.streamText = "";
+    state.battle.result = null;
+    state.battle.model = "";
+    state.battle.usage = null;
+    state.battle.shareMessage = "";
+  }
+
+  async function handleBattleShare() {
+    normalizeBattleState();
+    syncBattleRoute();
+    const url = battleShareUrl();
+    try {
+      if (!navigator.clipboard || !window.isSecureContext) {
+        throw new Error("clipboard unavailable");
+      }
+      await navigator.clipboard.writeText(url);
+      state.battle.shareMessage = "已复制当前对战链接。";
+    } catch (error) {
+      state.battle.shareMessage = "已把当前对战写入地址栏；当前浏览器不允许自动复制。";
+    }
+    renderBattle();
+  }
+
+  function cancelBattleGeneration() {
+    if (state.battle.abortController) {
+      state.battle.abortController.abort();
+    }
+    state.battle.loading = false;
+    state.battle.cancelled = true;
+    state.battle.error = "";
+    renderBattle();
+  }
+
+  function applyBattleRouteParams(params) {
+    const left = params.get("left");
+    const right = params.get("right");
+    const leftStage = params.get("leftStage");
+    const rightStage = params.get("rightStage");
+    const outputStyle = params.get("style");
+    if (left) state.battle.leftKey = left;
+    if (right) state.battle.rightKey = right;
+    if (leftStage) state.battle.leftStageKey = leftStage;
+    if (rightStage) state.battle.rightStageKey = rightStage;
+    if (outputStyle) state.battle.outputStyle = outputStyle;
+  }
+
+  function syncBattleRoute() {
+    if (!location.hash.startsWith("#/battle") || !characters.length) return;
+    const nextHash = battleRouteHash();
+    if (location.hash === nextHash) return;
+    try {
+      history.replaceState(null, "", `${location.pathname}${location.search}${nextHash}`);
+    } catch (error) {
+      // Local file previews can reject replaceState; the page still works without URL sync.
+    }
+  }
+
+  function battleRouteHash() {
+    const params = new URLSearchParams();
+    params.set("left", state.battle.leftKey);
+    params.set("right", state.battle.rightKey);
+    params.set("leftStage", state.battle.leftStageKey);
+    params.set("rightStage", state.battle.rightStageKey);
+    params.set("style", state.battle.outputStyle);
+    return `#/battle?${params.toString()}`;
+  }
+
+  function battleShareUrl() {
+    const url = new URL(window.location.href);
+    url.hash = battleRouteHash();
+    return url.toString();
   }
 
   function renderBattlePicker(side, title, character, stageKey) {
@@ -1127,6 +1205,15 @@
         </section>
       `;
     }
+    if (state.battle.cancelled) {
+      return `
+        <section class="battle-result is-cancelled">
+          <h2>已取消生成</h2>
+          <p>本次请求已在前端中止，没有写入任何角色定级。</p>
+          ${state.battle.streamText ? `<pre class="battle-stream-preview">${escapeHtml(trimStreamPreview(state.battle.streamText))}</pre>` : ""}
+        </section>
+      `;
+    }
     const result = state.battle.result;
     if (!result) {
       return `
@@ -1179,13 +1266,19 @@
   async function handleBattleSubmit(event) {
     event.preventDefault();
     const form = event.currentTarget;
+    if (state.battle.loading) return;
     readBattleForm(form);
+    const validationError = validateBattleSelection();
+    if (validationError) {
+      clearBattleOutput();
+      state.battle.error = validationError;
+      renderBattle();
+      return;
+    }
+    const controller = new AbortController();
     state.battle.loading = true;
-    state.battle.error = "";
-    state.battle.streamText = "";
-    state.battle.result = null;
-    state.battle.model = "";
-    state.battle.usage = null;
+    state.battle.abortController = controller;
+    clearBattleOutput();
     renderBattle();
     try {
       const response = await fetch("/api/battle", {
@@ -1194,6 +1287,7 @@
           "Accept": "text/event-stream",
           "Content-Type": "application/json"
         },
+        signal: controller.signal,
         body: JSON.stringify(buildBattlePayload())
       });
       if (isBattleStream(response)) {
@@ -1208,11 +1302,35 @@
         state.battle.usage = data.usage || null;
       }
     } catch (error) {
-      state.battle.error = error && error.message ? error.message : "对战生成失败。";
+      if (state.battle.abortController !== controller) {
+        return;
+      }
+      if (error && error.name === "AbortError") {
+        state.battle.cancelled = true;
+        state.battle.error = "";
+      } else {
+        state.battle.cancelled = false;
+        state.battle.error = error && error.message ? error.message : "对战生成失败。";
+      }
     } finally {
-      state.battle.loading = false;
-      renderBattle();
+      if (state.battle.abortController === controller) {
+        state.battle.abortController = null;
+        state.battle.loading = false;
+        renderBattle();
+      }
     }
+  }
+
+  function validateBattleSelection() {
+    const left = battleCharacterByKey(state.battle.leftKey);
+    const right = battleCharacterByKey(state.battle.rightKey);
+    if (!left || !right) return "请选择两个角色。";
+    const leftStage = normalizeBattleStageKey(left, state.battle.leftStageKey);
+    const rightStage = normalizeBattleStageKey(right, state.battle.rightStageKey);
+    if (state.battle.leftKey === state.battle.rightKey && leftStage === rightStage) {
+      return "请选择两个不同角色，或切换同一角色的不同时期。";
+    }
+    return "";
   }
 
   function isBattleStream(response) {

@@ -1010,14 +1010,26 @@ button {
 
 .battle-actions {
   display: grid;
-  grid-template-columns: 0.75fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(86px, 1fr));
   gap: 8px;
+}
+
+.small-action.is-danger {
+  border-color: #d9a8a1;
+  background: #fff6f3;
+  color: #8a3129;
 }
 
 .battle-hint code {
   border-radius: 5px;
   background: var(--panel-muted);
   padding: 1px 5px;
+}
+
+.battle-share-status {
+  margin: -6px 0 0;
+  color: var(--accent-strong);
+  font-weight: 700;
 }
 
 .battle-search-panel {
@@ -1168,6 +1180,11 @@ button {
   background: #fff6f3;
 }
 
+.battle-result.is-cancelled {
+  border-color: #cfd8d2;
+  background: #f8faf7;
+}
+
 .battle-result.is-error h2,
 .battle-result.is-error p {
   color: #7d2d25;
@@ -1230,7 +1247,9 @@ button {
   font-size: 14px;
 }
 
-.primary-action:disabled {
+.primary-action:disabled,
+.small-action:disabled,
+.chip-button:disabled {
   opacity: 0.62;
   cursor: wait;
 }
