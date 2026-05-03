@@ -38,6 +38,10 @@
       rightKey: "",
       leftStageKey: "",
       rightStageKey: "",
+      leftSearchOpen: true,
+      rightSearchOpen: false,
+      leftFilters: createBattleFilters(),
+      rightFilters: createBattleFilters(),
       specialPolicy: "conservative",
       outputStyle: "analysis",
       loading: false,
@@ -52,6 +56,20 @@
   dimensions.forEach((dimension) => {
     state.dimensionFilters[dimension.key] = { min: "all", max: "all" };
   });
+
+  function createBattleFilters() {
+    const filters = {
+      query: "",
+      work: "all",
+      evidenceStatus: "all",
+      dimensionScope: "any",
+      dimensionFilters: {}
+    };
+    dimensions.forEach((dimension) => {
+      filters.dimensionFilters[dimension.key] = { min: "all", max: "all" };
+    });
+    return filters;
+  }
 
   window.addEventListener("hashchange", renderRoute);
   renderRoute();
@@ -417,6 +435,11 @@
 
   function compare(a, b) {
     return String(a).localeCompare(String(b), "zh-Hans-CN");
+  }
+
+  function capitalize(value) {
+    const text = String(value || "");
+    return text ? `${text.charAt(0).toUpperCase()}${text.slice(1)}` : "";
   }
 
   function renderResults() {
@@ -846,6 +869,16 @@
       state.battle.usage = null;
       renderBattle();
     });
+    form.addEventListener("input", (event) => {
+      if (!event.target.name || !/^(left|right)Query$/.test(event.target.name)) return;
+      readBattleForm(form);
+      state.battle.error = "";
+      state.battle.streamText = "";
+      state.battle.result = null;
+      state.battle.model = "";
+      state.battle.usage = null;
+      renderBattle();
+    });
     form.addEventListener("submit", handleBattleSubmit);
     document.getElementById("swapBattleSides").addEventListener("click", () => {
       const nextLeftKey = state.battle.rightKey;
@@ -859,40 +892,179 @@
       state.battle.result = null;
       renderBattle();
     });
+    form.querySelectorAll("[data-battle-toggle]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const side = button.dataset.battleToggle;
+        state.battle[`${side}SearchOpen`] = !state.battle[`${side}SearchOpen`];
+        renderBattle();
+      });
+    });
+    form.querySelectorAll("[data-battle-reset]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const side = button.dataset.battleReset;
+        state.battle[`${side}Filters`] = createBattleFilters();
+        state.battle.error = "";
+        state.battle.streamText = "";
+        state.battle.result = null;
+        renderBattle();
+      });
+    });
+    form.querySelectorAll("[data-battle-pick]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const side = button.dataset.battlePick;
+        state.battle[`${side}Key`] = button.dataset.battleKey;
+        const character = battleCharacterByKey(button.dataset.battleKey);
+        state.battle[`${side}StageKey`] = normalizeBattleStageKey(character, "");
+        state.battle[`${side}SearchOpen`] = false;
+        state.battle.error = "";
+        state.battle.streamText = "";
+        state.battle.result = null;
+        renderBattle();
+      });
+    });
   }
 
   function renderBattlePicker(side, title, character, stageKey) {
+    const filters = battleFilters(side);
+    const filtered = getBattleFilteredCharacters(side);
+    const activeKey = character ? battleCharacterKey(character) : "";
     const panels = character ? getTimelineEntries(character) : [];
     const disabled = state.battle.loading ? "disabled" : "";
+    const isOpen = state.battle[`${side}SearchOpen`];
     return `
       <section class="battle-picker">
-        <h2>${escapeHtml(title)}</h2>
-        <div class="field">
-          <label for="${side}BattleCharacter">角色</label>
-          <select id="${side}BattleCharacter" name="${side}Key" ${disabled}>
-            ${renderBattleCharacterOptions(character ? battleCharacterKey(character) : "")}
-          </select>
-        </div>
+        <header class="battle-picker-header">
+          <div>
+            <h2>${escapeHtml(title)}</h2>
+            ${character ? `<p>${escapeHtml(character.work)} / ${escapeHtml(character.name)}</p>` : `<p>未选择角色</p>`}
+          </div>
+          <button class="small-action" type="button" data-battle-toggle="${side}" ${disabled}>${isOpen ? "收起检索" : "检索角色"}</button>
+        </header>
         <div class="field">
           <label for="${side}BattleStage">时间线</label>
           <select id="${side}BattleStage" name="${side}StageKey" ${disabled}>
             ${panels.map((panel) => `<option value="${escapeAttribute(panel.key)}" ${panel.key === stageKey ? "selected" : ""}>${escapeHtml(panel.label)}</option>`).join("")}
           </select>
         </div>
+        <input type="hidden" name="${side}Key" value="${escapeAttribute(activeKey)}">
+        ${isOpen ? `
+          <div class="battle-search-panel">
+            <div class="battle-search-grid">
+              <div class="field">
+                <label for="${side}BattleQuery">角色名字</label>
+                <input id="${side}BattleQuery" name="${side}Query" type="search" placeholder="中文 / 英文 / 别名" value="${escapeAttribute(filters.query)}" autocomplete="off" ${disabled}>
+              </div>
+              <div class="field">
+                <label for="${side}BattleWork">作品</label>
+                <select id="${side}BattleWork" name="${side}Work" ${disabled}>
+                  ${renderSelectOptions(["all", ...collectValues((item) => [item.work])], filters.work, "全部作品")}
+                </select>
+              </div>
+              <div class="field">
+                <label for="${side}BattleEvidence">证据状态</label>
+                <select id="${side}BattleEvidence" name="${side}EvidenceStatus" ${disabled}>
+                  ${renderSelectOptions(["all", "stable", "review", "disputed", "bounded", "external"], filters.evidenceStatus, "全部证据状态", {
+                    stable: "稳定",
+                    review: "待审 / 有警告",
+                    disputed: "争议",
+                    bounded: "仅下限 / 仅上限",
+                    external: "外源 / 一次性 / 特殊峰值"
+                  })}
+                </select>
+              </div>
+              <div class="field">
+                <label for="${side}BattleDimensionScope">8 维筛选对象</label>
+                <select id="${side}BattleDimensionScope" name="${side}DimensionScope" ${disabled}>
+                  ${renderSelectOptions(["any", "normal", "peak"], filters.dimensionScope, "", {
+                    any: "常态或峰值",
+                    normal: "仅常态",
+                    peak: "仅峰值"
+                  })}
+                </select>
+              </div>
+            </div>
+            <details class="battle-dimension-filter">
+              <summary>8 维范围筛选</summary>
+              <div class="battle-dimension-filter-grid">
+                ${dimensions.map((dimension) => renderBattleDimensionFilter(side, dimension, filters)).join("")}
+              </div>
+            </details>
+            <div class="battle-search-toolbar">
+              <span>匹配 ${filtered.length} / ${characters.length}</span>
+              <button class="small-action" type="button" data-battle-reset="${side}" ${disabled}>重置检索</button>
+            </div>
+            <div class="battle-result-list">
+              ${renderBattleSearchResults(side, filtered, activeKey)}
+            </div>
+          </div>
+        ` : ""}
       </section>
     `;
   }
 
-  function renderBattleCharacterOptions(selectedKey) {
+  function renderBattleDimensionFilter(side, dimension, filters) {
+    const scoped = filters.work === "all" ? characters : characters.filter((item) => item.work === filters.work);
+    const values = collectRankValues(dimension.key, scoped, filters.dimensionScope);
+    const filter = normalizeDimensionFilter(dimension.key, filters.dimensionFilters[dimension.key], values);
+    filters.dimensionFilters[dimension.key] = filter;
+    const disabled = state.battle.loading ? "disabled" : "";
+    return `
+      <div class="field dimension-range-field">
+        <label>${escapeHtml(dimension.label)}</label>
+        <div class="range-selects">
+          <div class="range-control">
+            <span>下限</span>
+            <select name="${side}${capitalize(dimension.key)}Min" aria-label="${escapeAttribute(dimension.label)}下限" ${disabled}>
+              ${renderSelectOptions(["all", ...values], filter.min, "不限下限")}
+            </select>
+          </div>
+          <div class="range-control">
+            <span>上限</span>
+            <select name="${side}${capitalize(dimension.key)}Max" aria-label="${escapeAttribute(dimension.label)}上限" ${disabled}>
+              ${renderSelectOptions(["all", ...values], filter.max, "不限上限")}
+            </select>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderBattleSearchResults(side, filtered, activeKey) {
+    if (!filtered.length) {
+      return `<p class="muted-copy">没有匹配角色。</p>`;
+    }
+    return filtered.slice(0, 30).map((character) => {
+      const key = battleCharacterKey(character);
+      const active = key === activeKey;
+      return `
+        <button class="battle-character-option${active ? " is-active" : ""}" type="button" data-battle-pick="${side}" data-battle-key="${escapeAttribute(key)}" ${state.battle.loading ? "disabled" : ""}>
+          <span>
+            <strong>${escapeHtml(character.name)}</strong>
+            <small>${escapeHtml(character.work)} · ${escapeHtml(character.affiliation || "未标注所属")}</small>
+          </span>
+          <span class="badge${confidenceBadgeClass(character.confidence)}">${escapeHtml(confidenceLabel(character.confidence))}</span>
+        </button>
+      `;
+    }).join("");
+  }
+
+  function getBattleFilteredCharacters(side) {
+    const filters = battleFilters(side);
+    const query = normalize(filters.query);
     return characters
-      .slice()
-      .sort(sortCharacters)
-      .map((character) => {
-        const key = battleCharacterKey(character);
-        const label = `${character.work} / ${character.name}`;
-        return `<option value="${escapeAttribute(key)}" ${key === selectedKey ? "selected" : ""}>${escapeHtml(label)}</option>`;
+      .filter((item) => {
+        const haystack = normalize([item.name, item.en, item.ja, item.timelineStatus, ...(item.aliases || [])].join(" "));
+        if (query && !haystack.includes(query)) return false;
+        if (filters.work !== "all" && item.work !== filters.work) return false;
+        if (!matchesEvidenceStatus(item, filters.evidenceStatus)) return false;
+        return dimensions.every((dimension) => {
+          const filter = filters.dimensionFilters[dimension.key];
+          if (!filter || (filter.min === "all" && filter.max === "all")) return true;
+          const entry = item.dimensions[dimension.key];
+          return matchesDimensionRange(dimension.key, entry, filter, filters.dimensionScope);
+        });
       })
-      .join("");
+      .sort(sortCharacters);
   }
 
   function renderBattlePreview(title, character, stageKey) {
@@ -1131,14 +1303,38 @@
     state.battle.rightKey = form.querySelector("[name='rightKey']").value;
     state.battle.leftStageKey = form.querySelector("[name='leftStageKey']").value;
     state.battle.rightStageKey = form.querySelector("[name='rightStageKey']").value;
+    readBattleFilters(form, "left");
+    readBattleFilters(form, "right");
     state.battle.specialPolicy = form.querySelector("[name='specialPolicy']").value;
     state.battle.outputStyle = form.querySelector("[name='outputStyle']").value;
     normalizeBattleState();
   }
 
+  function readBattleFilters(form, side) {
+    const filters = battleFilters(side);
+    filters.query = readOptionalFormValue(form, `${side}Query`, filters.query).trim();
+    filters.work = readOptionalFormValue(form, `${side}Work`, filters.work);
+    filters.evidenceStatus = readOptionalFormValue(form, `${side}EvidenceStatus`, filters.evidenceStatus);
+    filters.dimensionScope = readOptionalFormValue(form, `${side}DimensionScope`, filters.dimensionScope);
+    dimensions.forEach((dimension) => {
+      const filter = normalizeDimensionFilter(dimension.key, {
+        min: readOptionalFormValue(form, `${side}${capitalize(dimension.key)}Min`, filters.dimensionFilters[dimension.key].min),
+        max: readOptionalFormValue(form, `${side}${capitalize(dimension.key)}Max`, filters.dimensionFilters[dimension.key].max)
+      });
+      filters.dimensionFilters[dimension.key] = filter;
+    });
+  }
+
+  function readOptionalFormValue(form, name, fallback) {
+    const element = form.querySelector(`[name='${name}']`);
+    return element ? element.value : fallback;
+  }
+
   function normalizeBattleState() {
     if (!characters.length) return;
     const keys = characters.map(battleCharacterKey);
+    normalizeBattleFilters("left");
+    normalizeBattleFilters("right");
     if (!keys.includes(state.battle.leftKey)) state.battle.leftKey = keys[0];
     if (!keys.includes(state.battle.rightKey)) state.battle.rightKey = keys[1] || keys[0];
     const left = battleCharacterByKey(state.battle.leftKey);
@@ -1147,6 +1343,25 @@
     state.battle.rightStageKey = normalizeBattleStageKey(right, state.battle.rightStageKey);
     if (!["allow", "conservative", "panel-only"].includes(state.battle.specialPolicy)) state.battle.specialPolicy = "conservative";
     if (!["analysis", "narrative"].includes(state.battle.outputStyle)) state.battle.outputStyle = "analysis";
+  }
+
+  function normalizeBattleFilters(side) {
+    const filters = battleFilters(side);
+    const works = collectValues((item) => [item.work]);
+    if (filters.work !== "all" && !works.includes(filters.work)) filters.work = "all";
+    if (!["all", "stable", "review", "disputed", "bounded", "external"].includes(filters.evidenceStatus)) filters.evidenceStatus = "all";
+    if (!["any", "normal", "peak"].includes(filters.dimensionScope)) filters.dimensionScope = "any";
+    const scoped = filters.work === "all" ? characters : characters.filter((item) => item.work === filters.work);
+    dimensions.forEach((dimension) => {
+      const values = collectRankValues(dimension.key, scoped, filters.dimensionScope);
+      filters.dimensionFilters[dimension.key] = normalizeDimensionFilter(dimension.key, filters.dimensionFilters[dimension.key], values);
+    });
+  }
+
+  function battleFilters(side) {
+    const key = `${side}Filters`;
+    if (!state.battle[key]) state.battle[key] = createBattleFilters();
+    return state.battle[key];
   }
 
   function normalizeBattleStageKey(character, stageKey) {

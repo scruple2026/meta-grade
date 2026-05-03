@@ -1,7 +1,7 @@
 const OPENAI_RESPONSES_PATH = "/responses";
 const MAX_BODY_LENGTH = 28000;
 const MAX_TEXT_LENGTH = 420;
-const MAX_OUTPUT_TOKENS = 1800;
+const MAX_OUTPUT_TOKENS = 2600;
 const DEFAULT_MODEL = "gpt-4o-mini";
 const STREAM_DONE = "[DONE]";
 
@@ -300,6 +300,7 @@ function buildSystemPrompt() {
     "特殊权能、领域、封印、空间、灵魂、一次性、外源、仪式、装备等只能按 notes 和峰值标签解释；条件不明时必须写入 caveats。",
     "允许输出 draw 或 unclear。证据不足、命中条件不明、速度/破防关系无法稳定判断时，不要强判。",
     "输出必须精炼：summary、verdict、panelUse 各 1 句；keyFactors 3-5 条；phases 2-4 段；caveats 2-4 条。",
+    "每个字符串尽量少于 120 个汉字，phases[].text 不写长篇剧情，不要输出解释 JSON 之外的任何前后缀。",
     "输出必须是符合 JSON Schema 的中文 JSON，不要 Markdown，不要代码块。"
   ].join("\n");
 }
@@ -404,7 +405,8 @@ async function streamBattleResponse(req, res, baseUrl, model, request) {
       requestId,
       upstreamStatus,
       elapsedMs: Date.now() - startedAt,
-      error: message
+      error: message,
+      outputPreview: previewText(outputText)
     });
     sendSse(res, "error", { error: message, requestId });
     res.end();
@@ -469,11 +471,78 @@ function extractOutputText(data) {
 }
 
 function parseBattleResult(outputText) {
+  const text = String(outputText || "").trim();
   try {
-    return JSON.parse(outputText);
-  } catch (_error) {
-    throw httpError(502, "模型返回的 JSON 不完整或格式错误，通常是输出被截断；请重试或降低输出复杂度。");
+    return JSON.parse(text);
+  } catch (firstError) {
+    const extracted = extractFirstJsonObject(text);
+    if (extracted && extracted !== text) {
+      try {
+        return JSON.parse(extracted);
+      } catch (_secondError) {
+        // Fall through to the structured error below.
+      }
+    }
+    const reason = looksTruncatedJson(text) ? "输出被截断" : "模型没有严格返回 JSON";
+    throw httpError(502, `模型返回的 JSON 不完整或格式错误：${reason}。`);
   }
+}
+
+function extractFirstJsonObject(text) {
+  const start = text.indexOf("{");
+  if (start < 0) return "";
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+  for (let index = start; index < text.length; index += 1) {
+    const char = text[index];
+    if (inString) {
+      if (escaped) {
+        escaped = false;
+      } else if (char === "\\") {
+        escaped = true;
+      } else if (char === "\"") {
+        inString = false;
+      }
+      continue;
+    }
+    if (char === "\"") {
+      inString = true;
+    } else if (char === "{") {
+      depth += 1;
+    } else if (char === "}") {
+      depth -= 1;
+      if (depth === 0) return text.slice(start, index + 1);
+    }
+  }
+  return "";
+}
+
+function looksTruncatedJson(text) {
+  if (!text) return true;
+  const trimmed = text.trim();
+  if (!trimmed.endsWith("}")) return true;
+  let inString = false;
+  let escaped = false;
+  let depth = 0;
+  for (const char of trimmed) {
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (char === "\\") escaped = true;
+      else if (char === "\"") inString = false;
+      continue;
+    }
+    if (char === "\"") inString = true;
+    else if (char === "{") depth += 1;
+    else if (char === "}") depth -= 1;
+  }
+  return inString || depth !== 0;
+}
+
+function previewText(text) {
+  const value = String(text || "").replace(/\s+/g, " ").trim();
+  if (!value) return "";
+  return value.length > 700 ? `${value.slice(0, 260)} ... ${value.slice(-360)}` : value;
 }
 
 function cleanText(value, maxLength) {

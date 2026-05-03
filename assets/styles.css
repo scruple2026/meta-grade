@@ -979,6 +979,21 @@ button {
   padding: 14px;
 }
 
+.battle-picker-header,
+.battle-search-toolbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.battle-picker-header p,
+.battle-search-toolbar span {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
 .battle-picker h2,
 .battle-preview-card h2,
 .battle-result h2 {
@@ -1003,6 +1018,81 @@ button {
   border-radius: 5px;
   background: var(--panel-muted);
   padding: 1px 5px;
+}
+
+.battle-search-panel {
+  display: grid;
+  gap: 10px;
+}
+
+.battle-search-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.battle-dimension-filter {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  padding: 10px;
+}
+
+.battle-dimension-filter summary {
+  cursor: pointer;
+  color: #314139;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.battle-dimension-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.battle-result-list {
+  display: grid;
+  max-height: 360px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.battle-character-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: #fff;
+  padding: 10px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.battle-character-option:last-child {
+  border-bottom: 0;
+}
+
+.battle-character-option:hover,
+.battle-character-option.is-active {
+  background: #f4fbf8;
+}
+
+.battle-character-option strong,
+.battle-character-option small {
+  display: block;
+}
+
+.battle-character-option small {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 12px;
 }
 
 .battle-preview-card {
@@ -1406,6 +1496,8 @@ button {
   .battle-picker-grid,
   .battle-preview-grid,
   .battle-option-grid,
+  .battle-search-grid,
+  .battle-dimension-filter-grid,
   .battle-dimension-grid,
   .battle-note-grid {
     grid-template-columns: 1fr;
