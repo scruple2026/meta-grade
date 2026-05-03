@@ -818,7 +818,10 @@
   }
 
   function renderBattle(routeParams) {
-    if (routeParams) applyBattleRouteParams(routeParams);
+    if (routeParams) {
+      const routeSelection = applyBattleRouteParams(routeParams);
+      ensureBattleRouteSelection(routeSelection);
+    }
     normalizeBattleState();
     syncBattleRoute();
     const left = battleCharacterByKey(state.battle.leftKey);
@@ -852,6 +855,7 @@
               </select>
             </div>
             <div class="battle-actions">
+              <button class="small-action" type="button" id="randomBattlePair" ${state.battle.loading ? "disabled" : ""}>随机角色</button>
               <button class="small-action" type="button" id="shareBattleLink" ${state.battle.loading ? "disabled" : ""}>复制链接</button>
               ${state.battle.loading ? `<button class="small-action is-danger" type="button" id="cancelBattleGeneration">取消</button>` : ""}
               <button class="small-action" type="button" id="swapBattleSides" ${state.battle.loading ? "disabled" : ""}>交换</button>
@@ -882,6 +886,11 @@
       renderBattle();
     });
     form.addEventListener("submit", handleBattleSubmit);
+    document.getElementById("randomBattlePair").addEventListener("click", () => {
+      setRandomBattlePair();
+      clearBattleOutput();
+      renderBattle();
+    });
     document.getElementById("shareBattleLink").addEventListener("click", handleBattleShare);
     const refreshStatus = document.getElementById("refreshBattleStatus");
     if (refreshStatus) {
@@ -1054,6 +1063,24 @@
     if (leftStage) state.battle.leftStageKey = leftStage;
     if (rightStage) state.battle.rightStageKey = rightStage;
     if (outputStyle) state.battle.outputStyle = outputStyle;
+    return {
+      hasLeft: Boolean(left),
+      hasRight: Boolean(right)
+    };
+  }
+
+  function ensureBattleRouteSelection(routeSelection) {
+    if (!characters.length || !routeSelection) return;
+    const keys = battleCharacterKeys();
+    const leftKey = keys.includes(state.battle.leftKey) ? state.battle.leftKey : "";
+    const rightKey = keys.includes(state.battle.rightKey) ? state.battle.rightKey : "";
+    const hasValidLeft = routeSelection.hasLeft && Boolean(leftKey);
+    const hasValidRight = routeSelection.hasRight && Boolean(rightKey);
+    if (hasValidLeft && hasValidRight) return;
+    setRandomBattlePair({
+      leftKey: hasValidLeft ? leftKey : "",
+      rightKey: hasValidRight ? rightKey : ""
+    });
   }
 
   function syncBattleRoute() {
@@ -1648,7 +1675,7 @@
 
   function normalizeBattleState() {
     if (!characters.length) return;
-    const keys = characters.map(battleCharacterKey);
+    const keys = battleCharacterKeys();
     normalizeBattleFilters("left");
     normalizeBattleFilters("right");
     if (!keys.includes(state.battle.leftKey)) state.battle.leftKey = keys[0];
@@ -1690,8 +1717,31 @@
     return characters.find((character) => battleCharacterKey(character) === key) || null;
   }
 
+  function battleCharacterKeys() {
+    return characters.map(battleCharacterKey);
+  }
+
   function battleCharacterKey(character) {
     return `${character.workSlug || workSlugForName(character.work) || character.work}::${character.id}`;
+  }
+
+  function setRandomBattlePair(selection = {}) {
+    const keys = battleCharacterKeys();
+    if (!keys.length) return;
+    const fixedLeft = selection.leftKey && keys.includes(selection.leftKey) ? selection.leftKey : "";
+    const fixedRight = selection.rightKey && keys.includes(selection.rightKey) ? selection.rightKey : "";
+    const leftKey = fixedLeft || randomBattleCharacterKey(keys, fixedRight);
+    const rightKey = fixedRight || randomBattleCharacterKey(keys, leftKey);
+    state.battle.leftKey = leftKey;
+    state.battle.rightKey = rightKey;
+    state.battle.leftStageKey = normalizeBattleStageKey(battleCharacterByKey(leftKey), "");
+    state.battle.rightStageKey = normalizeBattleStageKey(battleCharacterByKey(rightKey), "");
+  }
+
+  function randomBattleCharacterKey(keys, excludedKey = "") {
+    const pool = keys.filter((key) => key !== excludedKey);
+    const candidates = pool.length ? pool : keys;
+    return candidates[Math.floor(Math.random() * candidates.length)] || "";
   }
 
   function battlePanelFor(character, stageKey) {
