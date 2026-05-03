@@ -42,7 +42,7 @@
       rightSearchOpen: false,
       leftFilters: createBattleFilters(),
       rightFilters: createBattleFilters(),
-      outputStyle: "analysis",
+      outputStyle: "verdict",
       loading: false,
       error: "",
       streamText: "",
@@ -827,9 +827,12 @@
             <div class="field">
               <label for="battleOutputStyle">输出风格</label>
               <select id="battleOutputStyle" name="outputStyle" ${state.battle.loading ? "disabled" : ""}>
-                ${renderSelectOptions(["analysis", "narrative"], state.battle.outputStyle, "", {
+                ${renderSelectOptions(["verdict", "analysis", "narrative", "mechanics", "audit"], state.battle.outputStyle, "", {
+                  verdict: "结论速览",
                   analysis: "裁定分析",
-                  narrative: "分阶段演绎"
+                  narrative: "分阶段战报",
+                  mechanics: "机制拆解",
+                  audit: "证据审计"
                 })}
               </select>
             </div>
@@ -1329,7 +1332,7 @@
     const right = battleCharacterByKey(state.battle.rightKey);
     state.battle.leftStageKey = normalizeBattleStageKey(left, state.battle.leftStageKey);
     state.battle.rightStageKey = normalizeBattleStageKey(right, state.battle.rightStageKey);
-    if (!["analysis", "narrative"].includes(state.battle.outputStyle)) state.battle.outputStyle = "analysis";
+    if (!["verdict", "analysis", "narrative", "mechanics", "audit"].includes(state.battle.outputStyle)) state.battle.outputStyle = "verdict";
   }
 
   function normalizeBattleFilters(side) {

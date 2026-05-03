@@ -236,7 +236,7 @@ function normalizeFighter(value, side) {
 
 function normalizeOptions(value) {
   return {
-    outputStyle: pick(value.outputStyle, ["analysis", "narrative"], "analysis")
+    outputStyle: pick(value.outputStyle, ["verdict", "analysis", "narrative", "mechanics", "audit"], "verdict")
   };
 }
 
@@ -322,6 +322,7 @@ function buildSystemPrompt() {
     "不要把峰值当作无限常态；如果峰值依赖外源、一次性、短时、领域、仪式、装备或条件命中，必须说明触发和维持限制。",
     "必须默认考虑 notes 中的特殊权能、领域、封印、空间、灵魂、一次性、外源、仪式、装备等，但只能按 notes 和峰值标签解释；条件不明时必须写入 caveats。",
     "允许输出 draw 或 unclear。证据不足、命中条件不明、速度/破防关系无法稳定判断时，不要强判。",
+    "必须按 options.outputStyle 调整侧重点：verdict=快速结论，直接给胜负、胜率区间和3条主因；analysis=完整裁定，按8维、能量、特殊权能和反制关系说明；narrative=分阶段战报，写开局、中盘、峰值窗口、终局；mechanics=机制拆解，重点写权能命中条件、反制链、资源维持和失效条件；audit=证据审计，重点写资料缺口、不确定性、哪些结论只能低置信度，不足时优先 unclear。",
     "输出必须精炼：summary、verdict、panelUse 各 1 句；keyFactors 3-5 条；phases 2-4 段；caveats 2-4 条。",
     "每个字符串尽量少于 120 个汉字，phases[].text 不写长篇剧情，不要输出解释 JSON 之外的任何前后缀。",
     "输出必须是符合 JSON Schema 的中文 JSON，不要 Markdown，不要代码块。"
