@@ -245,6 +245,7 @@ button {
 }
 
 .field label,
+.field-label,
 .filter-group-title {
   color: #324039;
   font-size: 12px;
@@ -1012,7 +1013,9 @@ button {
 
 .battle-builder,
 .battle-picker,
-.battle-preview-card,
+.battle-comparison,
+.battle-local-summary,
+.battle-notes-comparison,
 .battle-result {
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -1047,8 +1050,7 @@ button {
   justify-content: flex-end;
 }
 
-.battle-picker-grid,
-.battle-preview-grid {
+.battle-picker-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
@@ -1081,7 +1083,6 @@ button {
 }
 
 .battle-picker h2,
-.battle-preview-card h2,
 .battle-result h2 {
   margin: 0;
   font-size: 18px;
@@ -1090,7 +1091,7 @@ button {
 
 .battle-option-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(180px, 240px);
+  grid-template-columns: minmax(280px, 1.35fr) minmax(150px, 190px) minmax(260px, 0.8fr);
   align-items: end;
   gap: 12px;
 }
@@ -1099,6 +1100,51 @@ button {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(86px, 1fr));
   gap: 8px;
+}
+
+.battle-style-options {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.battle-style-option {
+  position: relative;
+  display: grid;
+  gap: 2px;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  padding: 7px;
+  cursor: pointer;
+}
+
+.battle-style-option.is-active {
+  border-color: #5d8c7d;
+  background: #eff8f4;
+}
+
+.battle-style-option input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  min-height: 0;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.battle-style-option span {
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.battle-style-option small {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.25;
 }
 
 .small-action.is-danger {
@@ -1194,13 +1240,6 @@ button {
   font-size: 12px;
 }
 
-.battle-preview-card {
-  display: grid;
-  gap: 12px;
-  padding: 14px;
-}
-
-.battle-preview-card > header,
 .battle-result > header {
   display: flex;
   align-items: flex-start;
@@ -1208,7 +1247,6 @@ button {
   gap: 14px;
 }
 
-.battle-preview-card header p,
 .battle-stage-line,
 .muted-copy {
   margin: 4px 0 0;
@@ -1216,63 +1254,233 @@ button {
   font-size: 13px;
 }
 
-.battle-preview-meta {
-  margin: -2px 0 0;
+.battle-comparison,
+.battle-local-summary,
+.battle-notes-comparison {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
 }
 
-.battle-preview-meta summary {
+.battle-comparison > header,
+.battle-local-summary > header,
+.battle-notes-comparison > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.battle-comparison h2,
+.battle-local-summary h2,
+.battle-notes-comparison h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.battle-comparison header p,
+.battle-local-summary header p,
+.battle-notes-comparison header p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.battle-fighter-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(150px, 1fr));
+  gap: 8px;
+  min-width: min(100%, 420px);
+}
+
+.battle-fighter-summary section {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fbfcfa;
+  padding: 8px;
+}
+
+.battle-fighter-summary strong,
+.battle-fighter-summary span {
+  display: block;
+}
+
+.battle-fighter-summary strong {
+  color: var(--ink);
+  font-size: 13px;
+}
+
+.battle-fighter-summary span {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.battle-compare-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.battle-compare-group {
+  min-width: 0;
+}
+
+.battle-compare-head,
+.battle-compare-row {
+  display: grid;
+  grid-template-columns: minmax(62px, 0.8fr) repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  align-items: stretch;
+}
+
+.battle-compare-head {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.battle-compare-rows {
+  display: grid;
+  gap: 7px;
+}
+
+.battle-compare-row {
+  border-top: 1px solid var(--line);
+  padding-top: 7px;
+}
+
+.battle-compare-row:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.battle-compare-dimension {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.battle-compare-dimension strong {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.25;
+}
+
+.battle-compare-dimension .badge {
+  justify-self: start;
+  padding: 3px 6px;
+  font-size: 10px;
+}
+
+.battle-compare-value {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  border-radius: 6px;
+  background: #fff;
+  padding: 6px;
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 760;
+  overflow-wrap: anywhere;
+}
+
+.battle-compare-value.is-advantage {
+  background: #eef8f2;
+  box-shadow: inset 0 0 0 1px #bddccc;
+}
+
+.battle-compare-value span {
+  display: block;
+}
+
+.battle-compare-value em {
+  display: inline-block;
+  margin-right: 3px;
+  color: var(--muted);
+  font-style: normal;
+  font-weight: 900;
+}
+
+.battle-local-summary ul {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.battle-local-summary li {
+  display: grid;
+  gap: 5px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fbfcfa;
+  padding: 10px;
+}
+
+.battle-local-summary strong {
+  color: var(--ink);
+  font-size: 13px;
+}
+
+.battle-local-summary span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.battle-note-compare-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.battle-note-compare {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fbfcfa;
+  padding: 10px;
+}
+
+.battle-note-compare summary {
   color: #324039;
   cursor: pointer;
   font-size: 12px;
   font-weight: 900;
 }
 
-.battle-preview-meta p {
-  margin: 5px 0 0;
-  color: var(--muted);
-  font-size: 13px;
-}
-
-.battle-dimension-grid {
+.battle-note-compare-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
+  margin-top: 9px;
 }
 
-.battle-dimension-grid .dimension-group-card {
-  min-width: 0;
-  padding: 8px;
+.battle-note-compare-grid section {
+  border-left: 2px solid var(--line);
+  padding-left: 8px;
 }
 
-.battle-dimension-grid .dimension-group-title {
-  font-size: 13px;
+.battle-note-compare-grid strong,
+.battle-note-compare-grid p {
+  display: block;
 }
 
-.battle-dimension-grid .dimension-subrows {
-  gap: 7px;
-}
-
-.battle-dimension-grid .dimension-subrow {
-  gap: 3px;
-  padding-top: 7px;
-}
-
-.battle-dimension-grid .dimension-sub-label {
-  font-size: 11px;
-}
-
-.battle-dimension-grid .dimension-value {
+.battle-note-compare-grid strong {
+  color: var(--ink);
   font-size: 12px;
 }
 
-.battle-note-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
+.battle-note-compare-grid p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
 }
 
-.battle-note-grid section,
-.battle-mini-note,
 .battle-result-block {
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -1280,19 +1488,12 @@ button {
   padding: 10px;
 }
 
-.battle-note-grid strong,
-.battle-mini-note summary,
 .battle-result-block h3 {
   color: #324039;
   font-size: 12px;
   font-weight: 900;
 }
 
-.battle-mini-note summary {
-  cursor: pointer;
-}
-
-.battle-note-grid p,
 .battle-result-block p,
 .battle-result-block li {
   margin: 5px 0 0;
@@ -1649,16 +1850,10 @@ button {
   }
 
   .battle-picker-grid,
-  .battle-preview-grid,
   .battle-option-grid,
   .battle-search-grid,
-  .battle-dimension-filter-grid,
-  .battle-note-grid {
+  .battle-dimension-filter-grid {
     grid-template-columns: 1fr;
-  }
-
-  .battle-dimension-grid {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 
   .detail-layout {
@@ -1780,8 +1975,22 @@ button {
     justify-content: flex-start;
   }
 
-  .battle-dimension-grid {
+  .battle-comparison > header,
+  .battle-local-summary > header,
+  .battle-notes-comparison > header {
+    flex-direction: column;
+  }
+
+  .battle-fighter-summary,
+  .battle-compare-grid,
+  .battle-local-summary ul,
+  .battle-note-compare-list,
+  .battle-note-compare-grid {
     grid-template-columns: 1fr;
+  }
+
+  .battle-style-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .reference-content {

@@ -11,6 +11,18 @@
     { key: "vitality", label: "生命", dimensionKeys: ["vitality", "healing"] },
     { key: "energy", label: "能量", dimensionKeys: ["energy", "energyRegen"] }
   ];
+  const battleOutputStyles = [
+    { key: "verdict", label: "速览", description: "结论优先" },
+    { key: "analysis", label: "裁定", description: "面板推理" },
+    { key: "narrative", label: "战报", description: "分阶段过程" },
+    { key: "mechanics", label: "机制", description: "权能交互" },
+    { key: "audit", label: "审计", description: "证据限制" }
+  ];
+  const battleRandomModes = [
+    { key: "any", label: "纯随机" },
+    { key: "cross-work", label: "跨作品" },
+    { key: "same-tier", label: "同档位" }
+  ];
   const workSources = window.POWER_WIKI_WORK_SOURCES || {};
   const confidenceLabels = {
     stable: "稳定",
@@ -50,6 +62,7 @@
       leftFilters: createBattleFilters(),
       rightFilters: createBattleFilters(),
       outputStyle: "verdict",
+      randomMode: "any",
       loading: false,
       cancelled: false,
       error: "",
@@ -887,15 +900,13 @@
           </div>
           <div class="battle-option-grid">
             <div class="field">
-              <label for="battleOutputStyle">输出风格</label>
-              <select id="battleOutputStyle" name="outputStyle" ${state.battle.loading ? "disabled" : ""}>
-                ${renderSelectOptions(["verdict", "analysis", "narrative", "mechanics", "audit"], state.battle.outputStyle, "", {
-                  verdict: "结论速览",
-                  analysis: "裁定分析",
-                  narrative: "分阶段战报",
-                  mechanics: "机制拆解",
-                  audit: "证据审计"
-                })}
+              <span class="field-label">输出风格</span>
+              ${renderBattleOutputStyleControl()}
+            </div>
+            <div class="field">
+              <label for="battleRandomMode">随机模式</label>
+              <select id="battleRandomMode" name="randomMode" ${state.battle.loading ? "disabled" : ""}>
+                ${renderSelectOptions(battleRandomModes.map((mode) => mode.key), state.battle.randomMode, "", battleRandomModeLabels())}
               </select>
             </div>
             <div class="battle-actions">
@@ -909,10 +920,9 @@
           <p class="field-hint battle-hint">需要在 Vercel 上配置 <code>OPENAI_API_KEY</code>；可选 <code>OPENAI_MODEL</code> 覆盖默认模型，<code>OPENAI_BASE_URL</code> 覆盖上游 base URL。直接打开本地 HTML 时只能预览页面，不能调用 API。</p>
           ${state.battle.shareMessage ? `<p class="field-hint battle-share-status">${escapeHtml(state.battle.shareMessage)}</p>` : ""}
         </form>
-        <div class="battle-preview-grid">
-          ${renderBattlePreview("角色 A", left, state.battle.leftStageKey)}
-          ${renderBattlePreview("角色 B", right, state.battle.rightStageKey)}
-        </div>
+        ${renderBattleComparison(left, right)}
+        ${renderBattlePanelSummary(left, right)}
+        ${renderBattleNotesComparison(left, right)}
         ${renderBattleResult()}
       </section>
     `;
@@ -1186,15 +1196,28 @@
     return `${character.name}（${character.work} / ${panel.label}${panel.status ? ` / ${panel.status}` : ""}）`;
   }
 
+  function renderBattleOutputStyleControl() {
+    const disabled = state.battle.loading ? "disabled" : "";
+    return `
+      <div class="battle-style-options" role="radiogroup" aria-label="输出风格">
+        ${battleOutputStyles.map((style) => `
+          <label class="battle-style-option${state.battle.outputStyle === style.key ? " is-active" : ""}">
+            <input type="radio" name="outputStyle" value="${escapeAttribute(style.key)}" ${state.battle.outputStyle === style.key ? "checked" : ""} ${disabled}>
+            <span>${escapeHtml(style.label)}</span>
+            <small>${escapeHtml(style.description)}</small>
+          </label>
+        `).join("")}
+      </div>
+    `;
+  }
+
   function battleOutputStyleLabel(value) {
-    const labels = {
-      verdict: "结论速览",
-      analysis: "裁定分析",
-      narrative: "分阶段战报",
-      mechanics: "机制拆解",
-      audit: "证据审计"
-    };
-    return labels[value] || "结论速览";
+    const style = battleOutputStyles.find((item) => item.key === value);
+    return style ? `${style.label}：${style.description}` : "速览：结论优先";
+  }
+
+  function battleRandomModeLabels() {
+    return Object.fromEntries(battleRandomModes.map((mode) => [mode.key, mode.label]));
   }
 
   function formatDuration(ms) {
@@ -1388,49 +1411,190 @@
       .sort(sortCharacters);
   }
 
-  function renderBattlePreview(title, character, stageKey) {
-    if (!character) {
+  function renderBattleComparison(left, right) {
+    if (!left || !right) {
       return `
-        <section class="battle-preview-card">
-          <h2>${escapeHtml(title)}</h2>
-          <p class="muted-copy">暂无可选角色。</p>
+        <section class="battle-comparison">
+          <h2>面板对照</h2>
+          <p class="muted-copy">暂无可对照角色。</p>
         </section>
       `;
     }
-    const panel = battlePanelFor(character, stageKey);
+    const leftPanel = battlePanelFor(left, state.battle.leftStageKey);
+    const rightPanel = battlePanelFor(right, state.battle.rightStageKey);
     return `
-      <section class="battle-preview-card">
+      <section class="battle-comparison">
         <header>
           <div>
-            <h2>${escapeHtml(title)}：${escapeHtml(character.name)}</h2>
+            <h2>面板对照</h2>
+            <p>按五条属性对照，内部仍保留 8 维常态/峰值。</p>
+          </div>
+          <div class="battle-fighter-summary">
+            ${renderBattleFighterSummary("A", left, leftPanel)}
+            ${renderBattleFighterSummary("B", right, rightPanel)}
           </div>
         </header>
-        <details class="battle-preview-meta">
-          <summary>角色信息</summary>
-          <p>${escapeHtml(character.work)} · ${escapeHtml(character.affiliation)} · ${escapeHtml(character.grade)}</p>
-          <p><span class="badge${confidenceBadgeClass(character.confidence)}">${escapeHtml(confidenceLabel(character.confidence))}</span></p>
-          <p class="battle-stage-line">${escapeHtml(panel.label)}${panel.status ? ` / ${escapeHtml(panel.status)}` : ""}</p>
-        </details>
-        <div class="battle-dimension-grid" aria-label="${escapeAttribute(character.name)} 的 5 条属性分组，含 8 个主维度简介">
-          ${renderDimensionGroupCards(panel.dimensions)}
-        </div>
-        <div class="battle-note-grid">
-          ${renderBattleMiniNote("攻击性质", character.notes.penetration)}
-          ${renderBattleMiniNote("防御抗性", character.notes.resistance)}
-          ${renderBattleMiniNote("特殊权能", character.notes.special)}
-          ${renderBattleMiniNote("短板", character.notes.weakness)}
+        <div class="battle-compare-grid" aria-label="角色 A 与角色 B 的属性对照">
+          ${dimensionGroups.map((group) => renderBattleComparisonGroup(group, leftPanel, rightPanel)).join("")}
         </div>
       </section>
     `;
   }
 
-  function renderBattleMiniNote(title, value) {
+  function renderBattleFighterSummary(sideLabel, character, panel) {
     return `
-      <details class="battle-mini-note">
+      <section>
+        <strong>${escapeHtml(sideLabel)}：${escapeHtml(character.name)}</strong>
+        <span>${escapeHtml(character.work)} / ${escapeHtml(panel.label)}${panel.status ? ` / ${escapeHtml(panel.status)}` : ""}</span>
+      </section>
+    `;
+  }
+
+  function renderBattleComparisonGroup(group, leftPanel, rightPanel) {
+    return `
+      <section class="battle-compare-group dimension-group-card is-${escapeAttribute(group.key)}">
+        <h3 class="dimension-group-title">${escapeHtml(group.label)}</h3>
+        <div class="battle-compare-head">
+          <span>主维度</span>
+          <span>角色 A</span>
+          <span>角色 B</span>
+        </div>
+        <div class="battle-compare-rows">
+          ${group.dimensionKeys.map((key) => {
+            const dimension = dimensionByKey(key);
+            const leftEntry = leftPanel.dimensions[key];
+            const rightEntry = rightPanel.dimensions[key];
+            return dimension ? renderBattleComparisonRow(dimension, leftEntry, rightEntry) : "";
+          }).join("")}
+        </div>
+      </section>
+    `;
+  }
+
+  function renderBattleComparisonRow(dimension, leftEntry, rightEntry) {
+    const comparison = compareDimensionEntries(dimension.key, leftEntry, rightEntry);
+    return `
+      <div class="battle-compare-row">
+        <div class="battle-compare-dimension">
+          <strong>${escapeHtml(dimension.label)}</strong>
+          ${renderBattleAdvantageBadge(comparison)}
+        </div>
+        <div class="battle-compare-value${comparison.side === "left" ? " is-advantage" : ""}">
+          ${renderBattleDimensionValue(leftEntry)}
+        </div>
+        <div class="battle-compare-value${comparison.side === "right" ? " is-advantage" : ""}">
+          ${renderBattleDimensionValue(rightEntry)}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderBattleDimensionValue(entry) {
+    if (!entry) return `<span class="muted-copy">无资料</span>`;
+    return `
+      <span><em>常态</em>【${escapeHtml(entry.normal)}】</span>
+      <span><em>峰值</em>【${escapeHtml(entry.peak)}】</span>
+    `;
+  }
+
+  function renderBattleAdvantageBadge(comparison) {
+    if (comparison.side === "unknown") return `<span class="badge">不可比</span>`;
+    if (comparison.side === "tie") return `<span class="badge">接近</span>`;
+    const label = comparison.side === "left" ? "A" : "B";
+    return `<span class="badge is-source">${escapeHtml(label)} ${escapeHtml(comparison.stage)}高 ${comparison.delta} 档</span>`;
+  }
+
+  function renderBattlePanelSummary(left, right) {
+    if (!left || !right) return "";
+    const leftPanel = battlePanelFor(left, state.battle.leftStageKey);
+    const rightPanel = battlePanelFor(right, state.battle.rightStageKey);
+    return `
+      <section class="battle-local-summary">
+        <header>
+          <h2>面板差异</h2>
+          <p>本地按同维度档位粗略对照，不调用模型，也不替代最终裁定。</p>
+        </header>
+        <ul>
+          ${dimensionGroups.map((group) => `
+            <li>
+              <strong>${escapeHtml(group.label)}</strong>
+              <span>${group.dimensionKeys.map((key) => summarizeBattleDimension(key, leftPanel, rightPanel)).filter(Boolean).join("；")}</span>
+            </li>
+          `).join("")}
+        </ul>
+      </section>
+    `;
+  }
+
+  function summarizeBattleDimension(key, leftPanel, rightPanel) {
+    const dimension = dimensionByKey(key);
+    if (!dimension) return "";
+    const comparison = compareDimensionEntries(key, leftPanel.dimensions[key], rightPanel.dimensions[key]);
+    if (comparison.side === "unknown") return `${dimension.label}不可比`;
+    if (comparison.side === "tie") return `${dimension.label}接近`;
+    const label = comparison.side === "left" ? "A" : "B";
+    return `${dimension.label}${comparison.stage}${label}高${comparison.delta}档`;
+  }
+
+  function renderBattleNotesComparison(left, right) {
+    if (!left || !right) return "";
+    const noteRows = [
+      ["攻击性质", "penetration"],
+      ["防御抗性", "resistance"],
+      ["特殊权能", "special"],
+      ["短板", "weakness"]
+    ];
+    return `
+      <section class="battle-notes-comparison">
+        <header>
+          <h2>机制对照</h2>
+          <p>完整说明默认折叠，展开后左右对照。</p>
+        </header>
+        <div class="battle-note-compare-list">
+          ${noteRows.map(([title, key]) => renderBattleNoteComparison(title, key, left, right)).join("")}
+        </div>
+      </section>
+    `;
+  }
+
+  function renderBattleNoteComparison(title, key, left, right) {
+    const leftNotes = left.notes || {};
+    const rightNotes = right.notes || {};
+    return `
+      <details class="battle-note-compare">
         <summary>${escapeHtml(title)}</summary>
-        <p>${escapeHtml(value || "未补充。")}</p>
+        <div class="battle-note-compare-grid">
+          <section>
+            <strong>角色 A：${escapeHtml(left.name)}</strong>
+            <p>${escapeHtml(leftNotes[key] || "未补充。")}</p>
+          </section>
+          <section>
+            <strong>角色 B：${escapeHtml(right.name)}</strong>
+            <p>${escapeHtml(rightNotes[key] || "未补充。")}</p>
+          </section>
+        </div>
       </details>
     `;
+  }
+
+  function compareDimensionEntries(key, leftEntry, rightEntry) {
+    const peak = compareRankValues(key, leftEntry && leftEntry.peak, rightEntry && rightEntry.peak);
+    if (peak.side === "left" || peak.side === "right") return { ...peak, stage: "峰值" };
+    const normal = compareRankValues(key, leftEntry && leftEntry.normal, rightEntry && rightEntry.normal);
+    if (normal.side === "left" || normal.side === "right") return { ...normal, stage: "常态" };
+    if (peak.side === "tie" || normal.side === "tie") return { side: "tie", delta: 0, stage: "" };
+    return { side: "unknown", delta: 0, stage: "" };
+  }
+
+  function compareRankValues(key, leftValue, rightValue) {
+    const order = rankOrders[key] || [];
+    const leftIndex = order.indexOf(baseRank(leftValue));
+    const rightIndex = order.indexOf(baseRank(rightValue));
+    if (!order.length || leftIndex < 0 || rightIndex < 0) return { side: "unknown", delta: 0 };
+    const delta = leftIndex - rightIndex;
+    if (delta > 0) return { side: "left", delta };
+    if (delta < 0) return { side: "right", delta: Math.abs(delta) };
+    return { side: "tie", delta: 0 };
   }
 
   function renderBattleResult() {
@@ -1695,7 +1859,9 @@
     state.battle.rightStageKey = form.querySelector("[name='rightStageKey']").value;
     readBattleFilters(form, "left");
     readBattleFilters(form, "right");
-    state.battle.outputStyle = form.querySelector("[name='outputStyle']").value;
+    const outputStyle = form.querySelector("[name='outputStyle']:checked") || form.querySelector("[name='outputStyle']");
+    state.battle.outputStyle = outputStyle ? outputStyle.value : state.battle.outputStyle;
+    state.battle.randomMode = readOptionalFormValue(form, "randomMode", state.battle.randomMode);
     normalizeBattleState();
   }
 
@@ -1731,6 +1897,7 @@
     state.battle.leftStageKey = normalizeBattleStageKey(left, state.battle.leftStageKey);
     state.battle.rightStageKey = normalizeBattleStageKey(right, state.battle.rightStageKey);
     if (!["verdict", "analysis", "narrative", "mechanics", "audit"].includes(state.battle.outputStyle)) state.battle.outputStyle = "verdict";
+    state.battle.randomMode = normalizeBattleRandomMode(state.battle.randomMode);
   }
 
   function normalizeBattleFilters(side) {
@@ -1774,10 +1941,22 @@
   function setRandomBattlePair(selection = {}) {
     const keys = battleCharacterKeys();
     if (!keys.length) return;
+    const mode = normalizeBattleRandomMode(selection.mode || state.battle.randomMode);
     const fixedLeft = selection.leftKey && keys.includes(selection.leftKey) ? selection.leftKey : "";
     const fixedRight = selection.rightKey && keys.includes(selection.rightKey) ? selection.rightKey : "";
-    const leftKey = fixedLeft || randomBattleCharacterKey(keys, fixedRight);
-    const rightKey = fixedRight || randomBattleCharacterKey(keys, leftKey);
+    let leftKey = fixedLeft;
+    let rightKey = fixedRight;
+    if (!leftKey && !rightKey) {
+      leftKey = randomBattleCharacterKey(keys);
+      rightKey = randomBattleCharacterKey(battleRandomCandidateKeys(keys, leftKey, mode), leftKey);
+    } else if (!leftKey) {
+      leftKey = randomBattleCharacterKey(battleRandomCandidateKeys(keys, rightKey, mode), rightKey);
+    } else if (!rightKey) {
+      rightKey = randomBattleCharacterKey(battleRandomCandidateKeys(keys, leftKey, mode), leftKey);
+    }
+    if (leftKey === rightKey && keys.length > 1) {
+      rightKey = randomBattleCharacterKey(keys, leftKey);
+    }
     state.battle.leftKey = leftKey;
     state.battle.rightKey = rightKey;
     state.battle.leftStageKey = normalizeBattleStageKey(battleCharacterByKey(leftKey), "");
@@ -1788,6 +1967,45 @@
     const pool = keys.filter((key) => key !== excludedKey);
     const candidates = pool.length ? pool : keys;
     return candidates[Math.floor(Math.random() * candidates.length)] || "";
+  }
+
+  function battleRandomCandidateKeys(keys, anchorKey, mode) {
+    const anchor = battleCharacterByKey(anchorKey);
+    if (!anchor) return keys;
+    if (mode === "cross-work") {
+      const crossWork = keys.filter((key) => {
+        const character = battleCharacterByKey(key);
+        return character && character.work !== anchor.work;
+      });
+      return crossWork.length ? crossWork : keys;
+    }
+    if (mode === "same-tier") {
+      const anchorScore = battleTierScore(anchor);
+      const sameTier = keys.filter((key) => {
+        const character = battleCharacterByKey(key);
+        if (!character || key === anchorKey) return false;
+        const score = battleTierScore(character);
+        return Number.isFinite(score) && Number.isFinite(anchorScore) && Math.abs(score - anchorScore) <= 0.16;
+      });
+      return sameTier.length ? sameTier : keys;
+    }
+    return keys;
+  }
+
+  function battleTierScore(character) {
+    const keys = ["attack", "defense", "movement", "reaction", "vitality", "healing", "energy", "energyRegen"];
+    const values = keys.map((key) => {
+      const order = rankOrders[key] || [];
+      const rank = character.dimensions && character.dimensions[key] ? baseRank(character.dimensions[key].peak) : "";
+      const index = order.indexOf(rank);
+      return order.length > 1 && index >= 0 ? index / (order.length - 1) : null;
+    }).filter((value) => value !== null);
+    if (!values.length) return Number.NaN;
+    return values.reduce((sum, value) => sum + value, 0) / values.length;
+  }
+
+  function normalizeBattleRandomMode(value) {
+    return battleRandomModes.some((mode) => mode.key === value) ? value : "any";
   }
 
   function battlePanelFor(character, stageKey) {
