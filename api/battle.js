@@ -1,6 +1,7 @@
 const OPENAI_RESPONSES_PATH = "/responses";
 const MAX_BODY_LENGTH = 28000;
 const MAX_TEXT_LENGTH = 420;
+const MAX_OUTPUT_TOKENS = 1800;
 const DEFAULT_MODEL = "gpt-4o-mini";
 const STREAM_DONE = "[DONE]";
 
@@ -115,7 +116,7 @@ module.exports = async function handler(req, res) {
     }
 
     const outputText = extractOutputText(data);
-    const result = JSON.parse(outputText);
+    const result = parseBattleResult(outputText);
     res.status(200).json({
       ok: true,
       model,
@@ -268,7 +269,7 @@ function buildProviderPayload(model, request, stream) {
     model,
     store: false,
     stream,
-    max_output_tokens: 1100,
+    max_output_tokens: MAX_OUTPUT_TOKENS,
     input: [
       {
         role: "system",
@@ -335,7 +336,7 @@ async function streamBattleResponse(req, res, baseUrl, model, request) {
     if (!contentType.includes("text/event-stream") || !response.body) {
       const data = await response.json().catch(() => ({}));
       outputText = extractOutputText(data);
-      const result = JSON.parse(outputText);
+      const result = parseBattleResult(outputText);
       sendSse(res, "done", { ok: true, model, result, usage: data.usage || null, requestId });
       res.end();
       return;
@@ -356,7 +357,19 @@ async function streamBattleResponse(req, res, baseUrl, model, request) {
       }
       if (type === "response.completed") {
         usage = event.response && event.response.usage ? event.response.usage : usage;
+        if (event.response && event.response.status === "incomplete") {
+          const reason = event.response.incomplete_details && event.response.incomplete_details.reason
+            ? event.response.incomplete_details.reason
+            : "unknown";
+          throw httpError(502, `模型输出未完成：${reason}。`);
+        }
         return;
+      }
+      if (type === "response.incomplete") {
+        const reason = event.response && event.response.incomplete_details && event.response.incomplete_details.reason
+          ? event.response.incomplete_details.reason
+          : "unknown";
+        throw httpError(502, `模型输出未完成：${reason}。`);
       }
       if (type === "response.failed") {
         const message = event.response && event.response.error && event.response.error.message
@@ -374,7 +387,7 @@ async function streamBattleResponse(req, res, baseUrl, model, request) {
       }
     });
 
-    const result = JSON.parse(outputText);
+    const result = parseBattleResult(outputText);
     sendSse(res, "done", {
       ok: true,
       model,
@@ -452,6 +465,14 @@ function extractOutputText(data) {
     }
   }
   throw httpError(502, "LLM 响应缺少文本输出。");
+}
+
+function parseBattleResult(outputText) {
+  try {
+    return JSON.parse(outputText);
+  } catch (_error) {
+    throw httpError(502, "模型返回的 JSON 不完整或格式错误，通常是输出被截断；请重试或降低输出复杂度。");
+  }
 }
 
 function cleanText(value, maxLength) {
