@@ -37,6 +37,7 @@ const RESULT_SCHEMA = {
     summary: { type: "string" },
     verdict: { type: "string" },
     panelUse: { type: "string" },
+    environmentUse: { type: "string" },
     keyFactors: {
       type: "array",
       items: { type: "string" }
@@ -58,7 +59,7 @@ const RESULT_SCHEMA = {
       items: { type: "string" }
     }
   },
-  required: ["winner", "confidence", "summary", "verdict", "panelUse", "keyFactors", "phases", "caveats"]
+  required: ["winner", "confidence", "summary", "verdict", "panelUse", "environmentUse", "keyFactors", "phases", "caveats"]
 };
 
 module.exports = async function handler(req, res) {
@@ -304,7 +305,21 @@ function normalizeFighter(value, side) {
 
 function normalizeOptions(value) {
   return {
-    outputStyle: pick(value.outputStyle, OUTPUT_STYLES, "verdict")
+    outputStyle: pick(value.outputStyle, OUTPUT_STYLES, "verdict"),
+    environment: normalizeEnvironment(value.environment)
+  };
+}
+
+function normalizeEnvironment(value) {
+  const environment = value && typeof value === "object" ? value : {};
+  return {
+    key: cleanToken(environment.key, "standard-arena"),
+    label: cleanText(environment.label, 80) || "标准空旷场",
+    description: cleanText(environment.description, 320) || "无遮挡、无平民、双方可见，地面平整。",
+    distanceKey: cleanToken(environment.distanceKey, "standard-100m"),
+    distanceLabel: cleanText(environment.distanceLabel, 80) || "标准 100 米",
+    distanceDescription: cleanText(environment.distanceDescription, 320) || "默认开局距离，双方通常可见但仍有接近过程。",
+    note: cleanText(environment.note, 320)
   };
 }
 
@@ -391,9 +406,11 @@ function buildSystemPrompt() {
     "不要把峰值当作无限常态；如果峰值依赖外源、一次性、短时、领域、仪式、装备或条件命中，必须说明触发和维持限制。",
     "必须完整阅读并使用 notes.penetration、notes.resistance、notes.special、notes.weakness、notes.setting、notes.basis 和 notes.timeline；这些解释项不能因为主面板已简写而省略。",
     "必须默认考虑 notes 中的攻击性质、防御抗性、特殊权能、领域、封印、空间、灵魂、一次性、外源、仪式、装备等，但只能按 notes 和峰值标签解释；条件不明时必须写入 caveats。",
+    "必须把 options.environment 当作硬性对战条件：环境类型、开局距离和补充条件会影响视野、遮蔽、高低差、水体/空域/真空、平民限制、可利用材料、离场限制、索敌、潜行、远程压制、近战接战、拉扯和资源消耗。",
+    "开局距离必须显式参与判断：近距不能默认给远程准备时间；远距不能默认近战角色瞬间命中；未知游猎要考虑搜索、伏击、感知和信息差。",
     "允许输出 draw 或 unclear。证据不足、命中条件不明、速度/破防关系无法稳定判断时，不要强判。",
     "必须按 options.outputStyle 调整侧重点：verdict=快速结论，直接给胜负、胜率区间、3条主因和1条关键变数；analysis=完整裁定，按8维常态/峰值、能量续航、攻击性质、防御抗性、特殊权能命中条件、短板反制和证据限制综合说明；narrative=过程演绎，写开局、中盘、峰值窗口、终局，但结论必须服从完整裁定逻辑。",
-    "输出必须精炼：summary、verdict、panelUse 各 1 句；keyFactors 3-5 条；phases 2-4 段；caveats 2-4 条。",
+    "输出必须精炼：summary、verdict、panelUse、environmentUse 各 1 句；keyFactors 3-5 条；phases 2-4 段；caveats 2-4 条。",
     "每个字符串尽量少于 120 个汉字，phases[].text 不写长篇剧情，不要输出解释 JSON 之外的任何前后缀。",
     "输出必须是符合 JSON Schema 的中文 JSON，不要 Markdown，不要代码块。"
   ].join("\n");
@@ -710,10 +727,17 @@ function normalizeBattleResult(result, request) {
     summary: cleanText(value.summary, 900) || "模型未给出摘要。",
     verdict: cleanText(value.verdict, 900) || "模型未给出明确裁定。",
     panelUse: cleanText(value.panelUse, 900) || "综合常态、峰值、能量与特殊权能判断。",
+    environmentUse: cleanText(value.environmentUse, 900) || fallbackEnvironmentUse(request),
     keyFactors: normalizeResultList(value.keyFactors, 6, 260),
     phases: phases.length ? phases : fallbackResultPhases(value),
     caveats: normalizeResultList(value.caveats, 5, 260)
   };
+}
+
+function fallbackEnvironmentUse(request) {
+  const environment = request && request.options && request.options.environment;
+  if (!environment) return "按标准空旷场与默认距离处理，未额外加入场地修正。";
+  return `${environment.label || "当前场地"} / ${environment.distanceLabel || "默认距离"} 会影响接战、视野、遮蔽和资源消耗。`;
 }
 
 function normalizeWinner(winner, result, request) {
@@ -759,6 +783,7 @@ function collectResultText(result) {
     value.summary,
     value.verdict,
     value.panelUse,
+    value.environmentUse,
     ...(Array.isArray(value.keyFactors) ? value.keyFactors : []),
     ...(Array.isArray(value.caveats) ? value.caveats : []),
     ...(Array.isArray(value.phases) ? value.phases.flatMap((phase) => [phase.title, phase.phase, phase.stage, phase.text]) : [])

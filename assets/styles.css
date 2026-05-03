@@ -253,7 +253,8 @@ button {
 }
 
 .field input,
-.field select {
+.field select,
+.field textarea {
   width: 100%;
   min-height: 40px;
   border: 1px solid var(--line);
@@ -264,9 +265,15 @@ button {
 }
 
 .field input:focus,
-.field select:focus {
+.field select:focus,
+.field textarea:focus {
   border-color: var(--accent);
   outline: 3px solid rgba(11, 127, 120, 0.16);
+}
+
+.field textarea {
+  resize: vertical;
+  line-height: 1.45;
 }
 
 .field-hint {
@@ -1147,6 +1154,59 @@ button {
   line-height: 1.25;
 }
 
+.battle-environment-control {
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fbfcfa;
+  padding: 12px;
+}
+
+.battle-environment-control > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.battle-environment-control h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 15px;
+}
+
+.battle-environment-control header p,
+.battle-environment-detail p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.battle-environment-grid {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.75fr) minmax(180px, 0.75fr) minmax(260px, 1.2fr);
+  gap: 10px;
+  align-items: end;
+}
+
+.battle-environment-note-field textarea {
+  min-height: 62px;
+}
+
+.battle-environment-detail {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+
+.battle-environment-detail strong {
+  color: var(--ink);
+}
+
 .small-action.is-danger {
   border-color: #d9a8a1;
   background: #fff6f3;
@@ -1875,9 +1935,15 @@ button {
 
   .battle-picker-grid,
   .battle-option-grid,
+  .battle-environment-grid,
+  .battle-environment-detail,
   .battle-search-grid,
   .battle-dimension-filter-grid {
     grid-template-columns: 1fr;
+  }
+
+  .battle-environment-control > header {
+    flex-direction: column;
   }
 
   .detail-layout {

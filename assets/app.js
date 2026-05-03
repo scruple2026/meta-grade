@@ -21,6 +21,39 @@
     { key: "cross-work", label: "跨作品" },
     { key: "same-tier", label: "同档位" }
   ];
+  const battleEnvironments = [
+    { key: "standard-arena", label: "标准空旷场", description: "无遮挡、无平民、双方可见，地面平整。" },
+    { key: "urban-block", label: "城市街区", description: "道路、车辆、低层建筑和巷道充足，存在遮蔽与高低差。" },
+    { key: "dense-highrise", label: "高楼密集城区", description: "高层建筑、屋顶、垂直空间和视线遮挡明显。" },
+    { key: "crowded-city", label: "有人城市区", description: "平民和附带损害限制明显，大范围攻击、精神原则和救援压力会影响发挥。" },
+    { key: "indoor-complex", label: "室内建筑群", description: "走廊、房间、墙体和短视距限制机动与大范围招式。" },
+    { key: "industrial-zone", label: "工厂设施", description: "金属结构、管线、可燃物、机械设备和复杂遮蔽可被利用。" },
+    { key: "ruined-city", label: "大型废墟", description: "瓦砾、断墙、地下空间和不稳定结构利于埋伏、掩体和地形破坏。" },
+    { key: "forest-mountain", label: "森林山地", description: "树林、坡地、岩体和自然遮蔽充足，视线与追踪难度上升。" },
+    { key: "desert-open", label: "沙漠荒原", description: "遮蔽很少、视野开阔，沙尘和长距离移动会放大续航差距。" },
+    { key: "snow-low-temp", label: "雪地低温", description: "低温、积雪、冰面和能见度变化影响移动、体力与火/水/冰相关能力。" },
+    { key: "rain-night", label: "雨夜低能见度", description: "雨水、黑暗、湿滑地面和噪声压制影响感知、火焰、导电与潜行。" },
+    { key: "coastal-dock", label: "沿海码头", description: "水体、船只、集装箱、开阔海面和岸上遮蔽物并存。" },
+    { key: "open-ocean", label: "海上船战", description: "主要落点是船只或漂浮平台，落水、远距追击和水面机动很关键。" },
+    { key: "underwater", label: "深水水下", description: "呼吸、水压、视线、阻力和水下机动成为核心限制。" },
+    { key: "cave-underground", label: "地下洞窟", description: "封闭、黑暗、狭窄通道、岩体和回声影响机动、感知与大范围破坏。" },
+    { key: "sealed-small-arena", label: "封闭小型场", description: "边界明确、空间有限、难以拉开距离或脱战。" },
+    { key: "long-range-open", label: "远距开阔地", description: "大范围无遮挡，远程火力、索敌和接近能力更重要。" },
+    { key: "sky-platform", label: "高空平台", description: "落点有限、坠落风险高，飞行、滞空、抓取和空间位移影响很大。" },
+    { key: "resource-rich", label: "资源丰富场", description: "可利用材料、武器、金属、植物、水源和地形机关较多。" },
+    { key: "outer-space", label: "太空真空", description: "真空、失重、无空气传播和极端生存环境会强烈限制无对应抗性的角色。" }
+  ];
+  const battleDistances = [
+    { key: "melee-3m", label: "贴身 3 米", description: "开局近身，先手、反应、格斗和瞬发控制权重最高。" },
+    { key: "close-10m", label: "近距 10 米", description: "短突进即可接战，近战爆发和瞬时防御很关键。" },
+    { key: "room-20m", label: "室内 20 米", description: "房间或走廊尺度，短视距、墙体和拐角会影响命中。" },
+    { key: "street-50m", label: "街区 50 米", description: "常见遭遇距离，远近战都有启动空间。" },
+    { key: "standard-100m", label: "标准 100 米", description: "默认开局距离，双方通常可见但仍有接近过程。" },
+    { key: "medium-300m", label: "中距 300 米", description: "远程压制、机动突入和索敌开始明显影响节奏。" },
+    { key: "long-1km", label: "远距 1 公里", description: "长程攻击、视野、感知、飞行和高速接近成为关键。" },
+    { key: "extreme-10km", label: "超远 10 公里", description: "需要稳定索敌、长程投射或高速移动才能形成有效交战。" },
+    { key: "unknown-roaming", label: "未知游猎", description: "双方先不知道精确位置，搜索、潜行、感知和伏击权重提高。" }
+  ];
   const workSources = window.POWER_WIKI_WORK_SOURCES || {};
   const confidenceLabels = {
     stable: "稳定",
@@ -61,6 +94,9 @@
       rightFilters: createBattleFilters(),
       outputStyle: "verdict",
       randomMode: "any",
+      environmentKey: "standard-arena",
+      distanceKey: "standard-100m",
+      environmentNote: "",
       loading: false,
       cancelled: false,
       error: "",
@@ -887,7 +923,7 @@
         <header class="reference-header">
           <div>
             <h1>AI 对战演绎</h1>
-            <p>选择两个角色后，由 Vercel Function 调用 LLM，根据本站 8 维常态/峰值面板、能量与续航、时间线、特殊权能和待审提示生成对战过程。结果是 AI 演绎，不写回角色定级。</p>
+            <p>选择两个角色后，由 Vercel Function 调用 LLM，根据本站 8 维常态/峰值面板、能量与续航、时间线、特殊权能、场地距离和待审提示生成对战过程。结果是 AI 演绎，不写回角色定级。</p>
           </div>
           ${renderBattleApiStatus()}
         </header>
@@ -915,6 +951,7 @@
               <button class="primary-action" type="submit" ${state.battle.loading ? "disabled" : ""}>${state.battle.loading ? "生成中..." : "生成对战"}</button>
             </div>
           </div>
+          ${renderBattleEnvironmentControl()}
           <p class="field-hint battle-hint">需要在 Vercel 上配置 <code>OPENAI_API_KEY</code>；可选 <code>OPENAI_MODEL</code> 覆盖默认模型，<code>OPENAI_BASE_URL</code> 覆盖上游 base URL。直接打开本地 HTML 时只能预览页面，不能调用 API。</p>
           ${state.battle.shareMessage ? `<p class="field-hint battle-share-status">${escapeHtml(state.battle.shareMessage)}</p>` : ""}
         </form>
@@ -932,6 +969,10 @@
       renderBattle();
     });
     form.addEventListener("input", (event) => {
+      if (event.target.name === "environmentNote") {
+        state.battle.environmentNote = normalizeBattleEnvironmentNote(event.target.value);
+        return;
+      }
       if (!event.target.name || !/^(left|right)Query$/.test(event.target.name)) return;
       readBattleForm(form);
       clearBattleOutput();
@@ -943,7 +984,15 @@
       clearBattleOutput();
       renderBattle();
     });
-    document.getElementById("shareBattleLink").addEventListener("click", handleBattleShare);
+    document.getElementById("randomBattleEnvironment").addEventListener("click", () => {
+      setRandomBattleEnvironment();
+      clearBattleOutput();
+      renderBattle();
+    });
+    document.getElementById("shareBattleLink").addEventListener("click", () => {
+      readBattleForm(form);
+      handleBattleShare();
+    });
     const refreshStatus = document.getElementById("refreshBattleStatus");
     if (refreshStatus) {
       refreshStatus.addEventListener("click", () => ensureBattleApiStatus(true));
@@ -1171,6 +1220,7 @@
       left ? `角色 A：${formatBattleFighterForCopy(left, state.battle.leftStageKey)}` : "角色 A：未选择",
       right ? `角色 B：${formatBattleFighterForCopy(right, state.battle.rightStageKey)}` : "角色 B：未选择",
       `分析模式：${battleOutputStyleLabel(state.battle.outputStyle)}`,
+      `场地环境：${battleEnvironmentSummary()}`,
       state.battle.model ? `模型：${displayModelName(state.battle.model)}` : "",
       state.battle.statusTrail.length ? `路径：${state.battle.statusTrail.join(" / ")}` : "",
       state.battle.elapsedMs ? `耗时：${formatDuration(state.battle.elapsedMs)}` : "",
@@ -1180,7 +1230,8 @@
       `置信度：${confidenceText(result.confidence)}`,
       result.summary ? `摘要：${result.summary}` : "",
       result.verdict ? `裁定：${result.verdict}` : "",
-      result.panelUse ? `口径：${result.panelUse}` : ""
+      result.panelUse ? `口径：${result.panelUse}` : "",
+      result.environmentUse ? `场地影响：${result.environmentUse}` : ""
     ].filter(Boolean);
     appendBattleCopyList(lines, "关键因素", result.keyFactors);
     appendBattleCopyPhases(lines, result.phases);
@@ -1209,6 +1260,45 @@
     `;
   }
 
+  function renderBattleEnvironmentControl() {
+    const disabled = state.battle.loading ? "disabled" : "";
+    const environment = battleEnvironmentByKey(state.battle.environmentKey);
+    const distance = battleDistanceByKey(state.battle.distanceKey);
+    return `
+      <section class="battle-environment-control">
+        <header>
+          <div>
+            <h3>场地环境</h3>
+            <p>${escapeHtml(battleEnvironmentSummary())}</p>
+          </div>
+          <button class="small-action" type="button" id="randomBattleEnvironment" ${disabled}>随机场地</button>
+        </header>
+        <div class="battle-environment-grid">
+          <div class="field">
+            <label for="battleEnvironment">环境</label>
+            <select id="battleEnvironment" name="environmentKey" ${disabled}>
+              ${renderSelectOptions(battleEnvironments.map((item) => item.key), state.battle.environmentKey, "", battleEnvironmentLabels())}
+            </select>
+          </div>
+          <div class="field">
+            <label for="battleDistance">开局距离</label>
+            <select id="battleDistance" name="distanceKey" ${disabled}>
+              ${renderSelectOptions(battleDistances.map((item) => item.key), state.battle.distanceKey, "", battleDistanceLabels())}
+            </select>
+          </div>
+          <div class="field battle-environment-note-field">
+            <label for="battleEnvironmentNote">补充条件</label>
+            <textarea id="battleEnvironmentNote" name="environmentNote" rows="2" maxlength="260" placeholder="例如：双方知道对方大致能力；禁止离场；有平民；雨停后地面湿滑。" ${disabled}>${escapeHtml(state.battle.environmentNote)}</textarea>
+          </div>
+        </div>
+        <div class="battle-environment-detail">
+          <p><strong>${escapeHtml(environment.label)}</strong>：${escapeHtml(environment.description)}</p>
+          <p><strong>${escapeHtml(distance.label)}</strong>：${escapeHtml(distance.description)}</p>
+        </div>
+      </section>
+    `;
+  }
+
   function battleOutputStyleLabel(value) {
     const style = battleOutputStyles.find((item) => item.key === value);
     return style ? `${style.label}：${style.description}` : "快速结论：胜负 / 胜率 / 三主因";
@@ -1216,6 +1306,29 @@
 
   function battleRandomModeLabels() {
     return Object.fromEntries(battleRandomModes.map((mode) => [mode.key, mode.label]));
+  }
+
+  function battleEnvironmentLabels() {
+    return Object.fromEntries(battleEnvironments.map((environment) => [environment.key, environment.label]));
+  }
+
+  function battleDistanceLabels() {
+    return Object.fromEntries(battleDistances.map((distance) => [distance.key, distance.label]));
+  }
+
+  function battleEnvironmentByKey(key) {
+    return battleEnvironments.find((environment) => environment.key === key) || battleEnvironments[0];
+  }
+
+  function battleDistanceByKey(key) {
+    return battleDistances.find((distance) => distance.key === key) || battleDistances.find((distance) => distance.key === "standard-100m") || battleDistances[0];
+  }
+
+  function battleEnvironmentSummary() {
+    const environment = battleEnvironmentByKey(state.battle.environmentKey);
+    const distance = battleDistanceByKey(state.battle.distanceKey);
+    const note = normalizeBattleEnvironmentNote(state.battle.environmentNote);
+    return [environment.label, distance.label, note].filter(Boolean).join(" / ");
   }
 
   function formatDuration(ms) {
@@ -1657,6 +1770,12 @@
           <h3>口径</h3>
           <p>${escapeHtml(result.panelUse)}</p>
         </section>
+        ${result.environmentUse ? `
+          <section class="battle-result-block">
+            <h3>场地影响</h3>
+            <p>${escapeHtml(result.environmentUse)}</p>
+          </section>
+        ` : ""}
         <section class="battle-result-block">
           <h3>关键因素</h3>
           <ul>${(result.keyFactors || []).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
@@ -1860,6 +1979,9 @@
     const outputStyle = form.querySelector("[name='outputStyle']:checked") || form.querySelector("[name='outputStyle']");
     state.battle.outputStyle = outputStyle ? outputStyle.value : state.battle.outputStyle;
     state.battle.randomMode = readOptionalFormValue(form, "randomMode", state.battle.randomMode);
+    state.battle.environmentKey = readOptionalFormValue(form, "environmentKey", state.battle.environmentKey);
+    state.battle.distanceKey = readOptionalFormValue(form, "distanceKey", state.battle.distanceKey);
+    state.battle.environmentNote = normalizeBattleEnvironmentNote(readOptionalFormValue(form, "environmentNote", state.battle.environmentNote));
     normalizeBattleState();
   }
 
@@ -1896,6 +2018,9 @@
     state.battle.rightStageKey = normalizeBattleStageKey(right, state.battle.rightStageKey);
     if (!["verdict", "analysis", "narrative"].includes(state.battle.outputStyle)) state.battle.outputStyle = "verdict";
     state.battle.randomMode = normalizeBattleRandomMode(state.battle.randomMode);
+    state.battle.environmentKey = normalizeBattleEnvironmentKey(state.battle.environmentKey);
+    state.battle.distanceKey = normalizeBattleDistanceKey(state.battle.distanceKey);
+    state.battle.environmentNote = normalizeBattleEnvironmentNote(state.battle.environmentNote);
   }
 
   function normalizeBattleFilters(side) {
@@ -2006,6 +2131,27 @@
     return battleRandomModes.some((mode) => mode.key === value) ? value : "any";
   }
 
+  function setRandomBattleEnvironment() {
+    state.battle.environmentKey = randomFromList(battleEnvironments).key;
+    state.battle.distanceKey = randomFromList(battleDistances).key;
+  }
+
+  function randomFromList(items) {
+    return items[Math.floor(Math.random() * items.length)] || items[0];
+  }
+
+  function normalizeBattleEnvironmentKey(value) {
+    return battleEnvironments.some((environment) => environment.key === value) ? value : "standard-arena";
+  }
+
+  function normalizeBattleDistanceKey(value) {
+    return battleDistances.some((distance) => distance.key === value) ? value : "standard-100m";
+  }
+
+  function normalizeBattleEnvironmentNote(value) {
+    return String(value || "").replace(/\s+/g, " ").trim().slice(0, 260);
+  }
+
   function battlePanelFor(character, stageKey) {
     const panels = getTimelineEntries(character);
     return panels[resolveTimelineIndex(panels, stageKey, character.defaultTimelineKey)];
@@ -2019,8 +2165,23 @@
       left: buildBattleFighterPayload(left, state.battle.leftStageKey),
       right: buildBattleFighterPayload(right, state.battle.rightStageKey),
       options: {
-        outputStyle: state.battle.outputStyle
+        outputStyle: state.battle.outputStyle,
+        environment: buildBattleEnvironmentPayload()
       }
+    };
+  }
+
+  function buildBattleEnvironmentPayload() {
+    const environment = battleEnvironmentByKey(state.battle.environmentKey);
+    const distance = battleDistanceByKey(state.battle.distanceKey);
+    return {
+      key: environment.key,
+      label: environment.label,
+      description: environment.description,
+      distanceKey: distance.key,
+      distanceLabel: distance.label,
+      distanceDescription: distance.description,
+      note: normalizeBattleEnvironmentNote(state.battle.environmentNote)
     };
   }
 
