@@ -12,11 +12,11 @@
     { key: "energy", label: "能量", dimensionKeys: ["energy", "energyRegen"] }
   ];
   const battleOutputStyles = [
-    { key: "verdict", label: "速览", description: "结论优先" },
-    { key: "analysis", label: "裁定", description: "面板推理" },
-    { key: "narrative", label: "战报", description: "分阶段过程" },
-    { key: "mechanics", label: "机制", description: "权能交互" },
-    { key: "audit", label: "审计", description: "证据限制" }
+    { key: "verdict", label: "速览", description: "胜负 + 胜率 + 三主因" },
+    { key: "analysis", label: "裁定", description: "8维 + 续航 + 反制" },
+    { key: "narrative", label: "战报", description: "开局 / 中盘 / 终局" },
+    { key: "mechanics", label: "机制", description: "命中条件 + 克制链" },
+    { key: "audit", label: "审计", description: "缺口 + 低置信假设" }
   ];
   const battleRandomModes = [
     { key: "any", label: "纯随机" },
@@ -1213,7 +1213,7 @@
 
   function battleOutputStyleLabel(value) {
     const style = battleOutputStyles.find((item) => item.key === value);
-    return style ? `${style.label}：${style.description}` : "速览：结论优先";
+    return style ? `${style.label}：${style.description}` : "速览：胜负 + 胜率 + 三主因";
   }
 
   function battleRandomModeLabels() {
