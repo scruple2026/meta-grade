@@ -394,7 +394,7 @@ async function streamBattleResponse(req, res, baseUrl, model, request) {
       }
       if (type === "response.completed") {
         usage = event.response && event.response.usage ? event.response.usage : usage;
-        if (!outputText && event.response) outputText = extractOutputText(event.response);
+        if (!outputText && event.response) outputText = tryExtractOutputText(event.response);
         if (event.response && event.response.status === "incomplete") {
           const reason = event.response.incomplete_details && event.response.incomplete_details.reason
             ? event.response.incomplete_details.reason
@@ -553,6 +553,14 @@ function extractOutputText(data) {
     if (text) return text;
   }
   throw httpError(502, "LLM 响应缺少文本输出。");
+}
+
+function tryExtractOutputText(data) {
+  try {
+    return extractOutputText(data);
+  } catch (_error) {
+    return "";
+  }
 }
 
 function extractChatCompletionText(data) {
