@@ -5,7 +5,7 @@ const MAX_TEXT_LENGTH = 900;
 const MAX_OUTPUT_TOKENS = 2600;
 const DEFAULT_MODEL = "gpt-4o-mini";
 const STREAM_DONE = "[DONE]";
-const OUTPUT_STYLES = ["verdict", "analysis", "narrative", "mechanics", "audit"];
+const OUTPUT_STYLES = ["verdict", "analysis", "narrative"];
 const DEFAULT_RATE_LIMIT_WINDOW_MS = 60000;
 const DEFAULT_RATE_LIMIT_MAX = 12;
 const RATE_LIMITS = globalThis.__META_GRADE_BATTLE_RATE_LIMITS || new Map();
@@ -392,7 +392,7 @@ function buildSystemPrompt() {
     "必须完整阅读并使用 notes.penetration、notes.resistance、notes.special、notes.weakness、notes.setting、notes.basis 和 notes.timeline；这些解释项不能因为主面板已简写而省略。",
     "必须默认考虑 notes 中的攻击性质、防御抗性、特殊权能、领域、封印、空间、灵魂、一次性、外源、仪式、装备等，但只能按 notes 和峰值标签解释；条件不明时必须写入 caveats。",
     "允许输出 draw 或 unclear。证据不足、命中条件不明、速度/破防关系无法稳定判断时，不要强判。",
-    "必须按 options.outputStyle 调整侧重点：verdict=快速结论，直接给胜负、胜率区间和3条主因；analysis=完整裁定，按8维、能量、特殊权能和反制关系说明；narrative=分阶段战报，写开局、中盘、峰值窗口、终局；mechanics=机制拆解，重点写权能命中条件、反制链、资源维持和失效条件；audit=证据审计，重点写资料缺口、不确定性、哪些结论只能低置信度，不足时优先 unclear。",
+    "必须按 options.outputStyle 调整侧重点：verdict=快速结论，直接给胜负、胜率区间、3条主因和1条关键变数；analysis=完整裁定，按8维常态/峰值、能量续航、攻击性质、防御抗性、特殊权能命中条件、短板反制和证据限制综合说明；narrative=过程演绎，写开局、中盘、峰值窗口、终局，但结论必须服从完整裁定逻辑。",
     "输出必须精炼：summary、verdict、panelUse 各 1 句；keyFactors 3-5 条；phases 2-4 段；caveats 2-4 条。",
     "每个字符串尽量少于 120 个汉字，phases[].text 不写长篇剧情，不要输出解释 JSON 之外的任何前后缀。",
     "输出必须是符合 JSON Schema 的中文 JSON，不要 Markdown，不要代码块。"

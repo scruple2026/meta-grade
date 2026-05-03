@@ -12,11 +12,9 @@
     { key: "energy", label: "能量", dimensionKeys: ["energy", "energyRegen"] }
   ];
   const battleOutputStyles = [
-    { key: "verdict", label: "速览", description: "胜负 + 胜率 + 三主因" },
-    { key: "analysis", label: "裁定", description: "8维 + 续航 + 反制" },
-    { key: "narrative", label: "战报", description: "开局 / 中盘 / 终局" },
-    { key: "mechanics", label: "机制", description: "命中条件 + 克制链" },
-    { key: "audit", label: "审计", description: "缺口 + 低置信假设" }
+    { key: "verdict", label: "快速结论", description: "胜负 / 胜率 / 三主因" },
+    { key: "analysis", label: "完整裁定", description: "8维 / 权能 / 续航 / 证据" },
+    { key: "narrative", label: "过程演绎", description: "开局 / 中盘 / 终局" }
   ];
   const battleRandomModes = [
     { key: "any", label: "纯随机" },
@@ -900,7 +898,7 @@
           </div>
           <div class="battle-option-grid">
             <div class="field">
-              <span class="field-label">输出风格</span>
+              <span class="field-label">分析模式</span>
               ${renderBattleOutputStyleControl()}
             </div>
             <div class="field">
@@ -1172,7 +1170,7 @@
       "AI 对战演绎",
       left ? `角色 A：${formatBattleFighterForCopy(left, state.battle.leftStageKey)}` : "角色 A：未选择",
       right ? `角色 B：${formatBattleFighterForCopy(right, state.battle.rightStageKey)}` : "角色 B：未选择",
-      `输出风格：${battleOutputStyleLabel(state.battle.outputStyle)}`,
+      `分析模式：${battleOutputStyleLabel(state.battle.outputStyle)}`,
       state.battle.model ? `模型：${displayModelName(state.battle.model)}` : "",
       state.battle.statusTrail.length ? `路径：${state.battle.statusTrail.join(" / ")}` : "",
       state.battle.elapsedMs ? `耗时：${formatDuration(state.battle.elapsedMs)}` : "",
@@ -1199,7 +1197,7 @@
   function renderBattleOutputStyleControl() {
     const disabled = state.battle.loading ? "disabled" : "";
     return `
-      <div class="battle-style-options" role="radiogroup" aria-label="输出风格">
+      <div class="battle-style-options" role="radiogroup" aria-label="分析模式">
         ${battleOutputStyles.map((style) => `
           <label class="battle-style-option${state.battle.outputStyle === style.key ? " is-active" : ""}">
             <input type="radio" name="outputStyle" value="${escapeAttribute(style.key)}" ${state.battle.outputStyle === style.key ? "checked" : ""} ${disabled}>
@@ -1213,7 +1211,7 @@
 
   function battleOutputStyleLabel(value) {
     const style = battleOutputStyles.find((item) => item.key === value);
-    return style ? `${style.label}：${style.description}` : "速览：胜负 + 胜率 + 三主因";
+    return style ? `${style.label}：${style.description}` : "快速结论：胜负 / 胜率 / 三主因";
   }
 
   function battleRandomModeLabels() {
@@ -1896,7 +1894,7 @@
     const right = battleCharacterByKey(state.battle.rightKey);
     state.battle.leftStageKey = normalizeBattleStageKey(left, state.battle.leftStageKey);
     state.battle.rightStageKey = normalizeBattleStageKey(right, state.battle.rightStageKey);
-    if (!["verdict", "analysis", "narrative", "mechanics", "audit"].includes(state.battle.outputStyle)) state.battle.outputStyle = "verdict";
+    if (!["verdict", "analysis", "narrative"].includes(state.battle.outputStyle)) state.battle.outputStyle = "verdict";
     state.battle.randomMode = normalizeBattleRandomMode(state.battle.randomMode);
   }
 
