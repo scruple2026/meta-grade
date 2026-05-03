@@ -46,7 +46,7 @@ vercel dev
 | --- | --- | --- | --- |
 | `OPENAI_API_KEY` | 是 | 你的 LLM API key | 只放在 Vercel 环境变量或本地 `.env.local`，不要提交到仓库。 |
 | `OPENAI_MODEL` | 否 | 例如 `gpt-4o-mini` | 不填时默认用 `gpt-4o-mini`。 |
-| `OPENAI_BASE_URL` | 否 | 例如 `https://api.openai.com/v1` | 只填 base URL，不要带 `/responses`；`api/battle.js` 会自动拼成 `${OPENAI_BASE_URL}/responses`。如果换兼容服务商，该服务商必须支持本项目使用的 Responses API / JSON Schema 输出格式。 |
+| `OPENAI_BASE_URL` | 否 | 例如 `https://api.openai.com/v1` | 只填 base URL，不要带 `/responses` 或 `/chat/completions`；`api/battle.js` 会优先请求 `${OPENAI_BASE_URL}/responses`，兼容服务商拒绝 Responses 时会回退到 `${OPENAI_BASE_URL}/chat/completions`。 |
 | `BATTLE_RATE_LIMIT_WINDOW_MS` | 否 | 例如 `60000` | `/api/battle` 的实例内 best-effort 限流窗口，默认 60000 毫秒。 |
 | `BATTLE_RATE_LIMIT_MAX` | 否 | 例如 `12` | 每个 IP 在限流窗口内允许的生成次数，默认 12；设为 `0` 可关闭这个实例内限流。 |
 

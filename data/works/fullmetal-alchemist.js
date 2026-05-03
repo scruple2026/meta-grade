@@ -33,7 +33,7 @@
       },
       {
         label: "萌娘百科《钢之炼金术师》作品页",
-        url: "https://moegirl.icu/%E9%92%A2%E4%B9%8B%E7%82%BC%E9%87%91%E6%9C%AF%E5%B8%88"
+        url: "https://zh.moegirl.org.cn/%E9%92%A2%E4%B9%8B%E7%82%BC%E9%87%91%E6%9C%AF%E5%B8%88"
       }
     ],
     scaleNotes: {

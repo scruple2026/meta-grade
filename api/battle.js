@@ -170,6 +170,18 @@ module.exports = async function handler(req, res) {
 
     const data = await response.json().catch(() => ({}));
     if (!response.ok) {
+      if (shouldTryChatFallback(response.status, data)) {
+        const fallback = await completeChatCompletionFallback(baseUrl, model, request);
+        const result = parseBattleResult(fallback.outputText, request);
+        res.status(200).json({
+          ok: true,
+          model,
+          result,
+          usage: fallback.usage,
+          fallback: "chat_completions"
+        });
+        return;
+      }
       const message = data && data.error && data.error.message ? data.error.message : "LLM provider request failed.";
       res.status(response.status).json({ ok: false, error: message });
       return;
@@ -496,6 +508,21 @@ async function streamBattleResponse(req, res, baseUrl, model, request) {
     upstreamStatus = response.status;
     if (!response.ok) {
       const data = await response.json().catch(() => ({}));
+      if (shouldTryChatFallback(response.status, data)) {
+        eventTypes.add("fallback.chat_completions");
+        outputText = await streamChatCompletionFallback(res, baseUrl, model, request, requestId, abortController.signal);
+        const result = parseBattleResult(outputText, request);
+        sendSse(res, "done", {
+          ok: true,
+          model,
+          result,
+          usage,
+          requestId,
+          elapsedMs: Date.now() - startedAt
+        });
+        res.end();
+        return;
+      }
       const message = data && data.error && data.error.message ? data.error.message : "LLM provider request failed.";
       sendSse(res, "error", { error: message, status: response.status, requestId });
       res.end();
@@ -611,7 +638,7 @@ async function streamBattleResponse(req, res, baseUrl, model, request) {
 async function streamChatCompletionFallback(res, baseUrl, model, request, requestId, signal) {
   sendSse(res, "status", { message: "fallback_chat_completions", requestId });
   let response = await fetchChatCompletion(baseUrl, model, request, true, true, signal);
-  if (!response.ok && response.status === 400) {
+  if (!response.ok && shouldRetryChatWithoutResponseFormat(response.status)) {
     response = await fetchChatCompletion(baseUrl, model, request, true, false, signal);
   }
   if (!response.ok) {
@@ -630,7 +657,7 @@ async function streamChatCompletionFallback(res, baseUrl, model, request, reques
   await readSseStream(response.body, (event) => {
     const choice = event.choices && event.choices[0];
     if (!choice) return;
-    const delta = choice.delta && (choice.delta.content || choice.delta.reasoning_content || "");
+    const delta = choice.delta && typeof choice.delta.content === "string" ? choice.delta.content : "";
     if (delta) {
       outputText += delta;
       sendSse(res, "delta", { delta, requestId });
@@ -640,6 +667,22 @@ async function streamChatCompletionFallback(res, baseUrl, model, request, reques
   });
   if (!outputText) throw httpError(502, "Chat fallback 响应缺少文本输出。");
   return outputText;
+}
+
+async function completeChatCompletionFallback(baseUrl, model, request) {
+  let response = await fetchChatCompletion(baseUrl, model, request, false, true);
+  if (!response.ok && shouldRetryChatWithoutResponseFormat(response.status)) {
+    response = await fetchChatCompletion(baseUrl, model, request, false, false);
+  }
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const message = data && data.error && data.error.message ? data.error.message : "LLM chat fallback request failed.";
+    throw httpError(response.status, message);
+  }
+  return {
+    outputText: extractChatCompletionText(data),
+    usage: data.usage || null
+  };
 }
 
 function fetchChatCompletion(baseUrl, model, request, stream, useResponseFormat, signal) {
@@ -653,6 +696,16 @@ function fetchChatCompletion(baseUrl, model, request, stream, useResponseFormat,
     signal,
     body: JSON.stringify(buildChatProviderPayload(model, request, stream, useResponseFormat))
   });
+}
+
+function shouldTryChatFallback(status, data) {
+  if ([400, 404, 405, 415, 422, 501].includes(status)) return true;
+  const message = String(data && data.error && data.error.message || data && data.message || "").toLowerCase();
+  return /\/responses\b|responses api|response api|response_format|json_schema|unsupported|not supported|unknown endpoint|endpoint.*not found|not found.*endpoint/.test(message);
+}
+
+function shouldRetryChatWithoutResponseFormat(status) {
+  return [400, 415, 422].includes(status);
 }
 
 async function readSseStream(body, onEvent) {

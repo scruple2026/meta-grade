@@ -338,7 +338,15 @@
         }
       }
     }
-    if (!evidenceLinks.length && /争议|仅下限|国家级|大陆级|地表级|行星级|恒星级|超第三宇宙速度级|亚光速|光速|超光速/.test(text)) {
+    const dimensionValues = DIMENSIONS.flatMap((dimension) => {
+      const entry = dimensions && dimensions[dimension.key];
+      return entry ? [entry.normal, entry.peak] : [];
+    });
+    const needsSourceAudit = dimensionValues.some((value) => {
+      const rank = baseRank(value);
+      return /争议|仅下限|仅上限/.test(String(value || "")) || isHighRiskRank(rank);
+    });
+    if (!evidenceLinks.length && needsSourceAudit) {
       findings.push({
         severity: "high",
         dimension: "",

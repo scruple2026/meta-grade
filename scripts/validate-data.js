@@ -123,7 +123,14 @@ const EVIDENCE_LINK_TYPES = new Set(["chapter", "episode", "setting", "official"
 const LANGUAGE_VALUES = new Set(["ja", "zh", "en", "other"]);
 const AUTHORITY_VALUES = new Set(["primary", "official", "licensed", "wiki", "cross-reference", "analysis", "source"]);
 const MEDIUM_VALUES = new Set(["manga", "anime", "databook", "official-site", "publisher", "wiki", "cross-wiki", "print", "other"]);
-const NON_AUTHORITATIVE_HOSTS = [/\.fandom\.com$/, /^fandom\.com$/, /^moegirl\.icu$/, /^jojowiki\.com$/, /(^|\.)wikipedia\.org$/];
+const NON_AUTHORITATIVE_HOSTS = [
+  /\.fandom\.com$/,
+  /^fandom\.com$/,
+  /^moegirl\.icu$/,
+  /(^|\.)moegirl\.org\.cn$/,
+  /^jojowiki\.com$/,
+  /(^|\.)wikipedia\.org$/
+];
 const TIMELINE_KEY_PATTERN = /^[a-z0-9][a-z0-9-]*$/;
 const REFERENCE_RANKS = loadReferenceRanks();
 
@@ -456,6 +463,12 @@ function validateTimelinePanels(character, label) {
       if (!entry) {
         errors.push(`${label}: timelinePanels[${panelIndex}].dimensions.${key} is missing.`);
         continue;
+      }
+      if (!entry.brief) {
+        errors.push(`${label}: timelinePanels[${panelIndex}].dimensions.${key}.brief is missing.`);
+      }
+      if (!Array.isArray(entry.evidence)) {
+        errors.push(`${label}: timelinePanels[${panelIndex}].dimensions.${key}.evidence must be an array.`);
       }
       validateRank(key, entry.normal, `${label}: timelinePanels[${panelIndex}].${key}.normal`);
       validateRank(key, entry.peak, `${label}: timelinePanels[${panelIndex}].${key}.peak`);

@@ -1290,7 +1290,7 @@
             <h3>场地环境</h3>
             <p>${escapeHtml(battleEnvironmentSummary())}</p>
           </div>
-          <button class="small-action" type="button" id="randomBattleEnvironment" ${disabled}>随机场地</button>
+          <button class="small-action" type="button" id="randomBattleEnvironment" ${disabled}>随机场景</button>
         </header>
         <div class="battle-environment-grid">
           <div class="field">
@@ -2181,6 +2181,7 @@
   function setRandomBattleEnvironment() {
     state.battle.environmentKey = randomFromList(battleEnvironments).key;
     state.battle.distanceKey = randomFromList(battleDistances).key;
+    state.battle.intelPolicyKey = randomFromList(battleIntelPolicies).key;
   }
 
   function randomFromList(items) {

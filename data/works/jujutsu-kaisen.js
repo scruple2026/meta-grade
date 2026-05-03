@@ -24,7 +24,7 @@
     ],
     commonLinks: [
       { label: "Jujutsu Kaisen Wiki 角色总表", url: "https://jujutsu-kaisen.fandom.com/wiki/List_of_Characters" },
-      { label: "萌娘百科《咒术回战》作品页", url: "https://moegirl.icu/%E5%92%92%E6%9C%AF%E5%9B%9E%E6%88%98" }
+      { label: "萌娘百科《咒术回战》作品页", url: "https://zh.moegirl.org.cn/%E5%92%92%E6%9C%AF%E5%9B%9E%E6%88%98" }
     ],
     scaleNotes: {
           "scope": "当前只收录主角团和最终 Boss 两面宿傩；召唤/外置战力写入所属角色的战力解释项。",

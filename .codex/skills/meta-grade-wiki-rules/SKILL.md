@@ -44,19 +44,22 @@ Do not build exhaustive cast lists by default. For a new work or a new update pa
 
 Skip non-combat characters, pure story characters, minor civilians, ordinary support staff, background factions, and low-priority one-off fighters unless the user explicitly asks to include them.
 
-For the current project scope, keep each work to protagonists/core party members plus the final boss or most central combat antagonist unless the user explicitly asks to expand that work. For the current `咒术回战` section, keep 主角团 plus final boss 两面宿傩 only; keep 里香、魔虚罗 and similar summons/external powers inside the relevant character's battle-explanation fields (`notes.*`) instead of separate character files. For the current `鬼灭之刃` section, keep 主角团 plus final boss 鬼舞辻无惨 only; do not re-add 柱、十二鬼月, or other deleted long-tail cast just because a source wiki lists them.
+For the current project scope, preserve the existing curated compact roster for each work instead of auto-expanding into exhaustive cast lists. Keep summons, external powers, and temporary allies inside the relevant character's battle-explanation fields (`notes.*`) unless the user explicitly asks to add a separate entry. Do not re-add long-tail cast just because a source wiki lists them.
 
-The current added-work initial drafts are intentionally compact:
+The current maintained roster is intentionally compact:
 
 - `钢之炼金术师`: 艾尔利克兄弟、罗伊、斯卡、布拉德雷、父亲大人.
 - `进击的巨人`: 艾伦、三笠、利威尔、阿尔敏、莱纳、吉克.
 - `电锯人`: 电次、帕瓦、早川秋、三鹰朝/战争恶魔、玛奇玛.
 - `全职猎人`: 小杰、奇犽、酷拉皮卡、雷欧力、西索、尼特罗、梅路艾姆.
 - `一拳超人`: 埼玉、杰诺斯、龙卷、饿狼、波罗斯.
-- `火影忍者`: 第七班核心与疾风传最终 boss, i.e. 鸣人、佐助、小樱、卡卡西、辉夜.
+- `Fate/kaleid liner 魔法少女☆伊莉雅`: 伊莉雅、美游、小黑、巴泽特、安洁莉卡、贝阿朵莉丝、达利乌斯.
+- `咒术回战`: 虎杖、伏黑、钉崎、五条、真希、狗卷、胖达、乙骨、宿傩.
+- `鬼灭之刃`: 炭治郎、祢豆子、善逸、伊之助、香奈乎、玄弥、无惨.
+- `火影忍者`: 鸣人、佐助、小樱、卡卡西、辉夜、斑、带土、柱间、迈特凯.
 - `JOJO的奇妙冒险：星尘斗士`: 乔斯达一行核心成员 plus DIO.
-- `死神`: 一护、露琪亚、雨龙、织姬、恋次、蓝染、友哈巴赫.
-- `海贼王`: 草帽一伙 plus 黑胡子 as the current central combat antagonist placeholder; do not add every arc villain by default.
+- `死神`: 一护、露琪亚、雨龙、织姬、恋次、蓝染、友哈巴赫、山本、剑八、兵主部.
+- `海贼王`: 草帽一伙、黑胡子、凯多、香克斯、米霍克、白胡子；do not add every arc villain by default.
 - `龙珠`: Z 战士核心 plus 弗利萨、沙鲁、魔人布欧; `龙珠超` forms and villains should be split later instead of folded into these files by default.
 
 ## Rating Rules
