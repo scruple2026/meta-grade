@@ -253,8 +253,7 @@ button {
 }
 
 .field input,
-.field select,
-.field textarea {
+.field select {
   width: 100%;
   min-height: 40px;
   border: 1px solid var(--line);
@@ -265,15 +264,9 @@ button {
 }
 
 .field input:focus,
-.field select:focus,
-.field textarea:focus {
+.field select:focus {
   border-color: var(--accent);
   outline: 3px solid rgba(11, 127, 120, 0.16);
-}
-
-.field textarea {
-  resize: vertical;
-  line-height: 1.45;
 }
 
 .field-hint {
@@ -1098,7 +1091,7 @@ button {
 
 .battle-option-grid {
   display: grid;
-  grid-template-columns: minmax(280px, 1.35fr) minmax(150px, 190px) minmax(260px, 0.8fr);
+  grid-template-columns: minmax(280px, 1.35fr) minmax(220px, 0.72fr) minmax(260px, 0.8fr);
   align-items: end;
   gap: 12px;
 }
@@ -1154,6 +1147,52 @@ button {
   line-height: 1.25;
 }
 
+.battle-random-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.battle-random-option {
+  position: relative;
+  display: grid;
+  gap: 2px;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  padding: 7px 7px 7px 26px;
+  cursor: pointer;
+}
+
+.battle-random-option.is-active {
+  border-color: #5d8c7d;
+  background: #eff8f4;
+}
+
+.battle-random-option input {
+  position: absolute;
+  left: 8px;
+  top: 10px;
+  width: 13px;
+  height: 13px;
+  min-height: 0;
+  margin: 0;
+  accent-color: #5d8c7d;
+}
+
+.battle-random-option span {
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.battle-random-option small {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.25;
+}
+
 .battle-environment-control {
   display: grid;
   gap: 10px;
@@ -1186,18 +1225,14 @@ button {
 
 .battle-environment-grid {
   display: grid;
-  grid-template-columns: minmax(180px, 0.75fr) minmax(180px, 0.75fr) minmax(260px, 1.2fr);
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
   gap: 10px;
   align-items: end;
 }
 
-.battle-environment-note-field textarea {
-  min-height: 62px;
-}
-
 .battle-environment-detail {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 10px;
   border-top: 1px solid var(--line);
   padding-top: 10px;

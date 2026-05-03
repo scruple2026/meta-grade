@@ -16,16 +16,14 @@
     { key: "analysis", label: "完整裁定", description: "8维 / 权能 / 续航 / 证据" },
     { key: "narrative", label: "过程演绎", description: "开局 / 中盘 / 终局" }
   ];
-  const battleRandomModes = [
-    { key: "any", label: "纯随机" },
-    { key: "cross-work", label: "跨作品" },
-    { key: "same-tier", label: "同档位" }
+  const battleRandomRules = [
+    { key: "crossWork", label: "跨作品", description: "尽量从不同作品随机对手。" },
+    { key: "sameTier", label: "同量级", description: "尽量随机峰值面板接近的对手。" }
   ];
   const battleEnvironments = [
-    { key: "standard-arena", label: "标准空旷场", description: "无遮挡、无平民、双方可见，地面平整。" },
+    { key: "standard-arena", label: "标准空旷场", description: "无遮挡、双方可见，地面平整。" },
     { key: "urban-block", label: "城市街区", description: "道路、车辆、低层建筑和巷道充足，存在遮蔽与高低差。" },
     { key: "dense-highrise", label: "高楼密集城区", description: "高层建筑、屋顶、垂直空间和视线遮挡明显。" },
-    { key: "crowded-city", label: "有人城市区", description: "平民和附带损害限制明显，大范围攻击、精神原则和救援压力会影响发挥。" },
     { key: "indoor-complex", label: "室内建筑群", description: "走廊、房间、墙体和短视距限制机动与大范围招式。" },
     { key: "industrial-zone", label: "工厂设施", description: "金属结构、管线、可燃物、机械设备和复杂遮蔽可被利用。" },
     { key: "ruined-city", label: "大型废墟", description: "瓦砾、断墙、地下空间和不稳定结构利于埋伏、掩体和地形破坏。" },
@@ -53,6 +51,16 @@
     { key: "long-1km", label: "远距 1 公里", description: "长程攻击、视野、感知、飞行和高速接近成为关键。" },
     { key: "extreme-10km", label: "超远 10 公里", description: "需要稳定索敌、长程投射或高速移动才能形成有效交战。" },
     { key: "unknown-roaming", label: "未知游猎", description: "双方先不知道精确位置，搜索、潜行、感知和伏击权重提高。" }
+  ];
+  const battleIntelPolicies = [
+    { key: "encounter", label: "陌生遭遇", description: "双方只知道眼前可见信息，不自动知道隐藏底牌。" },
+    { key: "rough-info", label: "大致情报", description: "双方知道对方能力类型和常见战斗方式，不知道精确数值与隐藏条件。" },
+    { key: "panel-info", label: "面板情报", description: "双方知道本站面板级信息，但仍需按自身能力、反应与战术执行。" }
+  ];
+  const battleVictoryRules = [
+    { key: "ko", label: "战斗不能", description: "以击倒、封印、控制、无法继续战斗或明确投降为胜。" },
+    { key: "no-retreat", label: "禁止脱战", description: "不能单靠逃离或拖出场地判胜，必须形成战斗不能或稳定压制。" },
+    { key: "ring-out-valid", label: "可场外胜", description: "可通过放逐、击出边界或让对方无法返回来获胜。" }
   ];
   const workSources = window.POWER_WIKI_WORK_SOURCES || {};
   const confidenceLabels = {
@@ -93,10 +101,12 @@
       leftFilters: createBattleFilters(),
       rightFilters: createBattleFilters(),
       outputStyle: "verdict",
-      randomMode: "any",
+      randomCrossWork: false,
+      randomSameTier: false,
       environmentKey: "standard-arena",
       distanceKey: "standard-100m",
-      environmentNote: "",
+      intelPolicyKey: "encounter",
+      victoryRuleKey: "ko",
       loading: false,
       cancelled: false,
       error: "",
@@ -938,10 +948,8 @@
               ${renderBattleOutputStyleControl()}
             </div>
             <div class="field">
-              <label for="battleRandomMode">随机模式</label>
-              <select id="battleRandomMode" name="randomMode" ${state.battle.loading ? "disabled" : ""}>
-                ${renderSelectOptions(battleRandomModes.map((mode) => mode.key), state.battle.randomMode, "", battleRandomModeLabels())}
-              </select>
+              <span class="field-label">随机条件</span>
+              ${renderBattleRandomRuleControl()}
             </div>
             <div class="battle-actions">
               <button class="small-action" type="button" id="randomBattlePair" ${state.battle.loading ? "disabled" : ""}>随机角色</button>
@@ -969,10 +977,6 @@
       renderBattle();
     });
     form.addEventListener("input", (event) => {
-      if (event.target.name === "environmentNote") {
-        state.battle.environmentNote = normalizeBattleEnvironmentNote(event.target.value);
-        return;
-      }
       if (!event.target.name || !/^(left|right)Query$/.test(event.target.name)) return;
       readBattleForm(form);
       clearBattleOutput();
@@ -1260,10 +1264,32 @@
     `;
   }
 
+  function renderBattleRandomRuleControl() {
+    const disabled = state.battle.loading ? "disabled" : "";
+    const rules = {
+      crossWork: state.battle.randomCrossWork,
+      sameTier: state.battle.randomSameTier
+    };
+    return `
+      <div class="battle-random-options" aria-label="随机条件">
+        ${battleRandomRules.map((rule) => `
+          <label class="battle-random-option${rules[rule.key] ? " is-active" : ""}">
+            <input type="checkbox" name="random${capitalize(rule.key)}" ${rules[rule.key] ? "checked" : ""} ${disabled}>
+            <span>${escapeHtml(rule.label)}</span>
+            <small>${escapeHtml(rule.description)}</small>
+          </label>
+        `).join("")}
+      </div>
+      <p class="field-hint">都不选就是纯随机；两个都选则优先随机跨作品且同量级的组合。</p>
+    `;
+  }
+
   function renderBattleEnvironmentControl() {
     const disabled = state.battle.loading ? "disabled" : "";
     const environment = battleEnvironmentByKey(state.battle.environmentKey);
     const distance = battleDistanceByKey(state.battle.distanceKey);
+    const intel = battleIntelPolicyByKey(state.battle.intelPolicyKey);
+    const victory = battleVictoryRuleByKey(state.battle.victoryRuleKey);
     return `
       <section class="battle-environment-control">
         <header>
@@ -1286,14 +1312,24 @@
               ${renderSelectOptions(battleDistances.map((item) => item.key), state.battle.distanceKey, "", battleDistanceLabels())}
             </select>
           </div>
-          <div class="field battle-environment-note-field">
-            <label for="battleEnvironmentNote">补充条件</label>
-            <textarea id="battleEnvironmentNote" name="environmentNote" rows="2" maxlength="260" placeholder="例如：双方知道对方大致能力；禁止离场；有平民；雨停后地面湿滑。" ${disabled}>${escapeHtml(state.battle.environmentNote)}</textarea>
+          <div class="field">
+            <label for="battleIntelPolicy">情报</label>
+            <select id="battleIntelPolicy" name="intelPolicyKey" ${disabled}>
+              ${renderSelectOptions(battleIntelPolicies.map((item) => item.key), state.battle.intelPolicyKey, "", battleIntelPolicyLabels())}
+            </select>
+          </div>
+          <div class="field">
+            <label for="battleVictoryRule">胜利条件</label>
+            <select id="battleVictoryRule" name="victoryRuleKey" ${disabled}>
+              ${renderSelectOptions(battleVictoryRules.map((item) => item.key), state.battle.victoryRuleKey, "", battleVictoryRuleLabels())}
+            </select>
           </div>
         </div>
         <div class="battle-environment-detail">
           <p><strong>${escapeHtml(environment.label)}</strong>：${escapeHtml(environment.description)}</p>
           <p><strong>${escapeHtml(distance.label)}</strong>：${escapeHtml(distance.description)}</p>
+          <p><strong>${escapeHtml(intel.label)}</strong>：${escapeHtml(intel.description)}</p>
+          <p><strong>${escapeHtml(victory.label)}</strong>：${escapeHtml(victory.description)}</p>
         </div>
       </section>
     `;
@@ -1304,16 +1340,20 @@
     return style ? `${style.label}：${style.description}` : "快速结论：胜负 / 胜率 / 三主因";
   }
 
-  function battleRandomModeLabels() {
-    return Object.fromEntries(battleRandomModes.map((mode) => [mode.key, mode.label]));
-  }
-
   function battleEnvironmentLabels() {
     return Object.fromEntries(battleEnvironments.map((environment) => [environment.key, environment.label]));
   }
 
   function battleDistanceLabels() {
     return Object.fromEntries(battleDistances.map((distance) => [distance.key, distance.label]));
+  }
+
+  function battleIntelPolicyLabels() {
+    return Object.fromEntries(battleIntelPolicies.map((policy) => [policy.key, policy.label]));
+  }
+
+  function battleVictoryRuleLabels() {
+    return Object.fromEntries(battleVictoryRules.map((rule) => [rule.key, rule.label]));
   }
 
   function battleEnvironmentByKey(key) {
@@ -1324,11 +1364,20 @@
     return battleDistances.find((distance) => distance.key === key) || battleDistances.find((distance) => distance.key === "standard-100m") || battleDistances[0];
   }
 
+  function battleIntelPolicyByKey(key) {
+    return battleIntelPolicies.find((policy) => policy.key === key) || battleIntelPolicies[0];
+  }
+
+  function battleVictoryRuleByKey(key) {
+    return battleVictoryRules.find((rule) => rule.key === key) || battleVictoryRules[0];
+  }
+
   function battleEnvironmentSummary() {
     const environment = battleEnvironmentByKey(state.battle.environmentKey);
     const distance = battleDistanceByKey(state.battle.distanceKey);
-    const note = normalizeBattleEnvironmentNote(state.battle.environmentNote);
-    return [environment.label, distance.label, note].filter(Boolean).join(" / ");
+    const intel = battleIntelPolicyByKey(state.battle.intelPolicyKey);
+    const victory = battleVictoryRuleByKey(state.battle.victoryRuleKey);
+    return [environment.label, distance.label, intel.label, victory.label].filter(Boolean).join(" / ");
   }
 
   function formatDuration(ms) {
@@ -1978,10 +2027,12 @@
     readBattleFilters(form, "right");
     const outputStyle = form.querySelector("[name='outputStyle']:checked") || form.querySelector("[name='outputStyle']");
     state.battle.outputStyle = outputStyle ? outputStyle.value : state.battle.outputStyle;
-    state.battle.randomMode = readOptionalFormValue(form, "randomMode", state.battle.randomMode);
+    state.battle.randomCrossWork = readOptionalChecked(form, "randomCrossWork", state.battle.randomCrossWork);
+    state.battle.randomSameTier = readOptionalChecked(form, "randomSameTier", state.battle.randomSameTier);
     state.battle.environmentKey = readOptionalFormValue(form, "environmentKey", state.battle.environmentKey);
     state.battle.distanceKey = readOptionalFormValue(form, "distanceKey", state.battle.distanceKey);
-    state.battle.environmentNote = normalizeBattleEnvironmentNote(readOptionalFormValue(form, "environmentNote", state.battle.environmentNote));
+    state.battle.intelPolicyKey = readOptionalFormValue(form, "intelPolicyKey", state.battle.intelPolicyKey);
+    state.battle.victoryRuleKey = readOptionalFormValue(form, "victoryRuleKey", state.battle.victoryRuleKey);
     normalizeBattleState();
   }
 
@@ -2005,6 +2056,11 @@
     return element ? element.value : fallback;
   }
 
+  function readOptionalChecked(form, name, fallback) {
+    const element = form.querySelector(`[name='${name}']`);
+    return element ? element.checked === true : fallback;
+  }
+
   function normalizeBattleState() {
     if (!characters.length) return;
     const keys = battleCharacterKeys();
@@ -2017,10 +2073,12 @@
     state.battle.leftStageKey = normalizeBattleStageKey(left, state.battle.leftStageKey);
     state.battle.rightStageKey = normalizeBattleStageKey(right, state.battle.rightStageKey);
     if (!["verdict", "analysis", "narrative"].includes(state.battle.outputStyle)) state.battle.outputStyle = "verdict";
-    state.battle.randomMode = normalizeBattleRandomMode(state.battle.randomMode);
+    state.battle.randomCrossWork = state.battle.randomCrossWork === true;
+    state.battle.randomSameTier = state.battle.randomSameTier === true;
     state.battle.environmentKey = normalizeBattleEnvironmentKey(state.battle.environmentKey);
     state.battle.distanceKey = normalizeBattleDistanceKey(state.battle.distanceKey);
-    state.battle.environmentNote = normalizeBattleEnvironmentNote(state.battle.environmentNote);
+    state.battle.intelPolicyKey = normalizeBattleIntelPolicyKey(state.battle.intelPolicyKey);
+    state.battle.victoryRuleKey = normalizeBattleVictoryRuleKey(state.battle.victoryRuleKey);
   }
 
   function normalizeBattleFilters(side) {
@@ -2064,18 +2122,21 @@
   function setRandomBattlePair(selection = {}) {
     const keys = battleCharacterKeys();
     if (!keys.length) return;
-    const mode = normalizeBattleRandomMode(selection.mode || state.battle.randomMode);
+    const constraints = normalizeBattleRandomConstraints(selection.constraints || {
+      crossWork: state.battle.randomCrossWork,
+      sameTier: state.battle.randomSameTier
+    });
     const fixedLeft = selection.leftKey && keys.includes(selection.leftKey) ? selection.leftKey : "";
     const fixedRight = selection.rightKey && keys.includes(selection.rightKey) ? selection.rightKey : "";
     let leftKey = fixedLeft;
     let rightKey = fixedRight;
     if (!leftKey && !rightKey) {
       leftKey = randomBattleCharacterKey(keys);
-      rightKey = randomBattleCharacterKey(battleRandomCandidateKeys(keys, leftKey, mode), leftKey);
+      rightKey = randomBattleCharacterKey(battleRandomCandidateKeys(keys, leftKey, constraints), leftKey);
     } else if (!leftKey) {
-      leftKey = randomBattleCharacterKey(battleRandomCandidateKeys(keys, rightKey, mode), rightKey);
+      leftKey = randomBattleCharacterKey(battleRandomCandidateKeys(keys, rightKey, constraints), rightKey);
     } else if (!rightKey) {
-      rightKey = randomBattleCharacterKey(battleRandomCandidateKeys(keys, leftKey, mode), leftKey);
+      rightKey = randomBattleCharacterKey(battleRandomCandidateKeys(keys, leftKey, constraints), leftKey);
     }
     if (leftKey === rightKey && keys.length > 1) {
       rightKey = randomBattleCharacterKey(keys, leftKey);
@@ -2092,27 +2153,34 @@
     return candidates[Math.floor(Math.random() * candidates.length)] || "";
   }
 
-  function battleRandomCandidateKeys(keys, anchorKey, mode) {
+  function battleRandomCandidateKeys(keys, anchorKey, constraints) {
     const anchor = battleCharacterByKey(anchorKey);
     if (!anchor) return keys;
-    if (mode === "cross-work") {
-      const crossWork = keys.filter((key) => {
-        const character = battleCharacterByKey(key);
-        return character && character.work !== anchor.work;
-      });
-      return crossWork.length ? crossWork : keys;
+    const normalized = normalizeBattleRandomConstraints(constraints);
+    const attempts = [
+      normalized,
+      normalized.crossWork && normalized.sameTier ? { crossWork: true, sameTier: false } : null,
+      normalized.crossWork && normalized.sameTier ? { crossWork: false, sameTier: true } : null,
+      { crossWork: false, sameTier: false }
+    ].filter(Boolean);
+    for (const attempt of attempts) {
+      const candidates = keys.filter((key) => matchesBattleRandomConstraints(key, anchor, anchorKey, attempt));
+      if (candidates.length) return candidates;
     }
-    if (mode === "same-tier") {
+    return keys.filter((key) => key !== anchorKey);
+  }
+
+  function matchesBattleRandomConstraints(key, anchor, anchorKey, constraints) {
+    if (key === anchorKey) return false;
+    const character = battleCharacterByKey(key);
+    if (!character) return false;
+    if (constraints.crossWork && character.work === anchor.work) return false;
+    if (constraints.sameTier) {
       const anchorScore = battleTierScore(anchor);
-      const sameTier = keys.filter((key) => {
-        const character = battleCharacterByKey(key);
-        if (!character || key === anchorKey) return false;
-        const score = battleTierScore(character);
-        return Number.isFinite(score) && Number.isFinite(anchorScore) && Math.abs(score - anchorScore) <= 0.16;
-      });
-      return sameTier.length ? sameTier : keys;
+      const score = battleTierScore(character);
+      if (!Number.isFinite(score) || !Number.isFinite(anchorScore) || Math.abs(score - anchorScore) > 0.16) return false;
     }
-    return keys;
+    return true;
   }
 
   function battleTierScore(character) {
@@ -2127,8 +2195,12 @@
     return values.reduce((sum, value) => sum + value, 0) / values.length;
   }
 
-  function normalizeBattleRandomMode(value) {
-    return battleRandomModes.some((mode) => mode.key === value) ? value : "any";
+  function normalizeBattleRandomConstraints(value) {
+    const constraints = value && typeof value === "object" ? value : {};
+    return {
+      crossWork: constraints.crossWork === true,
+      sameTier: constraints.sameTier === true
+    };
   }
 
   function setRandomBattleEnvironment() {
@@ -2148,8 +2220,12 @@
     return battleDistances.some((distance) => distance.key === value) ? value : "standard-100m";
   }
 
-  function normalizeBattleEnvironmentNote(value) {
-    return String(value || "").replace(/\s+/g, " ").trim().slice(0, 260);
+  function normalizeBattleIntelPolicyKey(value) {
+    return battleIntelPolicies.some((policy) => policy.key === value) ? value : "encounter";
+  }
+
+  function normalizeBattleVictoryRuleKey(value) {
+    return battleVictoryRules.some((rule) => rule.key === value) ? value : "ko";
   }
 
   function battlePanelFor(character, stageKey) {
@@ -2174,6 +2250,8 @@
   function buildBattleEnvironmentPayload() {
     const environment = battleEnvironmentByKey(state.battle.environmentKey);
     const distance = battleDistanceByKey(state.battle.distanceKey);
+    const intel = battleIntelPolicyByKey(state.battle.intelPolicyKey);
+    const victory = battleVictoryRuleByKey(state.battle.victoryRuleKey);
     return {
       key: environment.key,
       label: environment.label,
@@ -2181,7 +2259,12 @@
       distanceKey: distance.key,
       distanceLabel: distance.label,
       distanceDescription: distance.description,
-      note: normalizeBattleEnvironmentNote(state.battle.environmentNote)
+      intelPolicyKey: intel.key,
+      intelPolicyLabel: intel.label,
+      intelPolicyDescription: intel.description,
+      victoryRuleKey: victory.key,
+      victoryRuleLabel: victory.label,
+      victoryRuleDescription: victory.description
     };
   }
 
