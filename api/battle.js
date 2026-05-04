@@ -114,7 +114,7 @@ module.exports = async function handler(req, res) {
       ok: true,
       configured: !disabled && Boolean(process.env.OPENAI_API_KEY),
       disabled,
-      disabledReason: disabled ? "AI 对战已由 BATTLE_API_DISABLED 暂停。" : "",
+      disabledReason: disabled ? "AI 裁定已由 BATTLE_API_DISABLED 暂停。" : "",
       model: process.env.OPENAI_MODEL || DEFAULT_MODEL,
       baseUrlConfigured: Boolean(process.env.OPENAI_BASE_URL),
       streaming: true,
@@ -136,7 +136,7 @@ module.exports = async function handler(req, res) {
       setJsonHeaders(res);
       res.status(503).json({
         ok: false,
-        error: "AI 对战已由 BATTLE_API_DISABLED 暂停。"
+        error: "AI 裁定已由 BATTLE_API_DISABLED 暂停。"
       });
       return;
     }
@@ -159,7 +159,7 @@ module.exports = async function handler(req, res) {
       setJsonHeaders(res);
       res.status(503).json({
         ok: false,
-        error: "Vercel 环境变量 OPENAI_API_KEY 尚未配置，无法生成 AI 对战演绎。"
+        error: "Vercel 环境变量 OPENAI_API_KEY 尚未配置，无法生成 AI 裁定。"
       });
       return;
     }

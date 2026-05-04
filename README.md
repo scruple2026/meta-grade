@@ -30,7 +30,7 @@ Meta Grade 是一个跨作品战力面板与对战裁定公开 Beta，按 `refer
 
 直接用浏览器打开 `index.html` 可以查看静态维基。公共数据注册器写在 `data/core.js`，作品来源元数据写在 `data/works/*.js`，每个角色独立写在 `data/characters/<work-slug>/<character-id>.js`，前端交互写在 `assets/app.js`。站内 `#/reference` 会渲染量级体系文档，`#/audit` 会集中展示待补具体证据的高风险条目，`#/compare` 会选择两个角色并静态对照时间线、8 维面板、机制项、场地和距离，配置 API 后可通过 `/api/battle` 以 SSE 流式生成 AI 裁定；旧的 `#/battle` 链接仍保持兼容。`#/work/<work-slug>` 会展示作品口径、角色清单和待审条目。角色稳定链接使用 `#/character/<work-slug>/<character-id>/<timeline-key>`，旧的 `#/character/<character-id>` 仍保留兼容。Markdown 原文仍保留在 `reference.md`。
 
-本地要测试 AI 对战接口时，用 Vercel 本地开发环境，并配置环境变量：
+本地要测试 AI 裁定接口时，用 Vercel 本地开发环境，并配置环境变量：
 
 ```bash
 cp .env.example .env.local
