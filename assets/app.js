@@ -710,11 +710,11 @@
     const entry = panel.dimensions[dimension.key];
     return `
       <tr>
-        <th scope="row">${escapeHtml(dimension.label)}</th>
-        <td>【${escapeHtml(entry.normal)}】</td>
-        <td>【${escapeHtml(entry.peak)}】</td>
-        <td>${escapeHtml(entry.brief || "按常态/峰值双档记录。")}</td>
-        ${showEvidenceColumn ? `<td>${entry.evidence && entry.evidence.length ? renderEvidenceList(entry.evidence) : `<span class="muted-line">见下方评级依据与来源。</span>`}</td>` : ""}
+        <th class="dimension-table-name" scope="row">${escapeHtml(dimension.label)}</th>
+        <td class="dimension-table-rank"><span>${escapeHtml(entry.normal)}</span></td>
+        <td class="dimension-table-rank"><span>${escapeHtml(entry.peak)}</span></td>
+        <td class="dimension-table-brief">${escapeHtml(entry.brief || "按常态/峰值双档记录。")}</td>
+        ${showEvidenceColumn ? `<td class="dimension-table-evidence">${entry.evidence && entry.evidence.length ? renderEvidenceList(entry.evidence) : `<span class="muted-line">见下方评级依据与来源。</span>`}</td>` : ""}
       </tr>
     `;
   }
@@ -757,7 +757,14 @@
           return `
             <section class="dimension-detail-group dimension-group-card is-${escapeAttribute(group.key)}">
               <h3 class="dimension-group-title">${escapeHtml(group.label)}</h3>
-              <table class="dimension-table">
+              <table class="dimension-table${hasEvidenceColumn ? " has-evidence-column" : ""}">
+                <colgroup>
+                  <col class="dimension-col-name">
+                  <col class="dimension-col-rank">
+                  <col class="dimension-col-rank">
+                  <col class="dimension-col-brief">
+                  ${hasEvidenceColumn ? `<col class="dimension-col-evidence">` : ""}
+                </colgroup>
                 <thead>
                   <tr>
                     <th scope="col">主维度</th>

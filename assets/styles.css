@@ -694,10 +694,31 @@ button {
 
 .dimension-table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   overflow: hidden;
+}
+
+.dimension-col-name {
+  width: 108px;
+}
+
+.dimension-col-rank {
+  width: 18%;
+}
+
+.dimension-col-brief {
+  width: auto;
+}
+
+.dimension-table.has-evidence-column .dimension-col-rank {
+  width: 15%;
+}
+
+.dimension-col-evidence {
+  width: 25%;
 }
 
 .dimension-detail-groups {
@@ -713,8 +734,10 @@ button {
 .dimension-table td {
   border-bottom: 1px solid var(--line);
   padding: 10px;
+  line-height: 1.45;
   text-align: left;
   vertical-align: top;
+  overflow-wrap: anywhere;
 }
 
 .dimension-table th {
@@ -724,6 +747,24 @@ button {
 
 .dimension-table td {
   font-size: 14px;
+}
+
+.dimension-table-rank span {
+  display: inline-block;
+  max-width: 100%;
+  border: 1px solid #d9e2dc;
+  border-radius: 6px;
+  background: #fff;
+  padding: 3px 7px;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.dimension-table-brief,
+.dimension-table-evidence {
+  color: #33443a;
 }
 
 .dimension-table tr:last-child th,
@@ -2074,10 +2115,12 @@ button {
     grid-template-columns: 1fr;
   }
 
-  .dimension-table {
-    display: block;
+  .dimension-detail-group {
     overflow-x: auto;
-    white-space: nowrap;
+  }
+
+  .dimension-table {
+    min-width: 680px;
   }
 
   .reference-header {
