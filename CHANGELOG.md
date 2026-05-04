@@ -3,11 +3,15 @@
 ## 2026-05-04
 
 - 准备公开 Beta 传播状态。
+- 站点品牌口径更新为 `Meta Grade 跨作品战力面板与对战裁定`。
 - 首页新增公开 Beta、剧透、反馈入口和热门角色入口。
-- `#/battle` 在服务端未配置 Key 或 `BATTLE_API_DISABLED` 开启时显示关闭态，并禁用生成按钮。
+- 首页和导航新增角色对比与路线图入口。
+- `#/compare` 作为角色对比主入口，旧的 `#/battle` 链接继续兼容。
+- 角色对比页在服务端未配置 Key 或 `BATTLE_API_DISABLED` 开启时显示关闭态，并禁用 AI 生成按钮；静态对比继续可用。
 - `/api/battle` 新增 `BATTLE_API_DISABLED` 总开关，暂停状态下 POST 直接返回 503，不进入上游模型调用。
-- 补充 SEO / Open Graph / Twitter summary 元信息。
+- 补充 SEO / Open Graph / Twitter summary 元信息和品牌分享预览图。
 - 新增 `PROMOTION.md` 宣传文案。
+- 新增 `ROADMAP.md` 路线图。
 - 新增 GitHub Issue 模板，用于角色修订和来源 / 证据补充。
 - 调整角色详情页时间线维度表列宽和移动端滚动。
 - 补充虎杖悠仁 `Modulo / 死灭回游68年后` 时间线，记录不老状态和第 22 话大范围斩击 / 魂通路景观解体表现。

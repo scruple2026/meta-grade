@@ -179,7 +179,7 @@
       renderAudit();
       return;
     }
-    if (segments[0] === "battle") {
+    if (segments[0] === "battle" || segments[0] === "compare") {
       renderBattle(routeParams);
       return;
     }
@@ -223,7 +223,7 @@
           <div class="filter-header">
             <h1>角色检索</h1>
             <p>当前按作品维护核心战斗角色；搜索结果只展示 8 个主维度简介，细节、争议和来源在角色页查看。</p>
-            <p class="public-beta-note">公开 Beta：本站用于战力面板讨论和证据修订，含正篇结局与续作剧透；AI 对战生成会按服务端状态启用或暂停。</p>
+            <p class="public-beta-note">公开 Beta：本站用于战力面板讨论和证据修订，含正篇结局与续作剧透；角色对比可静态使用，AI 裁定按服务端状态启用或暂停。</p>
           </div>
           <form class="filter-body" id="filterForm">
             <div class="field">
@@ -312,13 +312,15 @@
       <section class="public-intro" aria-label="公开 Beta 说明">
         <div>
           <h2>公开 Beta：先看面板，后补证据</h2>
-          <p>本站按 8 个主维度拆分常态 / 峰值，并把攻击性质、防御抗性、特殊权能、短板和来源放在角色详情页。结果用于讨论和修订，不代表官方强弱结论；条目可能包含正篇结局、最终战和续作剧透。</p>
+          <p>本站按 8 个主维度拆分常态 / 峰值，并把攻击性质、防御抗性、特殊权能、短板和来源放在角色详情页。角色对比页可静态对照两边面板、机制和场地条件；结果用于讨论和修订，不代表官方强弱结论，且可能包含正篇结局、最终战和续作剧透。</p>
         </div>
         <div class="public-intro-actions">
           <a class="small-action" href="#/about">怎么看本站</a>
+          <a class="small-action" href="#/compare">角色对比</a>
           <a class="small-action" href="#/audit">待补证据</a>
           <a class="small-action" href="https://github.com/scruple2026/meta-grade/issues/new/choose" target="_blank" rel="noopener">反馈错误</a>
           <a class="small-action" href="PROMOTION.md">宣传文案</a>
+          <a class="small-action" href="ROADMAP.md">路线图</a>
         </div>
         ${spotlight.length ? `
           <div class="spotlight-links" aria-label="热门角色入口">
@@ -984,15 +986,16 @@
         <div class="back-line"><a href="#/">← 返回角色检索</a></div>
         <header class="reference-header">
           <div>
-            <h1>AI 对战演绎</h1>
-            <p>选择两个角色后，由 Vercel Function 调用 LLM，根据本站 8 维常态/峰值面板、能量与续航、时间线、特殊权能、场地距离和待审提示生成对战过程。结果是 AI 演绎，不写回角色定级。</p>
+            <h1>角色对比</h1>
+            <p>先静态对照两名角色的时间线、8 维常态/峰值面板、机制项、场地环境和开局距离；AI 裁定只是基于这些面板的可选生成能力，当前可按服务端开关暂停，结果不写回角色定级。</p>
           </div>
           ${renderBattleApiStatus()}
         </header>
         ${battleDisabledReason ? `
           <section class="battle-unavailable notice-block">
-            <h2>AI 对战暂时关闭</h2>
+            <h2>AI 裁定暂时关闭</h2>
             <p>${escapeHtml(battleDisabledReason)}</p>
+            <p>静态角色对比、面板差异、机制对照、场地环境和分享链接仍可使用；暂停只是防止公开 Beta 阶段被扫描消耗 API 额度。</p>
           </section>
         ` : ""}
         <form class="battle-builder" id="battleForm">
@@ -1011,14 +1014,14 @@
             </div>
             <div class="battle-actions">
               <button class="small-action" type="button" id="randomBattlePair" ${state.battle.loading ? "disabled" : ""}>随机角色</button>
-              <button class="small-action" type="button" id="shareBattleLink" ${state.battle.loading ? "disabled" : ""}>复制链接</button>
+              <button class="small-action" type="button" id="shareBattleLink" ${state.battle.loading ? "disabled" : ""}>复制对比链接</button>
               ${state.battle.loading ? `<button class="small-action is-danger" type="button" id="cancelBattleGeneration">取消</button>` : ""}
               <button class="small-action" type="button" id="swapBattleSides" ${state.battle.loading ? "disabled" : ""}>交换</button>
-              <button class="primary-action" type="submit" ${submitDisabled ? "disabled" : ""}>${state.battle.loading ? "生成中..." : battleDisabledReason ? "AI 对战暂时关闭" : "生成对战"}</button>
+              <button class="primary-action" type="submit" ${submitDisabled ? "disabled" : ""}>${state.battle.loading ? "生成中..." : battleDisabledReason ? "AI 裁定暂停" : "生成 AI 裁定"}</button>
             </div>
           </div>
           ${renderBattleEnvironmentControl()}
-          <p class="field-hint battle-hint">公开 Beta 可只开放静态面板。恢复 AI 对战时，需要在 Vercel 配置 <code>OPENAI_API_KEY</code>，并保持 <code>BATTLE_API_DISABLED</code> 未开启；直接打开本地 HTML 时只能预览页面，不能调用 API。</p>
+          <p class="field-hint battle-hint">公开 Beta 默认把静态角色对比作为主功能。恢复 AI 裁定时，需要在 Vercel 配置 <code>OPENAI_API_KEY</code>，并保持 <code>BATTLE_API_DISABLED</code> 未开启；直接打开本地 HTML 时只能预览页面，不能调用 API。</p>
           ${state.battle.shareMessage ? `<p class="field-hint battle-share-status">${escapeHtml(state.battle.shareMessage)}</p>` : ""}
         </form>
         ${renderBattleComparison(left, right)}
@@ -1129,7 +1132,7 @@
         label = "接口状态：已暂停";
         className = "badge is-warning";
       } else {
-        label = status.configured ? "接口状态：已配置" : "接口状态：AI 对战关闭";
+        label = status.configured ? "接口状态：已配置" : "接口状态：AI 裁定关闭";
         className = status.configured ? "badge is-source" : "badge is-warning";
       }
     } else if (error) {
@@ -1151,7 +1154,7 @@
 
   function battleGenerationDisabledReason() {
     const status = state.battle.apiStatus;
-    if (status && status.disabled) return status.disabledReason || "服务端已暂停 AI 对战生成。";
+    if (status && status.disabled) return status.disabledReason || "服务端已暂停 AI 裁定生成。";
     if (status && !status.configured) return "服务端未配置 OPENAI_API_KEY，公开 Beta 期间不会调用上游模型。";
     if (!status && state.battle.apiStatusError) return `无法连接 /api/battle：${state.battle.apiStatusError}`;
     if (!status) return "正在检测 /api/battle 状态，检测完成前不会发起生成。";
@@ -1184,7 +1187,7 @@
     } finally {
       state.battle.apiStatusLoading = false;
       state.battle.apiStatusCheckedAt = Date.now();
-      if (location.hash.startsWith("#/battle")) renderBattle();
+      if (isBattleRouteHash()) renderBattle();
     }
   }
 
@@ -1197,9 +1200,9 @@
         throw new Error("clipboard unavailable");
       }
       await navigator.clipboard.writeText(url);
-      state.battle.shareMessage = "已复制当前对战链接。";
+      state.battle.shareMessage = "已复制当前角色对比链接。";
     } catch (error) {
-      state.battle.shareMessage = "已把当前对战写入地址栏；当前浏览器不允许自动复制。";
+      state.battle.shareMessage = "已把当前角色对比写入地址栏；当前浏览器不允许自动复制。";
     }
     renderBattle();
   }
@@ -1261,8 +1264,8 @@
   }
 
   function syncBattleRoute() {
-    if (!location.hash.startsWith("#/battle") || !characters.length) return;
-    const nextHash = battleRouteHash();
+    if (!isBattleRouteHash() || !characters.length) return;
+    const nextHash = battleRouteHash(currentBattleRouteName());
     if (location.hash === nextHash) return;
     try {
       history.replaceState(null, "", `${location.pathname}${location.search}${nextHash}`);
@@ -1271,20 +1274,28 @@
     }
   }
 
-  function battleRouteHash() {
+  function battleRouteHash(routeName = "compare") {
     const params = new URLSearchParams();
     params.set("left", state.battle.leftKey);
     params.set("right", state.battle.rightKey);
     params.set("leftStage", state.battle.leftStageKey);
     params.set("rightStage", state.battle.rightStageKey);
     params.set("style", state.battle.outputStyle);
-    return `#/battle?${params.toString()}`;
+    return `#/${routeName}?${params.toString()}`;
   }
 
   function battleShareUrl() {
     const url = new URL(window.location.href);
-    url.hash = battleRouteHash();
+    url.hash = battleRouteHash(currentBattleRouteName());
     return url.toString();
+  }
+
+  function isBattleRouteHash() {
+    return location.hash.startsWith("#/battle") || location.hash.startsWith("#/compare");
+  }
+
+  function currentBattleRouteName() {
+    return location.hash.startsWith("#/battle") ? "battle" : "compare";
   }
 
   function formatBattleResultForCopy() {
@@ -1292,7 +1303,7 @@
     const left = battleCharacterByKey(state.battle.leftKey);
     const right = battleCharacterByKey(state.battle.rightKey);
     const lines = [
-      "AI 对战演绎",
+      "AI 对战裁定",
       left ? `角色 A：${formatBattleFighterForCopy(left, state.battle.leftStageKey)}` : "角色 A：未选择",
       right ? `角色 B：${formatBattleFighterForCopy(right, state.battle.rightStageKey)}` : "角色 B：未选择",
       `分析模式：${battleOutputStyleLabel(state.battle.outputStyle)}`,
@@ -1847,15 +1858,16 @@
       if (disabledReason) {
         return `
           <section class="battle-result">
-            <h2>AI 对战暂时关闭</h2>
+            <h2>AI 裁定暂时关闭</h2>
             <p>${escapeHtml(disabledReason)}</p>
+            <p>静态角色对比仍可使用：你可以继续查看 8 维面板、机制项、场地环境和分享链接。</p>
           </section>
         `;
       }
       return `
         <section class="battle-result">
-          <h2>等待生成</h2>
-          <p>选择角色后点击“生成对战”。公开站点请留意调用成本，后续可继续加限流或登录保护。</p>
+          <h2>等待 AI 裁定</h2>
+          <p>静态角色对比已经在上方展示；需要模型推演时再点击“生成 AI 裁定”。公开站点请留意调用成本，后续可继续加限流、访问码或预算保护。</p>
         </section>
       `;
     }
@@ -2781,12 +2793,17 @@
         <div class="back-line"><a href="#/">← 返回角色检索</a></div>
         <header class="about-header detail-card">
           <h1>录入口径</h1>
-          <p>本站是跨界战力维基公开 Beta，按仓库中的 <code>reference.md</code> 做纯裸面板录入：主表只展示 8 个主维度，不判定实战胜负，非战斗角色已从收录结果中跳过。</p>
+          <p>本站是 Meta Grade 跨作品战力面板与对战裁定公开 Beta，按仓库中的 <code>reference.md</code> 做面板录入：主表只展示 8 个主维度，角色对比和 AI 裁定都不反向写入正式定级，非战斗角色已从收录结果中跳过。</p>
         </header>
         <section class="about-section">
           <h2>公开 Beta</h2>
           <p>当前适合小范围传播、挑错和补证据；站内结果用于战力讨论和社区修订，不代表官方强弱结论。</p>
           <p>角色时间线可能包含正篇结局、最终战和续作状态。未补到章节/集数/设定书级依据的条目，应以页面来源状态和待审提示为准。</p>
+        </section>
+        <section class="about-section">
+          <h2>角色对比与 AI 裁定</h2>
+          <p><code>#/compare</code> 是静态角色对比入口，可在不调用模型的情况下查看双方时间线、8 维常态/峰值、机制项、场地环境、开局距离和面板差异；旧的 <code>#/battle</code> 链接仍保持兼容。</p>
+          <p>AI 裁定只是基于本站面板和白名单环境的生成式推演，不是正式证据，也不会写回角色文件。公开 Beta 阶段可通过 <code>BATTLE_API_DISABLED=1</code> 暂停生成，用于防止被扫描消耗 API 额度；暂停期间静态对比仍可使用。</p>
         </section>
         <section class="about-section">
           <h2>8 个主维度</h2>
@@ -2805,7 +2822,7 @@
         </section>
         <section class="about-section">
           <h2>部署</h2>
-          <p>主体页面仍是静态 HTML/CSS/JS，没有前端构建步骤。AI 对战演绎通过 Vercel Function 的 <code>/api/battle</code> 调用 LLM，因此推荐用 Vercel 作为主部署，并在 Vercel 环境变量中配置 <code>OPENAI_API_KEY</code>；公开测试阶段可用 <code>BATTLE_API_DISABLED=1</code> 暂停生成，GitHub Pages 只能作为静态镜像，无法生成对战结果。</p>
+          <p>主体页面仍是静态 HTML/CSS/JS，没有前端构建步骤。AI 裁定通过 Vercel Function 的 <code>/api/battle</code> 调用 LLM，因此推荐用 Vercel 作为主部署，并在 Vercel 环境变量中配置 <code>OPENAI_API_KEY</code>；公开测试阶段可用 <code>BATTLE_API_DISABLED=1</code> 暂停生成，GitHub Pages 只能作为静态镜像，无法生成 AI 裁定结果。</p>
         </section>
         <section class="about-section">
           <h2>数据边界</h2>

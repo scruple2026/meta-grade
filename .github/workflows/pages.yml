@@ -31,7 +31,7 @@ jobs:
       - name: Build static site
         run: |
           mkdir -p _site
-          cp index.html reference.md README.md PROMOTION.md CHANGELOG.md PUBLIC_LAUNCH_CHECKLIST.md .nojekyll _site/
+          cp index.html reference.md README.md PROMOTION.md ROADMAP.md CHANGELOG.md PUBLIC_LAUNCH_CHECKLIST.md .nojekyll _site/
           cp -R assets data _site/
 
       - name: Upload artifact

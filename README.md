@@ -1,6 +1,6 @@
-# 跨界战力维基
+# Meta Grade
 
-这是一个跨作品战力维基，按 `reference.md` 的 8 个主维度录入不同作品战斗角色的常态/峰值面板。主体页面仍是静态 HTML/CSS/JS；AI 对战演绎通过 Vercel Function 的 `/api/battle` 流式调用 LLM。当前按作品维护核心战斗角色、核心反派和最终 Boss 级条目，长尾角色等待明确需求或社区 PR。站点不包含图片，不需要前端构建步骤。
+Meta Grade 是一个跨作品战力面板与对战裁定公开 Beta，按 `reference.md` 的 8 个主维度录入不同作品战斗角色的常态/峰值面板。主体页面仍是静态 HTML/CSS/JS；`#/compare` 可在不调用模型的情况下做两名角色的静态面板、机制项、场地和距离对比，AI 裁定通过 Vercel Function 的 `/api/battle` 流式调用 LLM。当前按作品维护核心战斗角色、核心反派和最终 Boss 级条目，长尾角色等待明确需求或社区 PR。站点不包含角色图片；分享预览图使用纯品牌图，不需要前端构建步骤。
 
 ## 社区 PR（核心入口）
 
@@ -13,6 +13,7 @@
 - 提交 PR：<https://github.com/scruple2026/meta-grade/compare>
 - 反馈错误 / 补证据：<https://github.com/scruple2026/meta-grade/issues/new/choose>
 - 公开 Beta 宣传文案：[`PROMOTION.md`](PROMOTION.md)
+- 路线图：[`ROADMAP.md`](ROADMAP.md)
 - 公开传播检查清单：[`PUBLIC_LAUNCH_CHECKLIST.md`](PUBLIC_LAUNCH_CHECKLIST.md)
 
 本仓库的核心维护方式是社区 PR：新增角色、修订面板、补章节/集数/设定书证据，都优先通过 PR 以单角色文件为单位提交。`.github/PULL_REQUEST_TEMPLATE.md` 保留在 GitHub 自动识别的位置；fork 或开始编辑前请先看根目录 `CONTRIBUTING.md`。
@@ -27,7 +28,7 @@
 
 ## 本地查看
 
-直接用浏览器打开 `index.html` 可以查看静态维基。公共数据注册器写在 `data/core.js`，作品来源元数据写在 `data/works/*.js`，每个角色独立写在 `data/characters/<work-slug>/<character-id>.js`，前端交互写在 `assets/app.js`。站内 `#/reference` 会渲染量级体系文档，`#/audit` 会集中展示待补具体证据的高风险条目，`#/battle` 会选择两个角色并通过 `/api/battle` 以 SSE 流式生成 AI 对战演绎，`#/work/<work-slug>` 会展示作品口径、角色清单和待审条目。角色稳定链接使用 `#/character/<work-slug>/<character-id>/<timeline-key>`，旧的 `#/character/<character-id>` 仍保留兼容。Markdown 原文仍保留在 `reference.md`。
+直接用浏览器打开 `index.html` 可以查看静态维基。公共数据注册器写在 `data/core.js`，作品来源元数据写在 `data/works/*.js`，每个角色独立写在 `data/characters/<work-slug>/<character-id>.js`，前端交互写在 `assets/app.js`。站内 `#/reference` 会渲染量级体系文档，`#/audit` 会集中展示待补具体证据的高风险条目，`#/compare` 会选择两个角色并静态对照时间线、8 维面板、机制项、场地和距离，配置 API 后可通过 `/api/battle` 以 SSE 流式生成 AI 裁定；旧的 `#/battle` 链接仍保持兼容。`#/work/<work-slug>` 会展示作品口径、角色清单和待审条目。角色稳定链接使用 `#/character/<work-slug>/<character-id>/<timeline-key>`，旧的 `#/character/<character-id>` 仍保留兼容。Markdown 原文仍保留在 `reference.md`。
 
 本地要测试 AI 对战接口时，用 Vercel 本地开发环境，并配置环境变量：
 
@@ -45,16 +46,16 @@ vercel dev
 2. Framework Preset 选择 Other；`vercel.json` 已设置 `"framework": null`。
 3. Build Command 留空。本站前端没有构建步骤。
 4. 在 Vercel Project Settings → Environment Variables 填下面这些变量。
-5. 部署后访问 `/#/battle`，前端会调用同源 `/api/battle`。
+5. 部署后访问 `/#/compare`，前端会先显示静态角色对比；生成 AI 裁定时会调用同源 `/api/battle`。
 
 | 变量名 | 必填 | 填什么 | 说明 |
 | --- | --- | --- | --- |
-| `OPENAI_API_KEY` | 启用 AI 对战时是 | 你的 LLM API key | 只放在 Vercel 环境变量或本地 `.env.local`，不要提交到仓库。若暂时只公开静态面板，可不配置或移除该变量。 |
+| `OPENAI_API_KEY` | 启用 AI 裁定时是 | 你的 LLM API key | 只放在 Vercel 环境变量或本地 `.env.local`，不要提交到仓库。若暂时只公开静态面板和角色对比，可不配置或移除该变量。 |
 | `OPENAI_MODEL` | 否 | 例如 `gpt-4o-mini` | 不填时默认用 `gpt-4o-mini`。 |
 | `OPENAI_BASE_URL` | 否 | 例如 `https://api.openai.com/v1` | 只填 base URL，不要带 `/responses` 或 `/chat/completions`；`api/battle.js` 会优先请求 `${OPENAI_BASE_URL}/responses`，兼容服务商拒绝 Responses 时会回退到 `${OPENAI_BASE_URL}/chat/completions`。 |
 | `BATTLE_RATE_LIMIT_WINDOW_MS` | 否 | 例如 `60000` | `/api/battle` 的实例内 best-effort 限流窗口，默认 60000 毫秒。 |
 | `BATTLE_RATE_LIMIT_MAX` | 否 | 例如 `12` | 每个 IP 在限流窗口内允许的生成次数，默认 12；设为 `0` 可关闭这个实例内限流。 |
-| `BATTLE_API_DISABLED` | 否 | `1` / `true` / `yes` / `on` | 一键暂停 AI 对战生成；前端会显示关闭态并禁用生成按钮，静态面板仍可公开访问。 |
+| `BATTLE_API_DISABLED` | 否 | `1` / `true` / `yes` / `on` | 一键暂停 AI 裁定生成；前端会显示关闭态并禁用生成按钮，静态面板和角色对比仍可公开访问。 |
 
 生产环境的 API endpoint 不需要在前端填写：页面固定请求同源 `/api/battle`，真正的上游 endpoint 由 Vercel 环境变量 `OPENAI_BASE_URL` 控制。
 
@@ -64,7 +65,7 @@ vercel dev
 2. 在仓库 Settings → Pages 中选择 Deploy from a branch。
 3. Source 选择目标分支和 `/root` 目录。
 4. `.nojekyll` 已放在根目录，GitHub Pages 会按普通静态文件发布。
-5. GitHub Pages 只能发布静态页面，`/#/battle` 页面可浏览但不能调用 `/api/battle` 生成结果。
+5. GitHub Pages 只能发布静态页面，`/#/compare` 页面可浏览静态对比，但不能调用 `/api/battle` 生成 AI 裁定结果。
 
 ## 数据维护
 
@@ -92,9 +93,10 @@ vercel dev
 - 领域、必中、规则、灵魂、空间、黑洞、世界斩等特殊杀伤只写入峰值标签或战力解释项；除非原作给出可换算表现，否则不折算为更高主面板等级。
 - 搜索结果页只展示 8 个主维度简介。
 - 8 维量级筛选可以选择“常态或峰值”“仅常态”或“仅峰值”；默认“常态或峰值”沿用任一命中的检索行为。
-- AI 对战页只基于用户选中的两名角色、时间线面板、8 维常态/峰值数据、战力解释项和白名单场地条件生成演绎；结果是临时 AI 输出，不作为正式定级依据。对战会同时考虑常态、峰值、能量总量、能量回复速度、场地环境、开局距离和情报条件，不提供“仅常态/仅峰值”裁定开关。接口使用 SSE 流式返回，避免长对战等完整 JSON 后才响应。
-- AI 对战输出风格可选择快速结论、完整裁定、过程演绎；这些只改变表达侧重点，不改变基础战力口径。`reference.md` 内的 `AI 对战裁定规则 / Battle policy` 记录了对战默认口径，包括完全理智争胜人格、场地硬条件、特殊权能默认纳入推演和反注入边界。
-- AI 对战链接会记录当前左右角色、时间线和输出风格，方便复制分享；生成中可以从前端取消请求，同一角色同一时间线不会发起无意义调用。页面会读取 `/api/battle` 的 GET 状态展示当前模型、Key 配置状态、关闭态、Chat fallback 能力和实例内限流配置，并在流式生成时显示 Responses / fallback 路径、最终耗时和 token 用量。公开测试阶段可移除 `OPENAI_API_KEY` 或设置 `BATTLE_API_DISABLED=1`，让静态面板继续公开但停止 LLM 消耗。生成结果可复制成纯文本，包含角色、时间线、裁定、关键因素、阶段过程、限制和分享链接。
+- 角色对比页 `#/compare` 会基于用户选中的两名角色、时间线面板、8 维常态/峰值数据、战力解释项和白名单场地条件做静态对照；旧的 `#/battle` 链接兼容同一页面。
+- AI 裁定只在服务端 API 可用时生成，结果是临时 AI 输出，不作为正式定级依据。裁定会同时考虑常态、峰值、能量总量、能量回复速度、场地环境、开局距离和情报条件，不提供“仅常态/仅峰值”裁定开关。接口使用 SSE 流式返回，避免长对战等完整 JSON 后才响应。
+- AI 裁定输出风格可选择快速结论、完整裁定、过程演绎；这些只改变表达侧重点，不改变基础战力口径。`reference.md` 内的 `AI 对战裁定规则 / Battle policy` 记录了对战默认口径，包括完全理智争胜人格、场地硬条件、特殊权能默认纳入推演和反注入边界。
+- 角色对比链接会记录当前左右角色、时间线和输出风格，方便复制分享；生成中可以从前端取消请求，同一角色同一时间线不会发起无意义调用。页面会读取 `/api/battle` 的 GET 状态展示当前模型、Key 配置状态、关闭态、Chat fallback 能力和实例内限流配置，并在流式生成时显示 Responses / fallback 路径、最终耗时和 token 用量。公开测试阶段可移除 `OPENAI_API_KEY` 或设置 `BATTLE_API_DISABLED=1`，让静态面板和角色对比继续公开但停止 LLM 消耗。生成结果可复制成纯文本，包含角色、时间线、裁定、关键因素、阶段过程、限制和分享链接。
 - 角色页展示战力解释项和来源；来源区块会区分 `量级依据` 与 `资料入口`，并在页面说明二者用途差异。
 - 所属和维度筛选选项会随当前作品筛选收敛；不再维护前台“分类”字段，`grade` 字段只作为“身份 / 能力”描述展示，不进入筛选项，避免头衔、能力名和角色职能膨胀成一人一个选项。每个维度筛选使用“下限 / 上限”左闭右闭区间，匹配时只看 `｜` 前的主档名。
 - 普通人、纯剧情人物、辅助监督、低优先级泳者和普通一级术师不进入本版结果。

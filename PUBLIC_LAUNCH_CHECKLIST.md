@@ -3,21 +3,23 @@
 ## 当前状态
 
 - 站点定位：公开 Beta。
-- 主推能力：静态战力面板、时间线状态、8 维常态 / 峰值、战力解释项、来源与审计入口。
-- 暂不主推能力：AI 对战生成。当前生产环境没有 `OPENAI_API_KEY`，`/api/battle` 返回 `configured:false`。
-- 成本保护：已支持 `BATTLE_API_DISABLED=1` 一键暂停 AI 对战；暂停时 POST 直接 503，不调用上游模型。
+- 主推能力：静态战力面板、时间线状态、8 维常态 / 峰值、战力解释项、角色对比、来源与审计入口。
+- 暂不主推能力：AI 裁定生成。当前生产环境设置 `BATTLE_API_DISABLED=1`；即使后续补上 `OPENAI_API_KEY`，暂停开关生效时 POST 也不会进入上游模型调用。
+- 成本保护：已支持 `BATTLE_API_DISABLED=1` 一键暂停 AI 裁定；暂停时 POST 直接 503，不调用上游模型。
 - 传播文案：见 `PROMOTION.md`。
 
 ## 已完成
 
 - [x] 首页说明公开 Beta、证据修订和剧透边界。
 - [x] 首页提供热门角色入口，降低新用户首次使用成本。
+- [x] 首页提供角色对比入口。
 - [x] 首页和顶部导航提供 GitHub Issues / PR 反馈路径。
 - [x] About 页面说明反馈错误方式。
-- [x] Battle 页面在 Key 缺失或服务端暂停时显示关闭态并禁用生成按钮。
+- [x] 角色对比页在 Key 缺失或服务端暂停时显示关闭态并禁用 AI 生成按钮，静态对比仍可用。
 - [x] 服务端支持 `BATTLE_API_DISABLED` 总开关。
-- [x] HTML 补充 description、canonical、Open Graph 和 Twitter summary。
+- [x] HTML 补充 description、canonical、Open Graph、Twitter summary 和分享预览图。
 - [x] GitHub Issue 模板覆盖角色修订和证据补充。
+- [x] 新增 `ROADMAP.md`，说明公开 Beta、AI 灰度和社区修订阶段。
 - [x] GitHub Pages workflow 同步公开文档。
 - [x] 通过 `node scripts/validate-data.js`，当前数据 warning 为 0。
 - [x] 通过 `node --check assets/app.js`、`node --check api/battle.js` 和全量数据脚本语法检查。
@@ -40,7 +42,7 @@
 ## 大范围传播建议
 
 1. 对外说“公开 Beta / 面板体系 / 证据口径 / 社区修订”，不要说“官方强弱榜”。
-2. 如果 AI 对战关闭，宣传文案必须明确“AI 对战生成暂时关闭，静态面板可用”。
+2. 如果 AI 裁定关闭，宣传文案必须明确“AI 裁定生成暂时关闭，静态面板和角色对比可用”。
 3. 面向未完读者传播时，加“含结局、最终战和续作时间线状态剧透”。
 4. 高热角色被质疑时，优先引导到 GitHub Issue 模板；已有完整改法时引导提交 PR。
-5. 恢复 AI 对战前，除 `BATTLE_API_DISABLED` 外，还应评估访问码、预算限制、日志监控和更严格限流。
+5. 恢复 AI 裁定前，除 `BATTLE_API_DISABLED` 外，还应评估访问码、预算限制、日志监控和更严格限流。
