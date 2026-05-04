@@ -14,6 +14,8 @@ Meta Grade 是一个跨作品战力面板维基公开 Beta，不做“一句话�
 
 仓库：<https://github.com/scruple2026/meta-grade>
 
+反馈错误 / 补证据：<https://github.com/scruple2026/meta-grade/issues/new/choose>
+
 ## 发布口径
 
 - 推荐说“公开 Beta”，不要说“正式版”。

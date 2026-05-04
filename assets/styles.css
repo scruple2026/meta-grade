@@ -334,7 +334,60 @@ button {
 }
 
 .content-column {
+  display: grid;
+  gap: 14px;
   min-width: 0;
+}
+
+.public-intro {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  padding: 16px;
+  box-shadow: var(--shadow);
+}
+
+.public-intro h2 {
+  margin: 0;
+  font-size: 19px;
+  line-height: 1.25;
+}
+
+.public-intro p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.public-intro-actions,
+.spotlight-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.spotlight-links {
+  align-items: center;
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+
+.spotlight-links span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.spotlight-links a {
+  border: 1px solid #d7e1dc;
+  border-radius: 999px;
+  background: #fbfcfa;
+  padding: 4px 10px;
+  color: #25342d;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .toolbar {

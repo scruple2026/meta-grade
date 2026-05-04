@@ -11,6 +11,9 @@
 - PR 模板文件：`.github/PULL_REQUEST_TEMPLATE.md`
 - 在线查看 PR 模板：<https://github.com/scruple2026/meta-grade/blob/main/.github/PULL_REQUEST_TEMPLATE.md>
 - 提交 PR：<https://github.com/scruple2026/meta-grade/compare>
+- 反馈错误 / 补证据：<https://github.com/scruple2026/meta-grade/issues/new/choose>
+- 公开 Beta 宣传文案：[`PROMOTION.md`](PROMOTION.md)
+- 公开传播检查清单：[`PUBLIC_LAUNCH_CHECKLIST.md`](PUBLIC_LAUNCH_CHECKLIST.md)
 
 本仓库的核心维护方式是社区 PR：新增角色、修订面板、补章节/集数/设定书证据，都优先通过 PR 以单角色文件为单位提交。`.github/PULL_REQUEST_TEMPLATE.md` 保留在 GitHub 自动识别的位置；fork 或开始编辑前请先看根目录 `CONTRIBUTING.md`。
 
@@ -19,6 +22,8 @@
 3. 说明文字、证据解释和 checklist 放在角色文件代码块后面，不要放在最前面挤掉可复制提案。
 4. 维护者可以把结构化提案保存为 `proposal.js`，用 `node scripts/apply-character-proposal.js proposal.js` 自动落盘角色文件并同步 `index.html` 与 `data/characters.js`。
 5. 高风险量级应补到 `evidenceLinks`，并写清 `claim`、`lang`、`authority`、`medium`、`ratingEvidence`；缺证据时保留待审说明，不把称号、危险等级或剧情评价直接换算成主量级。
+
+如果只是指出某个角色、时间线、维度或来源可能有误，可以先开 GitHub Issue；已有完整改法时再提 PR。Issue 模板会要求写清角色、时间线、当前字段、建议改法和证据来源。
 
 ## 本地查看
 

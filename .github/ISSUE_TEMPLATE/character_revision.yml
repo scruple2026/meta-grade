@@ -1,0 +1,80 @@
+name: 角色定级修订
+description: 指出某个角色、时间线、维度、特殊权能或短板可能需要修改。
+title: "[角色修订] "
+labels:
+  - character
+  - review
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请尽量聚焦一个角色或一个时间线状态。已有完整改法时，优先提交 PR。
+  - type: input
+    id: character
+    attributes:
+      label: 角色
+      description: 角色中文名和作品名。
+      placeholder: 例如：虎杖悠仁 / 咒术回战
+    validations:
+      required: true
+  - type: input
+    id: timeline
+    attributes:
+      label: 时间线状态
+      description: 如果问题只涉及某个时间线，请写明。
+      placeholder: 例如：Modulo / 死灭回游68年后
+  - type: dropdown
+    id: field
+    attributes:
+      label: 涉及字段
+      multiple: true
+      options:
+        - 攻击能级
+        - 防御能级
+        - 移动速度
+        - 反应速度
+        - 生命体量
+        - 生命回复速度
+        - 能量总量
+        - 能量回复速度
+        - 攻击性质
+        - 防御抗性
+        - 特殊权能
+        - 角色短板
+        - 设定/旁白
+        - 评级依据
+        - 来源 / 证据
+        - 页面 / UI
+    validations:
+      required: true
+  - type: textarea
+    id: current
+    attributes:
+      label: 当前写法有什么问题
+      description: 请贴当前页面或角色文件里的具体写法。
+      placeholder: 例如：当前攻击峰值写成……，但第 X 话表现……
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: 建议改法
+      description: 可写具体档位、标签、说明文字或需要降级/保留争议的理由。
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 证据来源
+      description: 请尽量提供章节、集数、设定书、官方页面、原作语言资料或可核对的链接。
+      placeholder: 例如：漫画第 X 话第 Y 页；官方设定书第 Z 页；URL……
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: 提交前确认
+      options:
+        - label: 我没有把称号、危险等级、剧情地位直接换算成主量级。
+        - label: 我区分了破坏规模、攻击性质、防御抗性、特殊权能和角色短板。
+        - label: 我理解本站是公开 Beta，Issue 不是自动定稿。

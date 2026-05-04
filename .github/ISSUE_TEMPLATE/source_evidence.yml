@@ -1,0 +1,50 @@
+name: 来源 / 证据补充
+description: 为已有角色补充章节、集数、设定书、官方页面或证据说明。
+title: "[证据补充] "
+labels:
+  - evidence
+  - source
+body:
+  - type: input
+    id: target
+    attributes:
+      label: 目标条目
+      description: 角色、作品或具体页面。
+      placeholder: 例如：五条悟 / 咒术回战；#/audit 中的某条待审提示
+    validations:
+      required: true
+  - type: dropdown
+    id: source_type
+    attributes:
+      label: 来源类型
+      options:
+        - 漫画章节
+        - 动画集数
+        - 设定书 / 资料书
+        - 官方页面
+        - 授权资料
+        - Wiki / 资料入口
+        - 其他
+    validations:
+      required: true
+  - type: textarea
+    id: source_detail
+    attributes:
+      label: 来源信息
+      description: 没有公开 URL 时请写清卷、话、页码、出版社或资料书名。
+      placeholder: 例如：Jujutsu Kaisen Chapter X, p.Y；官方页面 URL……
+    validations:
+      required: true
+  - type: textarea
+    id: claim
+    attributes:
+      label: 支撑什么结论
+      description: 说明它支撑哪个档位、形态、峰值标签、权能、限制或争议边界。
+      placeholder: 例如：支撑“峰值【街区级｜领域】”，但不支撑城市级现实破坏。
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: 备注
+      description: 可写来源语言、是否原作/官方、是否只是资料入口、是否存在冲突解释。

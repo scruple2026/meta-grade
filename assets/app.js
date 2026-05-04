@@ -57,6 +57,21 @@
     { key: "rough-info", label: "大致情报", description: "双方知道对方能力类型和常见战斗方式，不知道精确数值与隐藏条件。" },
     { key: "panel-info", label: "面板情报", description: "双方知道本站面板级信息，但仍需按自身能力、反应与战术执行。" }
   ];
+  const launchSpotlightCharacters = [
+    ["jujutsu-kaisen", "yuji-itadori"],
+    ["jujutsu-kaisen", "satoru-gojo"],
+    ["jujutsu-kaisen", "sukuna"],
+    ["naruto", "naruto-uzumaki"],
+    ["naruto", "sasuke-uchiha"],
+    ["bleach", "ichigo-kurosaki"],
+    ["bleach", "yhwach"],
+    ["one-piece", "monkey-d-luffy"],
+    ["one-piece", "kaido"],
+    ["dragon-ball", "son-goku"],
+    ["dragon-ball", "freeza"],
+    ["one-punch-man", "saitama"],
+    ["one-punch-man", "garou"]
+  ];
   const workSources = window.POWER_WIKI_WORK_SOURCES || {};
   const confidenceLabels = {
     stable: "稳定",
@@ -271,6 +286,7 @@
           </form>
         </aside>
         <section class="content-column" aria-live="polite">
+          ${renderPublicLaunchIntro()}
           <div class="toolbar">
             <div class="result-count" id="resultCount"></div>
             <div class="view-tools">
@@ -286,6 +302,32 @@
 
     hydrateFilters();
     renderResults();
+  }
+
+  function renderPublicLaunchIntro() {
+    const spotlight = launchSpotlightCharacters
+      .map(([workSlug, id]) => characters.find((character) => character.id === id && (character.workSlug === workSlug || workSlugForName(character.work) === workSlug)))
+      .filter(Boolean);
+    return `
+      <section class="public-intro" aria-label="公开 Beta 说明">
+        <div>
+          <h2>公开 Beta：先看面板，后补证据</h2>
+          <p>本站按 8 个主维度拆分常态 / 峰值，并把攻击性质、防御抗性、特殊权能、短板和来源放在角色详情页。结果用于讨论和修订，不代表官方强弱结论；条目可能包含正篇结局、最终战和续作剧透。</p>
+        </div>
+        <div class="public-intro-actions">
+          <a class="small-action" href="#/about">怎么看本站</a>
+          <a class="small-action" href="#/audit">待补证据</a>
+          <a class="small-action" href="https://github.com/scruple2026/meta-grade/issues/new/choose" target="_blank" rel="noopener">反馈错误</a>
+          <a class="small-action" href="PROMOTION.md">宣传文案</a>
+        </div>
+        ${spotlight.length ? `
+          <div class="spotlight-links" aria-label="热门角色入口">
+            <span>热门入口</span>
+            ${spotlight.map((character) => `<a href="${escapeAttribute(characterHref(character))}">${escapeHtml(character.name)}</a>`).join("")}
+          </div>
+        ` : ""}
+      </section>
+    `;
   }
 
   function hydrateFilters() {
@@ -2755,6 +2797,11 @@
         <section class="about-section">
           <h2>社区 PR</h2>
           <p>社区 PR 是本站核心维护入口。Fork 或开始编辑前先看根目录 <code>CONTRIBUTING.md</code>；创建 PR 时 GitHub 会自动套用 <code>.github/PULL_REQUEST_TEMPLATE.md</code>。新增角色、大幅修订角色或补高风险证据时，PR 最前面应先放完整角色文件提案，第一段代码块要能直接落成 <code>data/characters/&lt;work-slug&gt;/&lt;character-id&gt;.js</code>；说明文字和 checklist 放在代码块后面。仓库地址是 <a href="https://github.com/scruple2026/meta-grade" target="_blank" rel="noopener">https://github.com/scruple2026/meta-grade</a>。</p>
+        </section>
+        <section class="about-section">
+          <h2>反馈错误</h2>
+          <p>如果只是指出某个角色、时间线、维度或来源可能有误，可以直接开 GitHub Issue：<a href="https://github.com/scruple2026/meta-grade/issues/new/choose" target="_blank" rel="noopener">选择反馈模板</a>。最好写清角色、时间线、当前字段、建议改法和证据来源。</p>
+          <p>如果已经有完整改法，优先提交 PR；一个 PR 尽量只改一个角色文件，方便审查和回滚。</p>
         </section>
         <section class="about-section">
           <h2>部署</h2>
