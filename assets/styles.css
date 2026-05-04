@@ -230,6 +230,13 @@ button {
   font-size: 14px;
 }
 
+.filter-header .public-beta-note {
+  border-left: 3px solid #d49f2f;
+  background: #fff8e8;
+  padding: 8px 10px;
+  color: #654416;
+}
+
 .filter-body {
   display: grid;
   gap: 16px;
@@ -1069,6 +1076,26 @@ button {
   padding: 16px;
 }
 
+.notice-block {
+  border: 1px solid #e4c184;
+  border-radius: var(--radius);
+  background: #fff8e8;
+  padding: 14px 16px;
+}
+
+.notice-block h2 {
+  margin: 0 0 6px;
+  color: #694914;
+  font-size: 16px;
+}
+
+.notice-block p {
+  margin: 0;
+  color: #694914;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
 .battle-api-status {
   display: grid;
   justify-items: end;
@@ -1748,7 +1775,7 @@ button {
 .small-action:disabled,
 .chip-button:disabled {
   opacity: 0.62;
-  cursor: wait;
+  cursor: not-allowed;
 }
 
 .muted-line {

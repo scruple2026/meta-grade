@@ -6,6 +6,7 @@ const MAX_OUTPUT_TOKENS = 2600;
 const DEFAULT_MODEL = "gpt-4o-mini";
 const STREAM_DONE = "[DONE]";
 const OUTPUT_STYLES = ["verdict", "analysis", "narrative"];
+const DISABLED_VALUES = new Set(["1", "true", "yes", "on"]);
 const ENVIRONMENT_PRESETS = {
   "standard-arena": ["标准空旷场", "无遮挡、双方可见，地面平整。"],
   "urban-block": ["城市街区", "道路、车辆、低层建筑和巷道充足，存在遮蔽与高低差。"],
@@ -107,10 +108,13 @@ module.exports = async function handler(req, res) {
   }
 
   if (req.method === "GET") {
+    const disabled = battleApiDisabled();
     setJsonHeaders(res);
     res.status(200).json({
       ok: true,
-      configured: Boolean(process.env.OPENAI_API_KEY),
+      configured: !disabled && Boolean(process.env.OPENAI_API_KEY),
+      disabled,
+      disabledReason: disabled ? "AI 对战已由 BATTLE_API_DISABLED 暂停。" : "",
       model: process.env.OPENAI_MODEL || DEFAULT_MODEL,
       baseUrlConfigured: Boolean(process.env.OPENAI_BASE_URL),
       streaming: true,
@@ -128,6 +132,15 @@ module.exports = async function handler(req, res) {
   }
 
   try {
+    if (battleApiDisabled()) {
+      setJsonHeaders(res);
+      res.status(503).json({
+        ok: false,
+        error: "AI 对战已由 BATTLE_API_DISABLED 暂停。"
+      });
+      return;
+    }
+
     const rateLimit = checkRateLimit(req);
     if (!rateLimit.allowed) {
       setJsonHeaders(res);
@@ -209,6 +222,10 @@ module.exports = async function handler(req, res) {
     });
   }
 };
+
+function battleApiDisabled() {
+  return DISABLED_VALUES.has(String(process.env.BATTLE_API_DISABLED || "").trim().toLowerCase());
+}
 
 function setJsonHeaders(res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
