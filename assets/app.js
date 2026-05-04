@@ -706,7 +706,7 @@
     `;
   }
 
-  function renderTimelineDimensionRow(panel, dimension) {
+  function renderTimelineDimensionRow(panel, dimension, showEvidenceColumn = false) {
     const entry = panel.dimensions[dimension.key];
     return `
       <tr>
@@ -714,7 +714,7 @@
         <td>【${escapeHtml(entry.normal)}】</td>
         <td>【${escapeHtml(entry.peak)}】</td>
         <td>${escapeHtml(entry.brief || "按常态/峰值双档记录。")}</td>
-        <td>${renderEvidenceList(entry.evidence && entry.evidence.length ? entry.evidence : [entry.brief || "按常态/峰值双档记录。"])}</td>
+        ${showEvidenceColumn ? `<td>${entry.evidence && entry.evidence.length ? renderEvidenceList(entry.evidence) : `<span class="muted-line">见下方评级依据与来源。</span>`}</td>` : ""}
       </tr>
     `;
   }
@@ -749,28 +749,34 @@
   function renderTimelineDimensionGroups(panel) {
     return `
       <div class="dimension-detail-groups" aria-label="${escapeAttribute(panel.label)} 的 5 条属性分组">
-        ${dimensionGroups.map((group) => `
-          <section class="dimension-detail-group dimension-group-card is-${escapeAttribute(group.key)}">
-            <h3 class="dimension-group-title">${escapeHtml(group.label)}</h3>
-            <table class="dimension-table">
-              <thead>
-                <tr>
-                  <th scope="col">主维度</th>
-                  <th scope="col">常态</th>
-                  <th scope="col">峰值</th>
-                  <th scope="col">简介</th>
-                  <th scope="col">证据 / 限制</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${group.dimensionKeys.map((key) => {
-                  const dimension = dimensionByKey(key);
-                  return dimension ? renderTimelineDimensionRow(panel, dimension) : "";
-                }).join("")}
-              </tbody>
-            </table>
-          </section>
-        `).join("")}
+        ${dimensionGroups.map((group) => {
+          const hasEvidenceColumn = group.dimensionKeys.some((key) => {
+            const entry = panel.dimensions && panel.dimensions[key];
+            return entry && Array.isArray(entry.evidence) && entry.evidence.length;
+          });
+          return `
+            <section class="dimension-detail-group dimension-group-card is-${escapeAttribute(group.key)}">
+              <h3 class="dimension-group-title">${escapeHtml(group.label)}</h3>
+              <table class="dimension-table">
+                <thead>
+                  <tr>
+                    <th scope="col">主维度</th>
+                    <th scope="col">常态</th>
+                    <th scope="col">峰值</th>
+                    <th scope="col">判读说明</th>
+                    ${hasEvidenceColumn ? `<th scope="col">逐项证据 / 限制</th>` : ""}
+                  </tr>
+                </thead>
+                <tbody>
+                  ${group.dimensionKeys.map((key) => {
+                    const dimension = dimensionByKey(key);
+                    return dimension ? renderTimelineDimensionRow(panel, dimension, hasEvidenceColumn) : "";
+                  }).join("")}
+                </tbody>
+              </table>
+            </section>
+          `;
+        }).join("")}
       </div>
     `;
   }
