@@ -110,6 +110,8 @@
       notes: notes({
         penetration: "魔力弹、Schneiden和宝具峰值有较强对人/对屏障杀伤；Excalibur和Zwei属于形态或短时峰值，不等同于稳定大范围破坏。",
         resistance: "Magical Ruby提供魔法屏障、物理防护和加速恢复；精神与概念空间抗性有表现，但封印、置换、因果和仪式类能力仍需具体判断。",
+        sensing: "主要依赖魔法少女战斗经验、魔杖辅助、视听观察和对魔力/宝具发动的警觉；没有稳定远距索敌或未来视，强敌战中的规避多含屏障、飞行和预判。",
+        tactics: "成长型战斗者，能在队友和魔杖提示下调整卡片、屏障和炮击节奏；但早期经验不足，Zwei Form等峰值更偏意志爆发而非精密战术。",
         special: "万花筒魔杖供魔、飞行、魔力弹、屏障、Class Card Include/Install、Saber Install、Zwei Form、小圣杯潜力、强意志抗精神干涉。",
         weakness: "经验、身体负担、魔杖状态、供魔承载和形态持续时间限制明显；Zwei Form有高风险身体代价。",
         setting: "按3rei综合版本记录；不把Fate本篇英灵通用资料、圣杯许愿和无限供魔直接换算为主面板。",

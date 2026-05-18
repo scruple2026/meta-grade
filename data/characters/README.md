@@ -117,6 +117,8 @@ node scripts/create-work.js <work-slug> --name 作品名
         // 字段名保留 penetration 兼容旧数据；网页显示为“攻击性质”。
         penetration: "未补充。",
         resistance: "未补充。",
+        sensing: "未补充。",
+        tactics: "未补充。",
         special: "未补充。",
         weakness: "未补充。",
         setting: "未补充。",

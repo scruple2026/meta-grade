@@ -62,14 +62,23 @@ function normalizeCharacter(character, characterId) {
     defaultTimelineKey: character.defaultTimelineKey || "",
     timelinePanels: character.timelinePanels || [],
     dimensions: character.dimensions || blankDimensions(),
-    notes: character.notes || {
-      penetration: "未补充。",
-      resistance: "未补充。",
-      special: "未补充。",
-      weakness: "未补充。",
-      setting: "未补充。",
-      basis: "未补充。"
+    notes: {
+      ...blankNotes(),
+      ...(character.notes || {})
     }
+  };
+}
+
+function blankNotes() {
+  return {
+    penetration: "未补充。",
+    resistance: "未补充。",
+    sensing: "未补充。",
+    tactics: "未补充。",
+    special: "未补充。",
+    weakness: "未补充。",
+    setting: "未补充。",
+    basis: "未补充。"
   };
 }
 

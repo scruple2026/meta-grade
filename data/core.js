@@ -69,6 +69,8 @@
     return {
       penetration: value.penetration,
       resistance: value.resistance,
+      sensing: value.sensing,
+      tactics: value.tactics,
       special: value.special,
       weakness: value.weakness,
       setting: value.setting,

@@ -16,7 +16,7 @@ const DIMENSION_KEYS = [
   "energy",
   "energyRegen"
 ];
-const NOTE_KEYS = ["penetration", "resistance", "special", "weakness", "setting", "basis"];
+const NOTE_KEYS = ["penetration", "resistance", "sensing", "tactics", "special", "weakness", "setting", "basis"];
 const MAIN_ENERGY_BASES = [
   "昆虫级",
   "凡人级",

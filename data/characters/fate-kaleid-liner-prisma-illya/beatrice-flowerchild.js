@@ -75,6 +75,8 @@
       notes: notes({
         penetration: "Mjolnir锤击、雷击和Berserker强化具备强破甲、震荡和范围压制；雷电杀伤是属性/宝具特性，不自动折算为光速或更高主破坏档。",
         resistance: "Berserker Install、Doll身体和高韧性让她适合正面强攻；对精神/人格干涉、Doll结构处理、空间封锁、供魔切断和针对雷击抗性仍需另判。",
+        sensing: "感知主要来自Doll身体和近战压迫中的视听/魔力反应，缺少精密索敌或预知描写；雷击范围能迫使敌人暴露但不是侦查能力。",
+        tactics: "战斗风格偏Berserker式强攻，擅长用雷击和Mjolnir压制正面空间；对诱导、远程消耗和空间牵制的处理相对粗糙。",
         special: "Berserker（雷神Thor系）Class Card、Mjolnir雷神之锤、雷击释放、Doll身体、狂战士式近战爆发和恩兹华斯阵营联动。",
         weakness: "战斗风格偏直接强攻，容易被远程消耗、空间/结界牵制、情报诱导和针对Doll或Class Card的手段处理；雷神之锤峰值依赖Install和宝具使用。",
         setting: "按Prisma Illya 3rei贝阿朵莉丝记录；Thor/雷神之锤只按本作表现，不把神话或其他Fate作品设定直接套入主面板。",

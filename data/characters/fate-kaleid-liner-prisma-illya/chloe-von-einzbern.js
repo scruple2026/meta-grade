@@ -75,6 +75,8 @@
       notes: notes({
         penetration: "投影双刀、箭矢和Caladbolg II具备集中穿透与爆发杀伤；对强结界和高阶宝具仍有明显上限。",
         resistance: "具备魔术防护、战术回避和短距转移；被供魔切断、拘束或针对存在结构时风险很高。",
+        sensing: "Archer常驻Install和投影战经验让她擅长读取弹道、距离和魔力波动；短距转移需要判断落点，不等同无条件索敌。",
+        tactics: "战术分析强，善用投影武器、双刀近战、远程Caladbolg和短距转移制造节奏差；供魔被切断时可用战术空间会明显缩小。",
         special: "Archer常驻Install、投影魔术、Kanshou and Bakuya、Caladbolg II、短距转移、供魔维持、战术分析。",
         weakness: "需要伊莉雅供魔维持存在；转移距离和触发条件有限，遭遇结界、空间干涉或供魔封锁会受限。",
         setting: "按3rei综合期记录；克洛伊的Archer能力是稳定特色，但不套用英灵EMIYA全部跨作品量级。",

@@ -92,6 +92,8 @@ Each character must have:
 - all 8 dimensions with normal/peak/brief fields
 - attack nature item, stored in the existing `notes.penetration` field for compatibility
 - defense/resistance item
+- sensing/search item, stored in `notes.sensing`
+- tactics/battle IQ item, stored in `notes.tactics`
 - special power item
 - weakness item
 - setting/narration item

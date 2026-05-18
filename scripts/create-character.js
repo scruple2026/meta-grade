@@ -100,6 +100,8 @@ function renderCharacterFile(meta) {
       notes: notes({
         penetration: "未补充。",
         resistance: "未补充。",
+        sensing: "未补充。",
+        tactics: "未补充。",
         special: "未补充。",
         weakness: "未补充。",
         setting: "未补充。",

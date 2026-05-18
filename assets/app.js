@@ -312,7 +312,7 @@
       <section class="public-intro" aria-label="公开 Beta 说明">
         <div>
           <h2>公开 Beta：先看面板，后补证据</h2>
-          <p>本站按 8 个主维度拆分常态 / 峰值，并把攻击性质、防御抗性、特殊权能、短板和来源放在角色详情页。角色对比页可静态对照两边面板、机制和场地条件；结果用于讨论和修订，不代表官方强弱结论，且可能包含正篇结局、最终战和续作剧透。</p>
+          <p>本站按 8 个主维度拆分常态 / 峰值，并把攻击性质、防御抗性、感知索敌、战术智商、特殊权能、短板和来源放在角色详情页。角色对比页可静态对照两边面板、机制和场地条件；结果用于讨论和修订，不代表官方强弱结论，且可能包含正篇结局、最终战和续作剧透。</p>
         </div>
         <div class="public-intro-actions">
           <a class="small-action" href="#/about">怎么看本站</a>
@@ -740,6 +740,8 @@
       <div class="notes-grid">
         ${renderNote("攻击性质", character.notes.penetration)}
         ${renderNote("防御抗性", character.notes.resistance)}
+        ${renderNote("感知/索敌", character.notes.sensing)}
+        ${renderNote("战术/战斗智商", character.notes.tactics)}
         ${renderNote("特殊权能", character.notes.special)}
         ${renderNote("角色短板", character.notes.weakness)}
         ${renderNote("设定/旁白", character.notes.setting)}
@@ -1767,6 +1769,8 @@
     const noteRows = [
       ["攻击性质", "penetration"],
       ["防御抗性", "resistance"],
+      ["感知/索敌", "sensing"],
+      ["战术/战斗智商", "tactics"],
       ["特殊权能", "special"],
       ["短板", "weakness"]
     ];
@@ -2378,6 +2382,8 @@
     return {
       penetration: notes.penetration || "未补充攻击性质。",
       resistance: notes.resistance || "未补充防御抗性。",
+      sensing: notes.sensing || "未补充感知/索敌。",
+      tactics: notes.tactics || "未补充战术/战斗智商。",
       special: notes.special || "未补充特殊权能。",
       weakness: notes.weakness || "未补充角色短板。",
       setting: notes.setting || "未补充设定/旁白。",
