@@ -26,7 +26,7 @@
       { label: "Jujutsu Kaisen Wiki 角色总表", url: "https://jujutsu-kaisen.fandom.com/wiki/List_of_Characters" }
     ],
     scaleNotes: {
-          "scope": "当前收录主角团、五条/乙骨/真希等高专核心、夏油杰、羂索、天元、真人、漏瑚、东堂葵、伏黑甚尔和最终 Boss 两面宿傩；召唤/外置战力写入所属角色的战力解释项。",
+          "scope": "当前收录主角团、五条/乙骨/真希等高专核心、夏油杰、羂索、天元、胀相、九十九由基、秤金次、鹿紫云一、日车宽见、高羽史彦、来栖华/天使、真人、漏瑚、东堂葵、伏黑甚尔和最终 Boss 两面宿傩；召唤/外置战力写入所属角色的战力解释项。",
           "versionPolicy": "高成长角色按 timelineStatus 限定，结局状态与早期状态后续可拆 timelinePanels。",
           "highRisk": [
                 "领域",
@@ -35,7 +35,12 @@
                 "空间切割",
                 "召唤",
                 "天元结界",
-                "人类合并"
+                "人类合并",
+                "星之怒黑洞",
+                "坐杀博徒Jackpot",
+                "处刑人之剑",
+                "超人术式",
+                "雅各布天梯"
           ],
           "conservativeNotes": "特殊术式不自动抬攻击/防御/速度主档。"
     },
