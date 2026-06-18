@@ -46,7 +46,14 @@ const SPEED_BASES = [
   "超第三宇宙速度级",
   "亚光速",
   "光速",
-  "超光速"
+  "超光速",
+  "高倍超光速",
+  "恒星际超光速",
+  "星系尺度超光速",
+  "星系际超光速",
+  "超星系团尺度超光速",
+  "有限宇宙尺度超光速",
+  "无限速"
 ];
 const VITALITY_BASES = [
   "凡人肉身",
@@ -116,7 +123,14 @@ const HIGH_RISK_BASES = new Set([
   "超第三宇宙速度级",
   "亚光速",
   "光速",
-  "超光速"
+  "超光速",
+  "高倍超光速",
+  "恒星际超光速",
+  "星系尺度超光速",
+  "星系际超光速",
+  "超星系团尺度超光速",
+  "有限宇宙尺度超光速",
+  "无限速"
 ]);
 const REVIEW_TERMS = /争议|仅下限|仅上限|外源|一次性|仪式|特殊|设定|直接|持续|装备|短时|条件|不可控|剧情限定/;
 const CONFIDENCE_VALUES = new Set(["stable", "medium", "review", "disputed"]);
@@ -548,7 +562,7 @@ function validateInflationRisk(characters, workSources) {
     const text = JSON.stringify({ notes: character.notes, dimensions: character.dimensions });
     const highRiskMain = ["attack", "defense", "movement", "reaction", "energy"].some((key) => {
       const entry = character.dimensions && character.dimensions[key];
-      return entry && [entry.normal, entry.peak].some((value) => HIGH_RISK_BASES.has(baseRank(value)) || /国家级|大陆级|地表级|行星级|恒星级|亚光速|光速|超光速/.test(baseRank(value)));
+      return entry && [entry.normal, entry.peak].some((value) => HIGH_RISK_BASES.has(baseRank(value)) || /国家级|大陆级|地表级|行星级|恒星级|亚光速|光速|超光速|无限速/.test(baseRank(value)));
     });
     if (highRiskMain && !hasSpecificRatingEvidence(character)) {
       addWarning(`${label}: high-risk main ranks should have concrete ratingEvidence links; check for scope inflation.`, "medium");
@@ -558,7 +572,7 @@ function validateInflationRisk(characters, workSources) {
       const entry = character.dimensions && character.dimensions[key];
       if (!entry) continue;
       const peak = baseRank(entry.peak);
-      if (["亚光速", "光速", "超光速"].includes(peak) && !/天文|百分比|相对论|明确|光速|争议|连续移动/.test(text)) {
+      if (SPEED_BASES.slice(SPEED_BASES.indexOf("亚光速")).includes(peak) && !/天文|百分比|相对论|明确|光速|争议|连续移动|无限|非有限|宇宙论|恒星际|星系|宇宙尺度/.test(text)) {
         addWarning(`${label}: ${key} uses ${peak} without enough speed-evidence wording.`, "medium");
       }
     }
