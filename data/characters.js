@@ -238,6 +238,7 @@
     "data/characters/evangelion/ryoji-kaji.js",
     "data/characters/evangelion/yui-ikari.js",
     "data/characters/evangelion/evangelion-unit-01.js",
+    "data/characters/evangelion/mass-production-evas.js",
     "data/characters/puella-magi-madoka-magica/madoka-kaname.js",
     "data/characters/puella-magi-madoka-magica/homura-akemi.js",
     "data/characters/puella-magi-madoka-magica/mami-tomoe.js",
