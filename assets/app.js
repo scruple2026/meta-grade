@@ -89,7 +89,6 @@
     energy: ["昆虫级能量", "凡人能量", "砖级能量", "墙级能量", "房屋级能量", "楼级能量", "街区级能量", "城市级能量", "国家级能量", "大陆级能量", "地表级能量", "行星级能量", "恒星级能量", "星系级能量", "超星系团级能量", "有限宇宙级能量", "无限级能量"],
     energyRegen: ["无回能", "缓慢回能", "中速回能", "快速回能", "极速回能", "瞬时回能"]
   };
-  const unrankedOptionOrder = ["无资料", "未知", "未表现", "不适用"];
   const state = {
     query: "",
     work: "all",
@@ -387,7 +386,7 @@
   function hydrateScopedFilters(form) {
     const scoped = state.work === "all" ? characters : characters.filter((item) => item.work === state.work);
     setScopedSelectOptions(form, "affiliation", "affiliationFilter", "全部所属", scoped);
-    hydrateDimensionFilters(form, scoped);
+    hydrateDimensionFilters(form);
   }
 
   function setScopedSelectOptions(form, stateKey, id, allLabel, scopedCharacters) {
@@ -435,9 +434,9 @@
     ].sort((a, b) => a.localeCompare(b, "zh-Hans-CN"));
   }
 
-  function hydrateDimensionFilters(form, scopedCharacters) {
+  function hydrateDimensionFilters(form) {
     dimensions.forEach((dimension) => {
-      const values = collectRankValues(dimension.key, scopedCharacters, state.dimensionScope);
+      const values = collectRankFilterOptions(dimension.key);
       const filter = normalizeDimensionFilter(dimension.key, state.dimensionFilters[dimension.key], values);
       state.dimensionFilters[dimension.key] = filter;
       setSelectOptions(`${dimension.key}MinFilter`, ["all", ...values], "不限下限");
@@ -447,19 +446,8 @@
     });
   }
 
-  function collectRankValues(key, source = characters, scope = "any") {
-    const order = rankOrders[key] || [];
-    return [
-      ...new Set(
-        source
-          .flatMap((item) => {
-            return getCharacterDimensionEntries(item, key).flatMap((entry) => getDimensionRanks(entry, scope));
-          })
-          .filter(Boolean)
-          .map((value) => String(value).trim())
-          .filter((value) => order.includes(value))
-      )
-    ].sort((a, b) => compareRankOption(key, a, b));
+  function collectRankFilterOptions(key) {
+    return [...(rankOrders[key] || [])];
   }
 
   function normalizeDimensionFilter(key, filter, availableValues = null) {
@@ -477,23 +465,6 @@
       return { min: next.max, max: next.min };
     }
     return next;
-  }
-
-  function compareRankOption(key, a, b) {
-    const order = rankOrders[key] || [];
-    const aIndex = order.indexOf(a);
-    const bIndex = order.indexOf(b);
-    if (aIndex >= 0 && bIndex >= 0) return aIndex - bIndex;
-    if (aIndex >= 0) return -1;
-    if (bIndex >= 0) return 1;
-
-    const aUnranked = unrankedOptionOrder.indexOf(a);
-    const bUnranked = unrankedOptionOrder.indexOf(b);
-    if (aUnranked >= 0 && bUnranked >= 0) return aUnranked - bUnranked;
-    if (aUnranked >= 0) return 1;
-    if (bUnranked >= 0) return -1;
-
-    return a.localeCompare(b, "zh-Hans-CN");
   }
 
   function getFilteredCharacters() {
@@ -1626,8 +1597,7 @@
   }
 
   function renderBattleDimensionFilter(side, dimension, filters) {
-    const scoped = filters.work === "all" ? characters : characters.filter((item) => item.work === filters.work);
-    const values = collectRankValues(dimension.key, scoped, filters.dimensionScope);
+    const values = collectRankFilterOptions(dimension.key);
     const filter = normalizeDimensionFilter(dimension.key, filters.dimensionFilters[dimension.key], values);
     filters.dimensionFilters[dimension.key] = filter;
     const disabled = state.battle.loading ? "disabled" : "";
@@ -2260,9 +2230,8 @@
     if (filters.work !== "all" && !works.includes(filters.work)) filters.work = "all";
     if (!["all", "stable", "review", "disputed", "bounded", "external"].includes(filters.evidenceStatus)) filters.evidenceStatus = "all";
     if (!["any", "normal", "peak"].includes(filters.dimensionScope)) filters.dimensionScope = "any";
-    const scoped = filters.work === "all" ? characters : characters.filter((item) => item.work === filters.work);
     dimensions.forEach((dimension) => {
-      const values = collectRankValues(dimension.key, scoped, filters.dimensionScope);
+      const values = collectRankFilterOptions(dimension.key);
       filters.dimensionFilters[dimension.key] = normalizeDimensionFilter(dimension.key, filters.dimensionFilters[dimension.key], values);
     });
   }
