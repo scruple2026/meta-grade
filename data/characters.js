@@ -60,6 +60,8 @@
     "data/characters/jujutsu-kaisen/suguru-geto.js",
     "data/characters/jujutsu-kaisen/mahito.js",
     "data/characters/jujutsu-kaisen/jogo.js",
+    "data/characters/jujutsu-kaisen/hanami.js",
+    "data/characters/jujutsu-kaisen/dagon.js",
     "data/characters/jujutsu-kaisen/kenjaku.js",
     "data/characters/jujutsu-kaisen/tengen.js",
     "data/characters/jujutsu-kaisen/choso.js",
