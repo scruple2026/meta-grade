@@ -52,6 +52,9 @@ const DEFAULT_RATE_LIMIT_WINDOW_MS = 60000;
 const DEFAULT_RATE_LIMIT_MAX = 12;
 const DEFAULT_DAILY_REQUEST_LIMIT = 0;
 const DEFAULT_DAILY_TOKEN_LIMIT = 0;
+const DAILY_REDIS_TTL_SECONDS = 48 * 60 * 60;
+const RATE_LIMIT_REDIS_TTL_BUFFER_MS = 60000;
+const QUOTA_BACKENDS = new Set(["auto", "memory", "redis"]);
 const RATE_LIMITS = globalThis.__META_GRADE_BATTLE_RATE_LIMITS || new Map();
 globalThis.__META_GRADE_BATTLE_RATE_LIMITS = RATE_LIMITS;
 const DAILY_USAGE = globalThis.__META_GRADE_BATTLE_DAILY_USAGE || new Map();
@@ -118,6 +121,7 @@ module.exports = async function handler(req, res) {
   if (req.method === "GET") {
     const disabled = battleApiDisabled();
     const budget = dailyBudgetConfig();
+    const quota = quotaBackendConfig();
     setJsonHeaders(res);
     res.status(200).json({
       ok: true,
@@ -131,6 +135,7 @@ module.exports = async function handler(req, res) {
       outputStyles: OUTPUT_STYLES,
       rateLimit: rateLimitConfig(),
       accessRequired: accessConfig().required,
+      quotaBackend: quota.publicName,
       dailyBudget: {
         requestLimitConfigured: budget.requestLimit > 0,
         tokenLimitConfigured: budget.tokenLimit > 0
@@ -157,18 +162,20 @@ module.exports = async function handler(req, res) {
       setJsonHeaders(res);
       res.status(503).json({
         ok: false,
+        code: "disabled",
         error: "AI 裁定已由 BATTLE_API_DISABLED 暂停。"
       });
       logBattle("info", { requestId, outcome: "blocked", reason: "disabled", elapsedMs: Date.now() - startedAt });
       return;
     }
 
-    const rateLimit = checkRateLimit(req);
+    const rateLimit = await checkRateLimit(req, requestId);
     if (!rateLimit.allowed) {
       setJsonHeaders(res);
       res.setHeader("Retry-After", String(Math.ceil(rateLimit.retryAfterMs / 1000)));
       res.status(429).json({
         ok: false,
+        code: "rate_limit",
         error: `对战生成过于频繁，请 ${Math.ceil(rateLimit.retryAfterMs / 1000)} 秒后再试。`
       });
       logBattle("info", {
@@ -185,6 +192,7 @@ module.exports = async function handler(req, res) {
       setJsonHeaders(res);
       res.status(401).json({
         ok: false,
+        code: "access_code_required",
         error: "需要有效访问码才能生成 AI 裁定。"
       });
       logBattle("info", { requestId, outcome: "blocked", reason: "access_code", elapsedMs: Date.now() - startedAt });
@@ -199,18 +207,20 @@ module.exports = async function handler(req, res) {
       setJsonHeaders(res);
       res.status(503).json({
         ok: false,
+        code: "missing_openai_key",
         error: "Vercel 环境变量 OPENAI_API_KEY 尚未配置，无法生成 AI 裁定。"
       });
       logBattle("info", { requestId, outcome: "blocked", reason: "missing_openai_key", elapsedMs: Date.now() - startedAt });
       return;
     }
 
-    const budgetCheck = checkDailyBudget();
+    const budgetCheck = await reserveDailyRequest(requestId);
     if (!budgetCheck.allowed) {
       setJsonHeaders(res);
       res.setHeader("Retry-After", String(Math.ceil(budgetCheck.retryAfterMs / 1000)));
       res.status(429).json({
         ok: false,
+        code: budgetCheck.reason,
         error: budgetCheck.message
       });
       logBattle("info", {
@@ -223,7 +233,6 @@ module.exports = async function handler(req, res) {
       });
       return;
     }
-    recordDailyRequest();
 
     const model = cleanToken(process.env.OPENAI_MODEL || DEFAULT_MODEL, DEFAULT_MODEL);
     const baseUrl = String(process.env.OPENAI_BASE_URL || "https://api.openai.com/v1").replace(/\/+$/, "");
@@ -249,7 +258,7 @@ module.exports = async function handler(req, res) {
         outputTextForCharge = fallback.outputText;
         usageForCharge = fallback.usage;
         const result = parseBattleResult(fallback.outputText, request);
-        chargedTokens = recordDailyTokens(fallback.usage, request, fallback.outputText);
+        chargedTokens = await recordDailyTokens(fallback.usage, request, fallback.outputText, requestId);
         logBattle("info", {
           requestId,
           outcome: "success",
@@ -285,7 +294,7 @@ module.exports = async function handler(req, res) {
     outputTextForCharge = outputText;
     usageForCharge = data.usage || null;
     const result = parseBattleResult(outputText, request);
-    chargedTokens = recordDailyTokens(data.usage || null, request, outputText);
+    chargedTokens = await recordDailyTokens(data.usage || null, request, outputText, requestId);
     logBattle("info", {
       requestId,
       outcome: "success",
@@ -309,7 +318,7 @@ module.exports = async function handler(req, res) {
     setJsonHeaders(res);
     const status = error && error.status ? error.status : 500;
     if (requestForCharge && outputTextForCharge && !chargedTokens) {
-      chargedTokens = recordDailyTokens(usageForCharge, requestForCharge, outputTextForCharge);
+      chargedTokens = await recordDailyTokens(usageForCharge, requestForCharge, outputTextForCharge, requestId);
     }
     logBattle(status >= 500 ? "error" : "info", {
       requestId,
@@ -321,6 +330,7 @@ module.exports = async function handler(req, res) {
     });
     res.status(status).json({
       ok: false,
+      code: error && error.code ? error.code : undefined,
       error: error && error.message ? error.message : "Battle generation failed."
     });
   }
@@ -331,6 +341,19 @@ function battleApiDisabled() {
 }
 
 function accessConfig() {
+  const rawHashes = String(process.env.BATTLE_ACCESS_CODE_HASHES || "").trim();
+  const hashes = rawHashes
+    .split(/[\s,;]+/)
+    .map((code) => code.trim().toLowerCase())
+    .filter((code) => /^sha256:[a-f0-9]{64}$/.test(code))
+    .slice(0, 50);
+  if (rawHashes) {
+    return {
+      required: true,
+      mode: "hash",
+      hashes
+    };
+  }
   const codes = String(process.env.BATTLE_ACCESS_CODES || "")
     .split(/[\s,;]+/)
     .map((code) => code.trim())
@@ -338,6 +361,7 @@ function accessConfig() {
     .slice(0, 50);
   return {
     required: codes.length > 0,
+    mode: "plain",
     codes
   };
 }
@@ -347,6 +371,10 @@ function hasValidAccessCode(req) {
   if (!config.required) return true;
   const received = cleanAccessCode(req.headers && req.headers["x-battle-access-code"]);
   if (!received) return false;
+  if (config.mode === "hash") {
+    const receivedHash = `sha256:${sha256Hex(received)}`;
+    return config.hashes.some((expected) => safeSecretEqual(receivedHash, expected));
+  }
   return config.codes.some((expected) => safeSecretEqual(received, expected));
 }
 
@@ -361,6 +389,10 @@ function safeSecretEqual(left, right) {
   return crypto.timingSafeEqual(leftBuffer, rightBuffer);
 }
 
+function sha256Hex(value) {
+  return crypto.createHash("sha256").update(String(value || "")).digest("hex");
+}
+
 function dailyBudgetConfig() {
   return {
     requestLimit: readPositiveInteger(process.env.BATTLE_DAILY_REQUEST_LIMIT, DEFAULT_DAILY_REQUEST_LIMIT),
@@ -368,7 +400,29 @@ function dailyBudgetConfig() {
   };
 }
 
-function checkDailyBudget() {
+async function reserveDailyRequest(requestId) {
+  const backend = quotaBackendConfig();
+  if (backend.type === "redis" && backend.configured) {
+    try {
+      return await reserveRedisDailyRequest(backend.redis);
+    } catch (error) {
+      return handleQuotaBackendError("daily_request", error, backend, requestId, reserveMemoryDailyRequest);
+    }
+  }
+  if (backend.type === "redis" && backend.strict) {
+    throw quotaBackendHttpError("Redis 配额后端尚未配置，无法安全生成 AI 裁定。");
+  }
+  return reserveMemoryDailyRequest();
+}
+
+function reserveMemoryDailyRequest() {
+  const check = checkMemoryDailyBudget();
+  if (!check.allowed) return check;
+  recordMemoryDailyRequest();
+  return check;
+}
+
+function checkMemoryDailyBudget() {
   const config = dailyBudgetConfig();
   const usage = currentDailyUsage();
   const retryAfterMs = msUntilNextUtcDay();
@@ -393,14 +447,46 @@ function checkDailyBudget() {
   return { allowed: true, reason: "", retryAfterMs: 0, usage: dailyUsageSummary(usage, config), message: "" };
 }
 
-function recordDailyRequest() {
+function recordMemoryDailyRequest() {
   const usage = currentDailyUsage();
   usage.requests += 1;
   return usage.requests;
 }
 
-function recordDailyTokens(providerUsage, request, outputText) {
+async function recordDailyTokens(providerUsage, request, outputText, requestId) {
   const tokens = totalTokensFromUsage(providerUsage) || estimateBattleTokens(request, outputText);
+  const backend = quotaBackendConfig();
+  if (backend.type === "redis" && backend.configured) {
+    try {
+      await recordRedisDailyTokens(tokens, backend.redis);
+      return tokens;
+    } catch (error) {
+      logBattle("error", {
+        requestId,
+        outcome: "quota_backend_error",
+        backend: "redis",
+        operation: "daily_token_record",
+        error: quotaBackendLogMessage(error)
+      });
+      recordMemoryDailyTokens(tokens);
+      return tokens;
+    }
+  }
+  if (backend.type === "redis" && backend.strict) {
+    logBattle("error", {
+      requestId,
+      outcome: "quota_backend_error",
+      backend: "redis",
+      operation: "daily_token_record",
+      error: "redis quota backend is not configured"
+    });
+    return tokens;
+  }
+  recordMemoryDailyTokens(tokens);
+  return tokens;
+}
+
+function recordMemoryDailyTokens(tokens) {
   const usage = currentDailyUsage();
   usage.tokens += tokens;
   return tokens;
@@ -433,6 +519,194 @@ function dailyUsageSummary(usage, config = dailyBudgetConfig()) {
     tokens: usage.tokens,
     tokenLimit: config.tokenLimit
   };
+}
+
+function quotaBackendConfig() {
+  const preference = cleanQuotaBackendPreference(process.env.BATTLE_QUOTA_BACKEND);
+  const redis = redisRestConfig();
+  if (preference === "memory") {
+    return { type: "memory", publicName: "memory", strict: false, configured: false, redis: null };
+  }
+  if (preference === "redis") {
+    return {
+      type: "redis",
+      publicName: redis.configured ? "redis" : "memory",
+      strict: true,
+      configured: redis.configured,
+      redis
+    };
+  }
+  if (redis.configured) {
+    return { type: "redis", publicName: "redis", strict: false, configured: true, redis };
+  }
+  return { type: "memory", publicName: "memory", strict: false, configured: false, redis: null };
+}
+
+function cleanQuotaBackendPreference(value) {
+  const text = String(value || "auto").trim().toLowerCase();
+  return QUOTA_BACKENDS.has(text) ? text : "auto";
+}
+
+function redisRestConfig() {
+  const url = cleanRedisUrl(process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL);
+  const token = String(process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN || "").trim();
+  return {
+    url,
+    token,
+    configured: Boolean(url && token)
+  };
+}
+
+function cleanRedisUrl(value) {
+  const text = String(value || "").trim().replace(/\/+$/, "");
+  if (!text) return "";
+  try {
+    const parsed = new URL(text);
+    return /^https?:$/.test(parsed.protocol) ? parsed.toString().replace(/\/+$/, "") : "";
+  } catch (_error) {
+    return "";
+  }
+}
+
+async function reserveRedisDailyRequest(redis) {
+  const config = dailyBudgetConfig();
+  const retryAfterMs = msUntilNextUtcDay();
+  const usage = await redisDailyUsage(redis);
+  if (config.tokenLimit > 0 && usage.tokens >= config.tokenLimit) {
+    return {
+      allowed: false,
+      reason: "daily_token_limit",
+      retryAfterMs,
+      usage: dailyUsageSummary(usage, config),
+      message: "今日 AI 裁定 token 预算已达到服务端上限，请明天再试。"
+    };
+  }
+
+  let requests = usage.requests;
+  if (config.requestLimit > 0 || config.tokenLimit > 0) {
+    requests = await redisIncrementDailyField(redis, "requests", 1);
+    usage.requests = requests;
+  }
+  if (config.requestLimit > 0 && requests > config.requestLimit) {
+    return {
+      allowed: false,
+      reason: "daily_request_limit",
+      retryAfterMs,
+      usage: dailyUsageSummary(usage, config),
+      message: "今日 AI 裁定请求数已达到服务端预算，请明天再试。"
+    };
+  }
+  return { allowed: true, reason: "", retryAfterMs: 0, usage: dailyUsageSummary(usage, config), message: "" };
+}
+
+async function redisDailyUsage(redis) {
+  const key = dailyRedisKey();
+  const result = await redisCommand(redis, ["HMGET", key, "requests", "tokens"]);
+  const values = Array.isArray(result) ? result : [];
+  return {
+    requests: readPositiveInteger(values[0], 0),
+    tokens: readPositiveInteger(values[1], 0)
+  };
+}
+
+async function redisIncrementDailyField(redis, field, amount) {
+  const key = dailyRedisKey();
+  const results = await redisMulti(redis, [
+    ["HINCRBY", key, field, amount],
+    ["EXPIRE", key, DAILY_REDIS_TTL_SECONDS]
+  ]);
+  return readPositiveInteger(results[0], 0);
+}
+
+async function recordRedisDailyTokens(tokens, redis) {
+  const config = dailyBudgetConfig();
+  if (config.tokenLimit <= 0 && config.requestLimit <= 0) return;
+  await redisIncrementDailyField(redis, "tokens", tokens);
+}
+
+async function checkRedisRateLimit(req, redis) {
+  const config = rateLimitConfig();
+  if (config.max <= 0) return { allowed: true, retryAfterMs: 0 };
+  const now = Date.now();
+  const bucket = Math.floor(now / config.windowMs);
+  const key = `battle:rate:${sha256Hex(clientKey(req))}:${bucket}`;
+  const results = await redisMulti(redis, [
+    ["INCR", key],
+    ["PEXPIRE", key, config.windowMs + RATE_LIMIT_REDIS_TTL_BUFFER_MS]
+  ]);
+  const count = readPositiveInteger(results[0], 0);
+  const resetAt = (bucket + 1) * config.windowMs;
+  if (count > config.max) {
+    return { allowed: false, retryAfterMs: Math.max(1000, resetAt - now) };
+  }
+  return { allowed: true, retryAfterMs: 0 };
+}
+
+function dailyRedisKey() {
+  return `battle:daily:${currentUtcDay()}`;
+}
+
+async function redisCommand(redis, command) {
+  const data = await redisRestRequest(redis, "", command);
+  if (data && Object.prototype.hasOwnProperty.call(data, "error")) {
+    throw new Error(String(data.error || "Redis command failed."));
+  }
+  return data ? data.result : null;
+}
+
+async function redisMulti(redis, commands) {
+  const data = await redisRestRequest(redis, "multi-exec", commands);
+  if (!Array.isArray(data)) throw new Error("Redis transaction returned an invalid response.");
+  return data.map((item) => {
+    if (item && Object.prototype.hasOwnProperty.call(item, "error")) {
+      throw new Error(String(item.error || "Redis command failed."));
+    }
+    return item ? item.result : null;
+  });
+}
+
+async function redisRestRequest(redis, endpoint, body) {
+  const url = endpoint ? `${redis.url}/${endpoint}` : redis.url;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${redis.token}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(body)
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const message = data && data.error ? data.error : `Redis REST request failed with HTTP ${response.status}.`;
+    throw new Error(message);
+  }
+  return data;
+}
+
+function handleQuotaBackendError(operation, error, backend, requestId, fallback) {
+  logBattle("error", {
+    requestId,
+    outcome: "quota_backend_error",
+    backend: "redis",
+    operation,
+    error: quotaBackendLogMessage(error)
+  });
+  if (backend.strict) {
+    throw quotaBackendHttpError("Redis 配额后端暂时不可用，请稍后再试。");
+  }
+  return fallback();
+}
+
+function quotaBackendHttpError(message) {
+  const error = httpError(503, message);
+  error.code = "quota_backend_unavailable";
+  return error;
+}
+
+function quotaBackendLogMessage(error) {
+  return String(error && error.message ? error.message : "Redis quota backend failed.")
+    .replace(/Bearer\s+[A-Za-z0-9._~+/=-]+/gi, "Bearer [redacted]")
+    .slice(0, 240);
 }
 
 function estimateBattleTokens(request, outputText) {
@@ -484,7 +758,12 @@ function sanitizeLogPayload(payload) {
   delete value.request;
   delete value.outputText;
   delete value.accessCode;
+  delete value.accessCodeHash;
+  delete value.accessCodeHashes;
   delete value.apiKey;
+  delete value.redisToken;
+  delete value.authorization;
+  delete value.headers;
   return value;
 }
 
@@ -509,7 +788,22 @@ function rateLimitConfig() {
   };
 }
 
-function checkRateLimit(req) {
+async function checkRateLimit(req, requestId) {
+  const backend = quotaBackendConfig();
+  if (backend.type === "redis" && backend.configured) {
+    try {
+      return await checkRedisRateLimit(req, backend.redis);
+    } catch (error) {
+      return handleQuotaBackendError("rate_limit", error, backend, requestId, () => checkMemoryRateLimit(req));
+    }
+  }
+  if (backend.type === "redis" && backend.strict) {
+    throw quotaBackendHttpError("Redis 配额后端尚未配置，无法安全生成 AI 裁定。");
+  }
+  return checkMemoryRateLimit(req);
+}
+
+function checkMemoryRateLimit(req) {
   const config = rateLimitConfig();
   if (config.max <= 0) return { allowed: true, retryAfterMs: 0 };
   const now = Date.now();
@@ -791,7 +1085,7 @@ async function streamBattleResponse(req, res, baseUrl, model, request, requestId
         eventTypes.add("fallback.chat_completions");
         outputText = await streamChatCompletionFallback(res, baseUrl, model, request, requestId, abortController.signal);
         const result = parseBattleResult(outputText, request);
-        chargedTokens = recordDailyTokens(usage, request, outputText);
+        chargedTokens = await recordDailyTokens(usage, request, outputText, requestId);
         logBattle("info", {
           requestId,
           outcome: "success",
@@ -835,7 +1129,7 @@ async function streamBattleResponse(req, res, baseUrl, model, request, requestId
       outputText = extractOutputText(data);
       const result = parseBattleResult(outputText, request);
       usage = data.usage || null;
-      chargedTokens = recordDailyTokens(usage, request, outputText);
+      chargedTokens = await recordDailyTokens(usage, request, outputText, requestId);
       logBattle("info", {
         requestId,
         outcome: "success",
@@ -913,7 +1207,7 @@ async function streamBattleResponse(req, res, baseUrl, model, request, requestId
       outputText = await streamChatCompletionFallback(res, baseUrl, model, request, requestId, abortController.signal);
     }
     const result = parseBattleResult(outputText, request);
-    chargedTokens = recordDailyTokens(usage, request, outputText);
+    chargedTokens = await recordDailyTokens(usage, request, outputText, requestId);
     logBattle("info", {
       requestId,
       outcome: "success",
@@ -946,7 +1240,7 @@ async function streamBattleResponse(req, res, baseUrl, model, request, requestId
       return;
     }
     if (outputText && !chargedTokens) {
-      chargedTokens = recordDailyTokens(usage, request, outputText);
+      chargedTokens = await recordDailyTokens(usage, request, outputText, requestId);
     }
     const message = error && error.message ? error.message : "Battle generation failed.";
     logBattle("error", {

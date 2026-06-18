@@ -8,6 +8,7 @@ Meta Grade 是一个跨作品战力面板与对战裁定公开 Beta，按 `refer
 
 - GitHub Repo：<https://github.com/scruple2026/meta-grade>
 - Fork 前先看：[`CONTRIBUTING.md`](CONTRIBUTING.md)
+- 社区 PR 模拟：[`docs/community-pr-simulation.md`](docs/community-pr-simulation.md)
 - PR 模板文件：`.github/PULL_REQUEST_TEMPLATE.md`
 - 在线查看 PR 模板：<https://github.com/scruple2026/meta-grade/blob/main/.github/PULL_REQUEST_TEMPLATE.md>
 - 提交 PR：<https://github.com/scruple2026/meta-grade/compare>
@@ -56,12 +57,68 @@ vercel dev
 | `BATTLE_RATE_LIMIT_WINDOW_MS` | 否 | 例如 `60000` | `/api/battle` 的实例内 best-effort 限流窗口，默认 60000 毫秒。 |
 | `BATTLE_RATE_LIMIT_MAX` | 否 | 例如 `12` | 每个 IP 在限流窗口内允许的生成次数，默认 12；设为 `0` 可关闭这个实例内限流。 |
 | `BATTLE_ACCESS_CODES` | 否 | 例如 `alpha,beta` | 逗号、空格或换行分隔的访问码列表；配置后前端会提示输入访问码，POST 需带 `X-Battle-Access-Code`，访问码不会写进分享链接。留空则不要求访问码。 |
-| `BATTLE_DAILY_REQUEST_LIMIT` | 否 | 例如 `100` | 每个 Vercel Function 实例、每个 UTC 日的 best-effort 请求预算；默认 `0` 不限制。冷启动或多实例扩容时不会形成强一致全局配额。 |
-| `BATTLE_DAILY_TOKEN_LIMIT` | 否 | 例如 `200000` | 每个 Vercel Function 实例、每个 UTC 日的 best-effort token 预算；优先使用上游返回的 `usage`，缺失时按文本长度估算，默认 `0` 不限制。 |
+| `BATTLE_ACCESS_CODE_HASHES` | 否 | 例如 `sha256:<hex>` | 逗号、空格或换行分隔的访问码 SHA-256 hash；只要该变量非空，服务端就忽略明文 `BATTLE_ACCESS_CODES`。推荐生产灰度使用 hash，避免把访问码明文放进环境变量列表。 |
+| `BATTLE_QUOTA_BACKEND` | 否 | `auto` / `memory` / `redis` | 默认 `auto`：Redis REST 凭据完整时用 Redis 共享配额，否则回退内存；`memory` 强制保留实例内 best-effort；`redis` 强制 Redis，后端不可用时 fail closed。 |
+| `UPSTASH_REDIS_REST_URL` | Redis 配额时是 | Upstash REST URL | 用于跨 Vercel Function 实例共享限流和日预算；不提交到仓库。 |
+| `UPSTASH_REDIS_REST_TOKEN` | Redis 配额时是 | Upstash REST token | 与 `UPSTASH_REDIS_REST_URL` 配套；日志和状态接口不会输出该值。 |
+| `KV_REST_API_URL` | 否 | Vercel Marketplace 注入的 REST URL | 兼容 Vercel Redis / Upstash Marketplace 常见命名；优先级低于 `UPSTASH_REDIS_REST_URL`。 |
+| `KV_REST_API_TOKEN` | 否 | Vercel Marketplace 注入的 REST token | 兼容 Vercel Redis / Upstash Marketplace 常见命名；优先级低于 `UPSTASH_REDIS_REST_TOKEN`。 |
+| `BATTLE_DAILY_REQUEST_LIMIT` | 否 | 例如 `100` | 每个 UTC 日的请求预算；Redis 后端下跨实例共享，内存后端下仍是每个实例 best-effort。默认 `0` 不限制。 |
+| `BATTLE_DAILY_TOKEN_LIMIT` | 否 | 例如 `200000` | 每个 UTC 日的 token 预算；Redis 后端下跨实例共享，内存后端下仍是每个实例 best-effort。调用前检查当前用量，调用后记录上游 `usage` 或估算值，单次并发可能少量越过预算。默认 `0` 不限制。 |
 | `BATTLE_LOG_LEVEL` | 否 | `silent` / `error` / `info` / `debug` | 默认 `error`。日志只记录 requestId、状态、耗时、fallback、用量摘要和错误信息，不记录 prompt、模型输出、访问码或 API key。 |
 | `BATTLE_API_DISABLED` | 否 | `1` / `true` / `yes` / `on` | 一键暂停 AI 裁定生成；前端会显示关闭态并禁用生成按钮，静态面板和角色对比仍可公开访问。 |
 
-生产环境的 API endpoint 不需要在前端填写：页面固定请求同源 `/api/battle`，真正的上游 endpoint 由 Vercel 环境变量 `OPENAI_BASE_URL` 控制。若要公开灰度 AI 裁定，建议同时配置 `BATTLE_ACCESS_CODES`、实例内限流、日预算和 `BATTLE_LOG_LEVEL=info`。
+生产环境的 API endpoint 不需要在前端填写：页面固定请求同源 `/api/battle`，真正的上游 endpoint 由 Vercel 环境变量 `OPENAI_BASE_URL` 控制。默认公开传播前建议保持 `BATTLE_API_DISABLED=1`。若要公开灰度 AI 裁定，建议同时配置 `BATTLE_ACCESS_CODE_HASHES`、限流、日请求预算、日 token 预算、`BATTLE_LOG_LEVEL=info`，并优先用 Redis REST 配额后端。
+
+访问码 hash 生成命令：
+
+```bash
+printf '%s' "$CODE" | node scripts/hash-battle-access-code.js
+```
+
+不要把真实访问码写进 shell 命令行参数、README、PR 或提交记录。使用上面的 stdin 形式可以避免访问码明文进入 shell history；输出的 `sha256:<hex>` 可放入 `BATTLE_ACCESS_CODE_HASHES`。
+
+### 生产灰度检查
+
+生产环境操作只使用 `VERCEL_TOKEN`，不要执行交互式 `vercel login`，也不要把 token 或环境变量值写入仓库、日志、README 或提交记录。下面的命令只检查变量名和公开状态响应：
+
+```bash
+# 只查看变量名，不输出 secret 值。
+env -u HTTP_PROXY -u HTTPS_PROXY -u ALL_PROXY -u http_proxy -u https_proxy -u all_proxy \
+  vercel env ls production --token "$VERCEL_TOKEN"
+
+# 关闭态期望 disabled=true；灰度态期望 configured/accessRequired/日预算为 true。
+env -u HTTP_PROXY -u HTTPS_PROXY -u ALL_PROXY -u http_proxy -u https_proxy -u all_proxy \
+  curl -sS "$META_GRADE_PRODUCTION_URL/api/battle" | jq .
+```
+
+关闭态期望关键字段：
+
+```json
+{
+  "ok": true,
+  "configured": false,
+  "disabled": true
+}
+```
+
+灰度态期望关键字段：
+
+```json
+{
+  "ok": true,
+  "configured": true,
+  "disabled": false,
+  "accessRequired": true,
+  "quotaBackend": "redis",
+  "dailyBudget": {
+    "requestLimitConfigured": true,
+    "tokenLimitConfigured": true
+  }
+}
+```
+
+`quotaBackend` 也可能是 `"memory"`，表示当前没有使用 Redis 全局配额；公开灰度前应确认这是有意选择。`/api/battle` 的 GET 状态不会返回访问码、hash、API key、Redis token、当前用量或 Redis 配置值。
 
 ## 部署到 GitHub Pages（静态镜像）
 
@@ -112,6 +169,7 @@ vercel dev
 
 ```bash
 node scripts/validate-data.js
+node scripts/test-battle-api.js
 node --check scripts/validate-data.js
 node --check scripts/create-character.js
 node --check scripts/create-work.js
@@ -119,6 +177,8 @@ node --check scripts/apply-character-proposal.js
 node --check scripts/sync-reference.js
 node --check scripts/check-links.js
 node --check scripts/check-source-content.js
+node --check scripts/test-battle-api.js
+node --check scripts/hash-battle-access-code.js
 node --check assets/app.js
 node --check api/battle.js
 node --check data/core.js
@@ -134,7 +194,7 @@ node scripts/check-links.js --dry-run
 node scripts/check-links.js --timeout 8000 --concurrency 6
 ```
 
-`check-links.js` 会检查作品来源、作品量级来源、角色来源和证据链接。默认把 `401/403/405/429` 视为“可达但受限”，只有真正失败的链接会让命令失败；需要把受限状态也当失败时加 `--strict`。
+`check-links.js` 会检查作品来源、作品量级来源、角色来源和证据链接。默认把 `401/403/405/429` 视为“可达但受限”，普通输出只优先展示 hard failed 和 soft 汇总，避免 Fandom、VS Battles、JoJo Wiki 等 MediaWiki 直连 403 刷屏；需要看完整 soft 列表时加 `--verbose`。已知 MediaWiki 域名会尝试公开 API 验证正文可读，但 `MediaWiki API READABLE` 只表示内容可读，不代表该来源已经支持某个 `ratingEvidence` claim；需要把受限状态也当失败时加 `--strict`。
 
 当直连检查出现 Fandom、VS Battles Wiki、萌娘百科等软失败时，可以再跑内容可读性检查：
 

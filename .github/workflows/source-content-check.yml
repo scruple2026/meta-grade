@@ -1,0 +1,26 @@
+name: Source Content Check
+
+on:
+  schedule:
+    - cron: "23 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-content:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Check source content readability
+        run: node scripts/check-source-content.js --concurrency 3 --timeout 12000 > source-content-check.log 2>&1
+
+      - name: Upload source check log
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: source-content-check-log
+          path: source-content-check.log

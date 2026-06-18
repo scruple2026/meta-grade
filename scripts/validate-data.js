@@ -62,9 +62,10 @@ const VITALITY_BASES = [
   "行星级生命结构",
   "恒星级生命结构",
   "星系级生命结构",
-  "宇宙级生命结构"
+  "宇宙级生命结构",
+  "无限级生命结构"
 ];
-const HEALING_BASES = ["无自愈", "缓慢自愈", "常规自愈", "快速自愈", "极速自愈", "瞬愈"];
+const HEALING_BASES = ["无自愈", "缓慢自愈", "中速自愈", "快速自愈", "极速自愈", "瞬愈"];
 const ENERGY_POOL_BASES = [
   "凡人能量",
   "砖级能量",
@@ -83,7 +84,7 @@ const ENERGY_POOL_BASES = [
   "有限宇宙级能量",
   "无限级能量"
 ];
-const ENERGY_REGEN_BASES = ["无回能", "缓慢回能", "常规回能", "快速回能", "极速回能", "无限回能"];
+const ENERGY_REGEN_BASES = ["无回能", "缓慢回能", "中速回能", "快速回能", "极速回能", "瞬时回能"];
 const SPECIAL_BASES = ["无资料", "未知", "未表现", "不适用", "仅下限", "仅上限", "争议"];
 const HIGH_RISK_BASES = new Set([
   "国家级",
@@ -102,6 +103,7 @@ const HIGH_RISK_BASES = new Set([
   "恒星级生命结构",
   "星系级生命结构",
   "宇宙级生命结构",
+  "无限级生命结构",
   "国家级能量",
   "大陆级能量",
   "地表级能量",

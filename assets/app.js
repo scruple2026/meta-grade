@@ -84,10 +84,10 @@
     defense: ["昆虫级", "凡人级", "砖级", "墙级", "房屋级", "楼级", "街区级", "城市级", "国家级", "大陆级", "地表级", "行星级", "恒星级", "星系级", "超星系团级", "有限宇宙级", "无限级"],
     movement: ["凡人速", "亚音速", "音速", "超音速", "高超音速", "宇宙速度级", "超第三宇宙速度级", "亚光速", "光速", "超光速"],
     reaction: ["凡人速", "亚音速", "音速", "超音速", "高超音速", "宇宙速度级", "超第三宇宙速度级", "亚光速", "光速", "超光速"],
-    vitality: ["凡人肉身", "强化凡体", "精锐韧体", "房屋级生命阈值", "楼级生命阈值", "街区级生命阈值", "城市级生命阈值", "国家级生命阈值", "大陆级生命阈值", "地表级生命阈值", "行星级生命结构", "恒星级生命结构", "星系级生命结构", "宇宙级生命结构"],
-    healing: ["无自愈", "缓慢自愈", "常规自愈", "快速自愈", "极速自愈", "瞬愈"],
+    vitality: ["凡人肉身", "强化凡体", "精锐韧体", "房屋级生命阈值", "楼级生命阈值", "街区级生命阈值", "城市级生命阈值", "国家级生命阈值", "大陆级生命阈值", "地表级生命阈值", "行星级生命结构", "恒星级生命结构", "星系级生命结构", "宇宙级生命结构", "无限级生命结构"],
+    healing: ["无自愈", "缓慢自愈", "中速自愈", "快速自愈", "极速自愈", "瞬愈"],
     energy: ["凡人能量", "砖级能量", "墙级能量", "房屋级能量", "楼级能量", "街区级能量", "城市级能量", "国家级能量", "大陆级能量", "地表级能量", "行星级能量", "恒星级能量", "星系级能量", "超星系团级能量", "有限宇宙级能量", "无限级能量"],
-    energyRegen: ["无回能", "缓慢回能", "常规回能", "快速回能", "极速回能", "无限回能"]
+    energyRegen: ["无回能", "缓慢回能", "中速回能", "快速回能", "极速回能", "瞬时回能"]
   };
   const unrankedOptionOrder = ["无资料", "未知", "未表现", "不适用"];
   const state = {
@@ -132,6 +132,7 @@
       apiStatusCheckedAt: 0,
       shareMessage: "",
       resultMessage: "",
+      focusAccessCode: false,
       abortController: null
     }
   };
@@ -1110,6 +1111,16 @@
         renderBattle();
       });
     });
+    if (state.battle.focusAccessCode) {
+      const accessInput = document.getElementById("battleAccessCode");
+      state.battle.focusAccessCode = false;
+      if (accessInput) {
+        requestAnimationFrame(() => {
+          accessInput.focus();
+          accessInput.select();
+        });
+      }
+    }
     ensureBattleApiStatus();
   }
 
@@ -1151,6 +1162,7 @@
           ${status && status.chatFallback ? `<span class="badge">Chat fallback</span>` : ""}
           ${status && status.accessRequired ? `<span class="badge is-warning">访问码</span>` : ""}
           ${status && hasBattleDailyBudget(status) ? `<span class="badge">日预算</span>` : ""}
+          ${status && status.quotaBackend ? `<span class="badge">配额：${escapeHtml(status.quotaBackend === "redis" ? "Redis" : "内存")}</span>` : ""}
           ${status && status.rateLimit ? `<span class="badge">限流：${escapeHtml(formatRateLimit(status.rateLimit))}</span>` : ""}
         </div>
         <button class="small-action" type="button" id="refreshBattleStatus" ${state.battle.apiStatusLoading ? "disabled" : ""}>刷新状态</button>
@@ -1379,7 +1391,7 @@
   }
 
   function renderBattleAccessCodeControl() {
-    if (!state.battle.apiStatus || !state.battle.apiStatus.accessRequired) return "";
+    if (!state.battle.apiStatus || state.battle.apiStatus.disabled || !state.battle.apiStatus.accessRequired) return "";
     const disabled = state.battle.loading ? "disabled" : "";
     return `
       <section class="battle-access-control">
@@ -1918,6 +1930,7 @@
         </header>
         ${state.battle.resultMessage ? `<p class="battle-share-status">${escapeHtml(state.battle.resultMessage)}</p>` : ""}
         <div class="battle-verdict">${escapeHtml(result.verdict)}</div>
+        <p class="field-hint battle-hint">AI 裁定是临时生成式推演，不会写回正式角色定级或证据结论。</p>
         <section class="battle-result-block">
           <h3>口径</h3>
           <p>${escapeHtml(result.panelUse)}</p>
@@ -1995,7 +2008,7 @@
       } else {
         const data = await response.json().catch(() => ({}));
         if (!response.ok || !data.ok) {
-          throw new Error(data.error || "对战 API 调用失败。");
+          throw createBattleApiError(response.status, data.code, data.error || "对战 API 调用失败。");
         }
         state.battle.result = data.result;
         state.battle.model = data.model || "";
@@ -2012,7 +2025,9 @@
         state.battle.error = "";
       } else {
         state.battle.cancelled = false;
-        state.battle.error = error && error.message ? error.message : "对战生成失败。";
+        const battleError = normalizeBattleApiError(error);
+        state.battle.error = battleError.message;
+        state.battle.focusAccessCode = battleError.focusAccessCode;
       }
     } finally {
       if (state.battle.abortController === controller) {
@@ -2110,8 +2125,34 @@
       return;
     }
     if (item.event === "error") {
-      throw new Error(data.error || "对战生成失败。");
+      throw createBattleApiError(data.status || 0, data.code, data.error || "对战生成失败。");
     }
+  }
+
+  function createBattleApiError(status, code, message) {
+    const error = new Error(message || "对战生成失败。");
+    error.status = status || 0;
+    error.code = code || "";
+    return error;
+  }
+
+  function normalizeBattleApiError(error) {
+    const status = error && error.status ? error.status : 0;
+    const code = error && error.code ? error.code : "";
+    const message = error && error.message ? error.message : "对战生成失败。";
+    if (status === 401 || code === "access_code_required") {
+      return {
+        message: "访问码无效或已失效，请重新输入。",
+        focusAccessCode: true
+      };
+    }
+    if (status === 429 || code === "rate_limit" || code === "daily_request_limit" || code === "daily_token_limit") {
+      if (code === "daily_request_limit" || code === "daily_token_limit" || /今日.*预算|今日.*上限|token 预算/.test(message)) {
+        return { message: "今日预算用尽，请明天再试。", focusAccessCode: false };
+      }
+      return { message: "请求过快，请稍后再试。", focusAccessCode: false };
+    }
+    return { message, focusAccessCode: false };
   }
 
   function addBattleStatus(message) {
