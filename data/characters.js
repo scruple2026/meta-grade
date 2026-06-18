@@ -56,7 +56,8 @@
     "data/works/sword-stained-with-royal-blood.js",
     "data/works/the-young-flying-fox.js",
     "data/works/kara-no-kyoukai.js",
-    "data/works/witch-on-the-holy-night.js"
+    "data/works/witch-on-the-holy-night.js",
+    "data/works/tsukihime.js"
   ];
   window.POWER_WIKI_CHARACTER_FILES = [
     "data/characters/jujutsu-kaisen/yuji-itadori.js",
@@ -488,6 +489,9 @@
     "data/characters/witch-on-the-holy-night/aoko-aozaki.js",
     "data/characters/witch-on-the-holy-night/alice-kuonji.js",
     "data/characters/witch-on-the-holy-night/soujuurou-shizuki.js",
+    "data/characters/tsukihime/shiki-tohno.js",
+    "data/characters/tsukihime/arcueid-brunestud.js",
+    "data/characters/tsukihime/ciel.js",
   ];
 
   if (window.POWER_WIKI && typeof window.POWER_WIKI.publish === "function") {
