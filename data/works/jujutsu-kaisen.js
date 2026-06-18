@@ -26,7 +26,7 @@
       { label: "Jujutsu Kaisen Wiki 角色总表", url: "https://jujutsu-kaisen.fandom.com/wiki/List_of_Characters" }
     ],
     scaleNotes: {
-          "scope": "当前只收录主角团和最终 Boss 两面宿傩；召唤/外置战力写入所属角色的战力解释项。",
+          "scope": "当前收录主角团、五条/乙骨/真希等高专核心、夏油杰、羂索、真人、漏瑚、东堂葵、伏黑甚尔和最终 Boss 两面宿傩；召唤/外置战力写入所属角色的战力解释项。",
           "versionPolicy": "高成长角色按 timelineStatus 限定，结局状态与早期状态后续可拆 timelinePanels。",
           "highRisk": [
                 "领域",
