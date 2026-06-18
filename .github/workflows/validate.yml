@@ -23,6 +23,9 @@ jobs:
       - name: Validate data strictly
         run: node scripts/validate-data.js --strict-warnings
 
+      - name: Check rank coverage
+        run: node scripts/check-rank-coverage.js
+
       - name: Check core JavaScript syntax
         run: |
           node --check api/battle.js
@@ -36,6 +39,7 @@ jobs:
           node --check scripts/sync-reference.js
           node --check scripts/check-links.js
           node --check scripts/check-source-content.js
+          node --check scripts/check-rank-coverage.js
           node --check scripts/test-battle-api.js
           node --check scripts/hash-battle-access-code.js
 

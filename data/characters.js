@@ -18,7 +18,9 @@
     "data/works/dragon-talisman.js",
     "data/works/galaxy-emperor.js",
     "data/works/eternal-life.js",
-    "data/works/saint-king.js"
+    "data/works/saint-king.js",
+    "data/works/dragon-ball-super.js",
+    "data/works/tengen-toppa-gurren-lagann.js"
   ];
   window.POWER_WIKI_CHARACTER_FILES = [
     "data/characters/jujutsu-kaisen/yuji-itadori.js",
@@ -125,7 +127,9 @@
     "data/characters/dragon-talisman/gu-chensha.js",
     "data/characters/galaxy-emperor/jiang-li.js",
     "data/characters/eternal-life/fang-han.js",
-    "data/characters/saint-king/yang-qi.js"
+    "data/characters/saint-king/yang-qi.js",
+    "data/characters/dragon-ball-super/son-goku-super.js",
+    "data/characters/tengen-toppa-gurren-lagann/simon-gurren-lagann.js"
   ];
 
   if (window.POWER_WIKI && typeof window.POWER_WIKI.publish === "function") {
