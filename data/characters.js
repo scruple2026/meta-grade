@@ -23,7 +23,10 @@
     "data/works/tengen-toppa-gurren-lagann.js",
     "data/works/tokyo-ghoul.js",
     "data/works/mob-psycho-100.js",
-    "data/works/frieren.js"
+    "data/works/frieren.js",
+    "data/works/evangelion.js",
+    "data/works/puella-magi-madoka-magica.js",
+    "data/works/berserk.js"
   ];
   window.POWER_WIKI_CHARACTER_FILES = [
     "data/characters/jujutsu-kaisen/yuji-itadori.js",
@@ -171,7 +174,27 @@
     "data/characters/frieren/stark.js",
     "data/characters/frieren/denken.js",
     "data/characters/frieren/macht.js",
-    "data/characters/frieren/solitar.js"
+    "data/characters/frieren/solitar.js",
+    "data/characters/evangelion/shinji-ikari.js",
+    "data/characters/evangelion/rei-ayanami.js",
+    "data/characters/evangelion/asuka-langley-soryu.js",
+    "data/characters/evangelion/misato-katsuragi.js",
+    "data/characters/evangelion/gendo-ikari.js",
+    "data/characters/evangelion/kaworu-nagisa.js",
+    "data/characters/evangelion/ryoji-kaji.js",
+    "data/characters/evangelion/yui-ikari.js",
+    "data/characters/evangelion/evangelion-unit-01.js",
+    "data/characters/puella-magi-madoka-magica/madoka-kaname.js",
+    "data/characters/puella-magi-madoka-magica/homura-akemi.js",
+    "data/characters/puella-magi-madoka-magica/mami-tomoe.js",
+    "data/characters/puella-magi-madoka-magica/sayaka-miki.js",
+    "data/characters/puella-magi-madoka-magica/kyoko-sakura.js",
+    "data/characters/puella-magi-madoka-magica/kyubey.js",
+    "data/characters/berserk/guts.js",
+    "data/characters/berserk/griffith.js",
+    "data/characters/berserk/casca.js",
+    "data/characters/berserk/skull-knight.js",
+    "data/characters/berserk/nosferatu-zodd.js"
   ];
 
   if (window.POWER_WIKI && typeof window.POWER_WIKI.publish === "function") {
