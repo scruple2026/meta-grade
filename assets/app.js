@@ -415,10 +415,10 @@
     });
   }
 
-  function setSelectOptions(id, values, allLabel) {
+  function setSelectOptions(id, values, allLabel, labels = {}) {
     const element = document.getElementById(id);
     element.innerHTML = values
-      .map((value) => `<option value="${escapeAttribute(value)}">${escapeHtml(value === "all" ? allLabel : value)}</option>`)
+      .map((value) => `<option value="${escapeAttribute(value)}">${escapeHtml(value === "all" ? allLabel : labels[value] || value)}</option>`)
       .join("");
   }
 
@@ -437,10 +437,11 @@
   function hydrateDimensionFilters(form) {
     dimensions.forEach((dimension) => {
       const values = collectRankFilterOptions(dimension.key);
+      const labels = rankFilterLabels(dimension.key, values);
       const filter = normalizeDimensionFilter(dimension.key, state.dimensionFilters[dimension.key], values);
       state.dimensionFilters[dimension.key] = filter;
-      setSelectOptions(`${dimension.key}MinFilter`, ["all", ...values], "不限下限");
-      setSelectOptions(`${dimension.key}MaxFilter`, ["all", ...values], "不限上限");
+      setSelectOptions(`${dimension.key}MinFilter`, ["all", ...values], "不限下限", labels);
+      setSelectOptions(`${dimension.key}MaxFilter`, ["all", ...values], "不限上限", labels);
       form.querySelector(`[name='${dimension.key}Min']`).value = filter.min;
       form.querySelector(`[name='${dimension.key}Max']`).value = filter.max;
     });
@@ -448,6 +449,21 @@
 
   function collectRankFilterOptions(key) {
     return [...(rankOrders[key] || [])];
+  }
+
+  function rankFilterLabels(key, values) {
+    return Object.fromEntries(
+      values
+        .map((value) => [value, rankFilterLabel(key, value)])
+        .filter(([value, label]) => label !== value)
+    );
+  }
+
+  function rankFilterLabel(key, value) {
+    const text = String(value || "");
+    if (key === "vitality") return text.replace(/生命阈值|生命结构/g, "");
+    if (key === "energy") return text === "凡人能量" ? "凡人级" : text.replace(/能量/g, "");
+    return text;
   }
 
   function normalizeDimensionFilter(key, filter, availableValues = null) {
@@ -1598,6 +1614,7 @@
 
   function renderBattleDimensionFilter(side, dimension, filters) {
     const values = collectRankFilterOptions(dimension.key);
+    const labels = rankFilterLabels(dimension.key, values);
     const filter = normalizeDimensionFilter(dimension.key, filters.dimensionFilters[dimension.key], values);
     filters.dimensionFilters[dimension.key] = filter;
     const disabled = state.battle.loading ? "disabled" : "";
@@ -1608,13 +1625,13 @@
           <div class="range-control">
             <span>下限</span>
             <select name="${side}${capitalize(dimension.key)}Min" aria-label="${escapeAttribute(dimension.label)}下限" ${disabled}>
-              ${renderSelectOptions(["all", ...values], filter.min, "不限下限")}
+              ${renderSelectOptions(["all", ...values], filter.min, "不限下限", labels)}
             </select>
           </div>
           <div class="range-control">
             <span>上限</span>
             <select name="${side}${capitalize(dimension.key)}Max" aria-label="${escapeAttribute(dimension.label)}上限" ${disabled}>
-              ${renderSelectOptions(["all", ...values], filter.max, "不限上限")}
+              ${renderSelectOptions(["all", ...values], filter.max, "不限上限", labels)}
             </select>
           </div>
         </div>
