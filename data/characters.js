@@ -54,7 +54,9 @@
     "data/works/legend-of-the-condor-heroes.js",
     "data/works/return-of-the-condor-heroes.js",
     "data/works/sword-stained-with-royal-blood.js",
-    "data/works/the-young-flying-fox.js"
+    "data/works/the-young-flying-fox.js",
+    "data/works/kara-no-kyoukai.js",
+    "data/works/witch-on-the-holy-night.js"
   ];
   window.POWER_WIKI_CHARACTER_FILES = [
     "data/characters/jujutsu-kaisen/yuji-itadori.js",
@@ -480,6 +482,12 @@
     "data/characters/sword-stained-with-royal-blood/yuan-chengzhi.js",
     "data/characters/the-young-flying-fox/miao-renfeng.js",
     "data/characters/the-young-flying-fox/yuan-ziyi.js",
+    "data/characters/kara-no-kyoukai/shiki-ryougi.js",
+    "data/characters/kara-no-kyoukai/mikiya-kokutou.js",
+    "data/characters/kara-no-kyoukai/touko-aozaki.js",
+    "data/characters/witch-on-the-holy-night/aoko-aozaki.js",
+    "data/characters/witch-on-the-holy-night/alice-kuonji.js",
+    "data/characters/witch-on-the-holy-night/soujuurou-shizuki.js",
   ];
 
   if (window.POWER_WIKI && typeof window.POWER_WIKI.publish === "function") {
