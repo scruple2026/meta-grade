@@ -14,7 +14,11 @@
     "data/works/bleach.js",
     "data/works/one-piece.js",
     "data/works/dragon-ball.js",
-    "data/works/fate-kaleid-liner-prisma-illya.js"
+    "data/works/fate-kaleid-liner-prisma-illya.js",
+    "data/works/dragon-talisman.js",
+    "data/works/galaxy-emperor.js",
+    "data/works/eternal-life.js",
+    "data/works/saint-king.js"
   ];
   window.POWER_WIKI_CHARACTER_FILES = [
     "data/characters/jujutsu-kaisen/yuji-itadori.js",
@@ -117,7 +121,11 @@
     "data/characters/fate-kaleid-liner-prisma-illya/bazett-fraga-mcremitz.js",
     "data/characters/fate-kaleid-liner-prisma-illya/angelica-ainsworth.js",
     "data/characters/fate-kaleid-liner-prisma-illya/beatrice-flowerchild.js",
-    "data/characters/fate-kaleid-liner-prisma-illya/darius-ainsworth.js"
+    "data/characters/fate-kaleid-liner-prisma-illya/darius-ainsworth.js",
+    "data/characters/dragon-talisman/gu-chensha.js",
+    "data/characters/galaxy-emperor/jiang-li.js",
+    "data/characters/eternal-life/fang-han.js",
+    "data/characters/saint-king/yang-qi.js"
   ];
 
   if (window.POWER_WIKI && typeof window.POWER_WIKI.publish === "function") {
