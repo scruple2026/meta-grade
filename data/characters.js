@@ -33,7 +33,8 @@
     "data/works/ghost-in-the-shell.js",
     "data/works/psycho-pass.js",
     "data/works/assassination-classroom.js",
-    "data/works/danmachi.js"
+    "data/works/danmachi.js",
+    "data/works/demi-gods-semi-devils.js"
   ];
   window.POWER_WIKI_CHARACTER_FILES = [
     "data/characters/jujutsu-kaisen/yuji-itadori.js",
@@ -268,7 +269,21 @@
     "data/characters/danmachi/lyd.js",
     "data/characters/danmachi/ray.js",
     "data/characters/danmachi/gros.js",
-    "data/characters/danmachi/asterius.js"
+    "data/characters/danmachi/asterius.js",
+    "data/characters/demi-gods-semi-devils/xiao-feng.js",
+    "data/characters/demi-gods-semi-devils/duan-yu.js",
+    "data/characters/demi-gods-semi-devils/xuzhu.js",
+    "data/characters/demi-gods-semi-devils/murong-fu.js",
+    "data/characters/demi-gods-semi-devils/you-tanzhi.js",
+    "data/characters/demi-gods-semi-devils/ding-chunqiu.js",
+    "data/characters/demi-gods-semi-devils/jiumozhi.js",
+    "data/characters/demi-gods-semi-devils/xuanci.js",
+    "data/characters/demi-gods-semi-devils/ye-erniang.js",
+    "data/characters/demi-gods-semi-devils/xiao-yuanshan.js",
+    "data/characters/demi-gods-semi-devils/murong-bo.js",
+    "data/characters/demi-gods-semi-devils/sweeper-monk.js",
+    "data/characters/demi-gods-semi-devils/wang-yuyan.js",
+    "data/characters/demi-gods-semi-devils/azi.js"
   ];
 
   if (window.POWER_WIKI && typeof window.POWER_WIKI.publish === "function") {
