@@ -46,7 +46,8 @@
     "data/works/fate-zero.js",
     "data/works/oregairu.js",
     "data/works/dragon-raja.js",
-    "data/works/infinite-horror.js"
+    "data/works/infinite-horror.js",
+    "data/works/fate-grand-order.js"
   ];
   window.POWER_WIKI_CHARACTER_FILES = [
     "data/characters/jujutsu-kaisen/yuji-itadori.js",
@@ -439,6 +440,12 @@
     "data/characters/dragon-raja/zero-renata.js",
     "data/characters/dragon-raja/fingel-von-frings.js",
     "data/characters/infinite-horror/lord-god.js",
+    "data/characters/fate-grand-order/ritsuka-fujimaru.js",
+    "data/characters/fate-grand-order/mash-kyrielight.js",
+    "data/characters/fate-grand-order/merlin.js",
+    "data/characters/fate-grand-order/scathach.js",
+    "data/characters/fate-grand-order/artoria-caster.js",
+    "data/characters/fate-grand-order/morgan.js",
   ];
 
   if (window.POWER_WIKI && typeof window.POWER_WIKI.publish === "function") {
