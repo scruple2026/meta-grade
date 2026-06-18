@@ -76,9 +76,9 @@
         {
           key: "sapphire-magical-girl",
           label: "初期 / Magical Sapphire契约",
-          status: "常规魔法少女，技术成熟但不计圣杯仪式",
+          status: "基础魔法少女，技术成熟但不计圣杯仪式",
           dimensions: dims({
-            attack: ["墙级", "房屋级｜魔法少女", "战斗技术优于早期伊莉雅，常规输出仍以对人和局部破坏为主。"],
+            attack: ["墙级", "房屋级｜魔法少女", "战斗技术优于早期伊莉雅，基础输出仍以对人和局部破坏为主。"],
             defense: ["墙级", "房屋级｜屏障", "变身提供魔法屏障与防护。"],
             movement: ["亚音速", "亚音速｜飞行", "可飞行和高速突进，未按音速记录。"],
             reaction: ["亚音速", "亚音速", "早期近战判断和战斗经验较好。"],
@@ -94,7 +94,7 @@
           label: "3rei综合 / 完全圣杯与Class Card",
           status: "Class Card使用者；圣杯许愿能力单列为特殊/仪式",
           dimensions: dims({
-            attack: ["房屋级", "街区级｜Rider/Saber/Archer Install｜争议", "常规魔法输出稳健；Rider、Saber、Archer等Class Card宝具峰值按本作可见规模保守列街区级。"],
+            attack: ["房屋级", "街区级｜Rider/Saber/Archer Install｜争议", "基础魔法输出稳健；Rider、Saber、Archer等Class Card宝具峰值按本作可见规模保守列街区级。"],
             defense: ["房屋级", "楼级｜魔法屏障/Install", "屏障与Class Card加成提高承伤，但圣杯身份不等同常驻硬防。"],
             movement: ["亚音速", "超音速｜飞行/Install｜争议", "Install可强化机动；缺少稳定高超音速证据。"],
             reaction: ["亚音速", "超音速｜Class Card战", "能参与强敌战并熟练使用卡片，反应仍按画面表现保守记录。"],
@@ -110,7 +110,7 @@
         "初建条目：将美游的完全圣杯身份、许愿/召唤能力和个人魔法少女战斗面板分开记录。"
       ],
       dimensions: dims({
-        attack: ["房屋级", "街区级｜Rider/Saber/Archer Install｜争议", "常规魔法输出稳健；Rider、Saber、Archer等Class Card宝具峰值按本作可见规模保守列街区级。"],
+        attack: ["房屋级", "街区级｜Rider/Saber/Archer Install｜争议", "基础魔法输出稳健；Rider、Saber、Archer等Class Card宝具峰值按本作可见规模保守列街区级。"],
         defense: ["房屋级", "楼级｜魔法屏障/Install", "屏障与Class Card加成提高承伤，但圣杯身份不等同常驻硬防。"],
         movement: ["亚音速", "超音速｜飞行/Install｜争议", "Install可强化机动；缺少稳定高超音速证据。"],
         reaction: ["亚音速", "超音速｜Class Card战", "能参与强敌战并熟练使用卡片，反应仍按画面表现保守记录。"],
