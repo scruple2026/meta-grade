@@ -36,7 +36,7 @@
       }
     ],
     scaleNotes: {
-      scope: "当前只收录《道友先上我断后》worldbook key/comment 中出现的白小纯；不扩展《一念永恒》长尾角色。",
+      scope: "当前收录《道友先上我断后》worldbook key/comment 中出现的白小纯和侯小妹；不扩展《一念永恒》长尾角色。",
       versionPolicy: "默认按终盘白小纯记录；灵溪宗、血溪宗、通天世界、永恒仙域等阶段后续可拆 timelinePanels。",
       highRisk: ["不死长生功", "永恒境", "通天世界", "永恒仙域", "炼药与丹炉"],
       conservativeNotes: "永恒名号、境界和寿命叙述不直接推出无限攻击或无限生命；终盘高端先统一标争议。"

@@ -47,7 +47,7 @@
       }
     ],
     scaleNotes: {
-      scope: "当前只收录《道友先上我断后》worldbook key/comment 中出现的韩立；不扩展凡人修仙传长尾角色。",
+      scope: "当前收录《道友先上我断后》worldbook key/comment 中出现的韩立、南宫婉和银月；不扩展凡人修仙传长尾角色。",
       versionPolicy: "默认按仙界篇后期/大罗金仙阶段记录；人界、灵界、飞升前阶段后续可拆 timelinePanels。",
       highRisk: ["大罗金仙", "时间法则", "掌天瓶", "仙界篇", "跨界飞升"],
       conservativeNotes: "修为、仙界身份和外号不直接换算为无限档；法则、遁速和掌天瓶资源需逐章补证后再细调。"
