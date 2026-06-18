@@ -20,6 +20,16 @@
         authority: "official",
         medium: "official-site",
         claim: "用于核对芙莉莲日文官方角色入口；魔法量级仍按正篇表现和本站口径保守处理。"
+      },
+      {
+        type: "official",
+        scope: "日文官方漫画入口",
+        label: "小学馆 Sunday Webry：葬送のフリーレン",
+        url: "https://websunday.net/work/708/",
+        lang: "ja",
+        authority: "official",
+        medium: "publisher",
+        claim: "用于核对《葬送的芙莉莲》漫画官方入口；黄金乡篇未动画化角色量级仍按原作资料入口和保守口径处理。"
       }
     ],
     commonLinks: [
@@ -29,7 +39,7 @@
       }
     ],
     scaleNotes: {
-      scope: "当前收录芙莉莲队伍和黄金乡篇关键战斗角色：芙莉莲、菲伦、修塔尔克、邓肯、马哈特、索莉塔尔。",
+      scope: "当前收录芙莉莲队伍和黄金乡篇关键角色：芙莉莲、菲伦、修塔尔克、邓肯、马哈特、格吕克、莱克蒂蕾、索莉塔尔，以及普通魔族样本总括。",
       versionPolicy: "勇者队时期、现代旅行、一级魔法使考试和黄金乡篇可按时间线拆分；黄金化、封印和解析魔法写明条件。",
       highRisk: ["迪亚戈尔泽", "黄金化", "魔族魔法", "封印", "魔力隐藏"],
       conservativeNotes: "魔法性质、年龄和魔力量不自动换算为攻击/防御高档；特殊魔法优先写入战力解释项。"
