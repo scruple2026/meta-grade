@@ -35,7 +35,8 @@
     "data/works/assassination-classroom.js",
     "data/works/danmachi.js",
     "data/works/demi-gods-semi-devils.js",
-    "data/works/the-smiling-proud-wanderer.js"
+    "data/works/the-smiling-proud-wanderer.js",
+    "data/works/fate-stay-night.js"
   ];
   window.POWER_WIKI_CHARACTER_FILES = [
     "data/characters/jujutsu-kaisen/yuji-itadori.js",
@@ -295,7 +296,23 @@
     "data/characters/the-smiling-proud-wanderer/ding-mian.js",
     "data/characters/the-smiling-proud-wanderer/lu-bai.js",
     "data/characters/the-smiling-proud-wanderer/mo-da.js",
-    "data/characters/the-smiling-proud-wanderer/yue-buqun.js"
+    "data/characters/the-smiling-proud-wanderer/yue-buqun.js",
+    "data/characters/fate-stay-night/shirou-emiya.js",
+    "data/characters/fate-stay-night/artoria-pendragon.js",
+    "data/characters/fate-stay-night/rin-tohsaka.js",
+    "data/characters/fate-stay-night/sakura-matou.js",
+    "data/characters/fate-stay-night/illyasviel-fsn.js",
+    "data/characters/fate-stay-night/kirei-kotomine.js",
+    "data/characters/fate-stay-night/shinji-matou.js",
+    "data/characters/fate-stay-night/zouken-matou.js",
+    "data/characters/fate-stay-night/souichirou-kuzuki.js",
+    "data/characters/fate-stay-night/emiya-archer.js",
+    "data/characters/fate-stay-night/cu-chulainn-lancer.js",
+    "data/characters/fate-stay-night/medusa-rider.js",
+    "data/characters/fate-stay-night/medea-caster.js",
+    "data/characters/fate-stay-night/sasaki-kojirou-assassin.js",
+    "data/characters/fate-stay-night/heracles-berserker.js",
+    "data/characters/fate-stay-night/gilgamesh.js"
   ];
 
   if (window.POWER_WIKI && typeof window.POWER_WIKI.publish === "function") {
