@@ -157,6 +157,10 @@ function loadRankOrders() {
     if (!Array.isArray(parsed[key]) || !parsed[key].length) {
       throw new Error(`assets/app.js rankOrders is missing ${key}.`);
     }
+    const missingRanks = FALLBACK_RANK_ORDERS[key].filter((rank) => !parsed[key].includes(rank));
+    if (missingRanks.length) {
+      throw new Error(`assets/app.js rankOrders.${key} is missing rank option(s): ${missingRanks.join(", ")}.`);
+    }
   }
   return parsed;
 }
