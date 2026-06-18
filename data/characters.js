@@ -20,7 +20,10 @@
     "data/works/eternal-life.js",
     "data/works/saint-king.js",
     "data/works/dragon-ball-super.js",
-    "data/works/tengen-toppa-gurren-lagann.js"
+    "data/works/tengen-toppa-gurren-lagann.js",
+    "data/works/tokyo-ghoul.js",
+    "data/works/mob-psycho-100.js",
+    "data/works/frieren.js"
   ];
   window.POWER_WIKI_CHARACTER_FILES = [
     "data/characters/jujutsu-kaisen/yuji-itadori.js",
@@ -147,7 +150,28 @@
     "data/characters/eternal-life/fang-han.js",
     "data/characters/saint-king/yang-qi.js",
     "data/characters/dragon-ball-super/son-goku-super.js",
-    "data/characters/tengen-toppa-gurren-lagann/simon-gurren-lagann.js"
+    "data/characters/tengen-toppa-gurren-lagann/simon-gurren-lagann.js",
+    "data/characters/tokyo-ghoul/ken-kaneki.js",
+    "data/characters/tokyo-ghoul/touka-kirishima.js",
+    "data/characters/tokyo-ghoul/yoshimura.js",
+    "data/characters/tokyo-ghoul/kishou-arima.js",
+    "data/characters/tokyo-ghoul/koutarou-amon.js",
+    "data/characters/tokyo-ghoul/ayato-kirishima.js",
+    "data/characters/tokyo-ghoul/eto-yoshimura.js",
+    "data/characters/mob-psycho-100/shigeo-kageyama.js",
+    "data/characters/mob-psycho-100/toichiro-suzuki.js",
+    "data/characters/mob-psycho-100/arataka-reigen.js",
+    "data/characters/mob-psycho-100/ritsu-kageyama.js",
+    "data/characters/mob-psycho-100/teruki-hanazawa.js",
+    "data/characters/mob-psycho-100/katsuya-serizawa.js",
+    "data/characters/mob-psycho-100/ryo-shimazaki.js",
+    "data/characters/mob-psycho-100/toshiki-minegishi.js",
+    "data/characters/frieren/frieren.js",
+    "data/characters/frieren/fern.js",
+    "data/characters/frieren/stark.js",
+    "data/characters/frieren/denken.js",
+    "data/characters/frieren/macht.js",
+    "data/characters/frieren/solitar.js"
   ];
 
   if (window.POWER_WIKI && typeof window.POWER_WIKI.publish === "function") {
