@@ -29,7 +29,8 @@
     "data/works/berserk.js",
     "data/works/eighty-six.js",
     "data/works/dr-stone.js",
-    "data/works/re-zero.js"
+    "data/works/re-zero.js",
+    "data/works/ghost-in-the-shell.js"
   ];
   window.POWER_WIKI_CHARACTER_FILES = [
     "data/characters/jujutsu-kaisen/yuji-itadori.js",
@@ -229,7 +230,12 @@
     "data/characters/re-zero/crusch-karsten.js",
     "data/characters/re-zero/wilhelm-van-astrea.js",
     "data/characters/re-zero/julius-juukulius.js",
-    "data/characters/re-zero/ferris.js"
+    "data/characters/re-zero/ferris.js",
+    "data/characters/ghost-in-the-shell/motoko-kusanagi.js",
+    "data/characters/ghost-in-the-shell/batou.js",
+    "data/characters/ghost-in-the-shell/puppet-master.js",
+    "data/characters/ghost-in-the-shell/daisuke-aramaki.js",
+    "data/characters/ghost-in-the-shell/togusa.js"
   ];
 
   if (window.POWER_WIKI && typeof window.POWER_WIKI.publish === "function") {
