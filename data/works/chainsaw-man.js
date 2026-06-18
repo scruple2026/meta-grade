@@ -30,10 +30,6 @@
       {
         label: "Chainsaw Man Wiki 角色总表",
         url: "https://chainsaw-man.fandom.com/wiki/Category:Characters"
-      },
-      {
-        label: "萌娘百科《电锯人》作品页",
-        url: "https://zh.moegirl.org.cn/%E7%94%B5%E9%94%AF%E4%BA%BA"
       }
     ],
     scaleNotes: {

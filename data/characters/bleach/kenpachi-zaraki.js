@@ -36,6 +36,30 @@
           claim: "用于复核更木剑八封印解除、野晒和卍解的跨界量级口径；本站保留争议标签。"
         },
         {
+          type: "chapter",
+          scope: "日文原作卷话",
+          label: "集英社：BLEACH 64",
+          url: "https://books.shueisha.co.jp/items/contents.html?isbn=978-4-08-880134-6",
+          citation: "久保帯人『BLEACH』第64巻（第575-579話前后，更木剣八 vs グレミィ / 野晒始解）",
+          lang: "ja",
+          authority: "official",
+          medium: "manga",
+          ratingEvidence: true,
+          claim: "用于核对野晒始解、对格雷米战的斩击表现和剑八解除限制后的原作峰值；大陆级始解峰值仍按高端争议处理。"
+        },
+        {
+          type: "chapter",
+          scope: "日文原作卷话",
+          label: "集英社：BLEACH 73",
+          url: "https://books.shueisha.co.jp/items/contents.html?isbn=978-4-08-880684-6",
+          citation: "久保帯人『BLEACH』第73巻（第669話前后，更木剣八卍解 vs ジェラルド）",
+          lang: "ja",
+          authority: "official",
+          medium: "manga",
+          ratingEvidence: true,
+          claim: "用于核对剑八卍解、肉体反噬和对巨型杰拉德的斩击表现；本站将攻击/生命体量峰值保留为争议，不把卍解视作稳定防御等比例提升。"
+        },
+        {
           type: "official",
           scope: "日文官方角色入口",
           label: "TV动画「BLEACH 千年血战篇」角色页",

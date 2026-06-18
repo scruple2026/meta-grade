@@ -4,8 +4,8 @@
 
 - 站点定位：公开 Beta。
 - 主推能力：静态战力面板、时间线状态、8 维常态 / 峰值、战力解释项、角色对比、来源与审计入口。
-- 暂不主推能力：AI 裁定生成。当前生产环境设置 `BATTLE_API_DISABLED=1`；即使后续补上 `OPENAI_API_KEY`，暂停开关生效时 POST 也不会进入上游模型调用。
-- 成本保护：已支持 `BATTLE_API_DISABLED=1` 一键暂停 AI 裁定；暂停时 POST 直接 503，不调用上游模型。
+- 暂不主推能力：AI 裁定生成。公开传播时建议生产环境保持 `BATTLE_API_DISABLED=1`；暂停开关生效时 POST 不会进入上游模型调用。
+- 成本保护：已支持 `BATTLE_API_DISABLED=1` 一键暂停 AI 裁定、`BATTLE_ACCESS_CODES` 访问码、实例内限流、实例内每日请求 / token 预算和安全日志；暂停时 POST 直接 503，不调用上游模型。
 - 传播文案：见 `PROMOTION.md`。
 
 ## 已完成
@@ -17,6 +17,8 @@
 - [x] About 页面说明反馈错误方式。
 - [x] 角色对比页在 Key 缺失或服务端暂停时显示关闭态并禁用 AI 生成按钮，静态对比仍可用。
 - [x] 服务端支持 `BATTLE_API_DISABLED` 总开关。
+- [x] 服务端支持 AI 裁定访问码、实例内每日预算和不记录 prompt / 输出 / 访问码的安全日志。
+- [x] 角色对比页会展示访问码 / 日预算状态，并在需要访问码时要求输入后再生成。
 - [x] HTML 补充 description、canonical、Open Graph、Twitter summary 和分享预览图。
 - [x] GitHub Issue 模板覆盖角色修订和证据补充。
 - [x] 新增 `ROADMAP.md`，说明公开 Beta、AI 灰度和社区修订阶段。
@@ -45,4 +47,4 @@
 2. 如果 AI 裁定关闭，宣传文案必须明确“AI 裁定生成暂时关闭，静态面板和角色对比可用”。
 3. 面向未完读者传播时，加“含结局、最终战和续作时间线状态剧透”。
 4. 高热角色被质疑时，优先引导到 GitHub Issue 模板；已有完整改法时引导提交 PR。
-5. 恢复 AI 裁定前，除 `BATTLE_API_DISABLED` 外，还应评估访问码、预算限制、日志监控和更严格限流。
+5. 恢复 AI 裁定前，除关闭 `BATTLE_API_DISABLED` 外，还应确认 `BATTLE_ACCESS_CODES`、预算限制、日志监控和限流阈值已在 Vercel 环境变量中配置。

@@ -35,8 +35,7 @@
     commonLinks: [
       { label: "Kimetsu no Yaiba Wiki 角色总表", url: "https://kimetsu-no-yaiba.fandom.com/wiki/Characters" },
       { label: "Kimetsu no Yaiba Wiki 柱", url: "https://kimetsu-no-yaiba.fandom.com/wiki/Hashira" },
-      { label: "Kimetsu no Yaiba Wiki 十二鬼月", url: "https://kimetsu-no-yaiba.fandom.com/wiki/Twelve_Kizuki" },
-      { label: "萌娘百科《鬼灭之刃》作品页", url: "https://zh.moegirl.org.cn/%E9%AC%BC%E7%81%AD%E4%B9%8B%E5%88%83" }
+      { label: "Kimetsu no Yaiba Wiki 十二鬼月", url: "https://kimetsu-no-yaiba.fandom.com/wiki/Twelve_Kizuki" }
     ],
     scaleNotes: {
           "scope": "当前只收录主角团和最终 Boss 鬼舞辻无惨；柱和十二鬼月暂不默认恢复。",

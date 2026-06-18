@@ -116,6 +116,7 @@
       environmentKey: "standard-arena",
       distanceKey: "standard-100m",
       intelPolicyKey: "encounter",
+      accessCode: "",
       loading: false,
       cancelled: false,
       error: "",
@@ -1022,8 +1023,9 @@
               <button class="primary-action" type="submit" ${submitDisabled ? "disabled" : ""}>${state.battle.loading ? "生成中..." : battleDisabledReason ? "AI 裁定暂停" : "生成 AI 裁定"}</button>
             </div>
           </div>
+          ${renderBattleAccessCodeControl()}
           ${renderBattleEnvironmentControl()}
-          <p class="field-hint battle-hint">公开 Beta 默认把静态角色对比作为主功能。恢复 AI 裁定时，需要在 Vercel 配置 <code>OPENAI_API_KEY</code>，并保持 <code>BATTLE_API_DISABLED</code> 未开启；直接打开本地 HTML 时只能预览页面，不能调用 API。</p>
+          <p class="field-hint battle-hint">公开 Beta 默认把静态角色对比作为主功能。恢复 AI 裁定时，需要在 Vercel 配置 <code>OPENAI_API_KEY</code>，并保持 <code>BATTLE_API_DISABLED</code> 未开启；可用访问码、实例内限流和日预算控制公开消耗。直接打开本地 HTML 时只能预览页面，不能调用 API。</p>
           ${state.battle.shareMessage ? `<p class="field-hint battle-share-status">${escapeHtml(state.battle.shareMessage)}</p>` : ""}
         </form>
         ${renderBattleComparison(left, right)}
@@ -1147,11 +1149,18 @@
           <span class="${className}">${escapeHtml(label)}</span>
           ${status && status.model ? `<span class="badge">${escapeHtml(displayModelName(status.model))}</span>` : ""}
           ${status && status.chatFallback ? `<span class="badge">Chat fallback</span>` : ""}
+          ${status && status.accessRequired ? `<span class="badge is-warning">访问码</span>` : ""}
+          ${status && hasBattleDailyBudget(status) ? `<span class="badge">日预算</span>` : ""}
           ${status && status.rateLimit ? `<span class="badge">限流：${escapeHtml(formatRateLimit(status.rateLimit))}</span>` : ""}
         </div>
         <button class="small-action" type="button" id="refreshBattleStatus" ${state.battle.apiStatusLoading ? "disabled" : ""}>刷新状态</button>
       </div>
     `;
+  }
+
+  function hasBattleDailyBudget(status) {
+    const budget = status && status.dailyBudget;
+    return Boolean(budget && (budget.requestLimitConfigured || budget.tokenLimitConfigured));
   }
 
   function battleGenerationDisabledReason() {
@@ -1366,6 +1375,20 @@
         `).join("")}
       </div>
       <p class="field-hint">都不选就是纯随机；两个都选则优先随机跨作品且同量级的组合。</p>
+    `;
+  }
+
+  function renderBattleAccessCodeControl() {
+    if (!state.battle.apiStatus || !state.battle.apiStatus.accessRequired) return "";
+    const disabled = state.battle.loading ? "disabled" : "";
+    return `
+      <section class="battle-access-control">
+        <div class="field">
+          <label for="battleAccessCode">访问码</label>
+          <input id="battleAccessCode" name="battleAccessCode" type="password" value="${escapeAttribute(state.battle.accessCode)}" autocomplete="off" ${disabled}>
+          <p class="field-hint">服务端当前要求访问码；访问码只随本次生成请求发送，不写入分享链接。</p>
+        </div>
+      </section>
     `;
   }
 
@@ -1871,7 +1894,7 @@
       return `
         <section class="battle-result">
           <h2>等待 AI 裁定</h2>
-          <p>静态角色对比已经在上方展示；需要模型推演时再点击“生成 AI 裁定”。公开站点请留意调用成本，后续可继续加限流、访问码或预算保护。</p>
+          <p>静态角色对比已经在上方展示；需要模型推演时再点击“生成 AI 裁定”。公开站点请通过服务端关闭开关、限流、访问码和日预算控制调用成本。</p>
         </section>
       `;
     }
@@ -1954,12 +1977,16 @@
     clearBattleOutput();
     renderBattle();
     try {
+      const headers = {
+        "Accept": "text/event-stream",
+        "Content-Type": "application/json"
+      };
+      if (state.battle.accessCode) {
+        headers["X-Battle-Access-Code"] = state.battle.accessCode;
+      }
       const response = await fetch("/api/battle", {
         method: "POST",
-        headers: {
-          "Accept": "text/event-stream",
-          "Content-Type": "application/json"
-        },
+        headers,
         signal: controller.signal,
         body: JSON.stringify(buildBattlePayload())
       });
@@ -2000,6 +2027,9 @@
     const left = battleCharacterByKey(state.battle.leftKey);
     const right = battleCharacterByKey(state.battle.rightKey);
     if (!left || !right) return "请选择两个角色。";
+    if (state.battle.apiStatus && state.battle.apiStatus.accessRequired && !state.battle.accessCode) {
+      return "请输入访问码。";
+    }
     const leftStage = normalizeBattleStageKey(left, state.battle.leftStageKey);
     const rightStage = normalizeBattleStageKey(right, state.battle.rightStageKey);
     if (state.battle.leftKey === state.battle.rightKey && leftStage === rightStage) {
@@ -2119,6 +2149,7 @@
     state.battle.environmentKey = readOptionalFormValue(form, "environmentKey", state.battle.environmentKey);
     state.battle.distanceKey = readOptionalFormValue(form, "distanceKey", state.battle.distanceKey);
     state.battle.intelPolicyKey = readOptionalFormValue(form, "intelPolicyKey", state.battle.intelPolicyKey);
+    state.battle.accessCode = readOptionalFormValue(form, "battleAccessCode", state.battle.accessCode).trim();
     normalizeBattleState();
   }
 
@@ -2164,6 +2195,7 @@
     state.battle.environmentKey = normalizeBattleEnvironmentKey(state.battle.environmentKey);
     state.battle.distanceKey = normalizeBattleDistanceKey(state.battle.distanceKey);
     state.battle.intelPolicyKey = normalizeBattleIntelPolicyKey(state.battle.intelPolicyKey);
+    state.battle.accessCode = String(state.battle.accessCode || "").trim();
   }
 
   function normalizeBattleFilters(side) {
@@ -2809,7 +2841,7 @@
         <section class="about-section">
           <h2>角色对比与 AI 裁定</h2>
           <p><code>#/compare</code> 是静态角色对比入口，可在不调用模型的情况下查看双方时间线、8 维常态/峰值、机制项、场地环境、开局距离和面板差异；旧的 <code>#/battle</code> 链接仍保持兼容。</p>
-          <p>AI 裁定只是基于本站面板和白名单环境的生成式推演，不是正式证据，也不会写回角色文件。公开 Beta 阶段可通过 <code>BATTLE_API_DISABLED=1</code> 暂停生成，用于防止被扫描消耗 API 额度；暂停期间静态对比仍可使用。</p>
+          <p>AI 裁定只是基于本站面板和白名单环境的生成式推演，不是正式证据，也不会写回角色文件。公开 Beta 阶段可通过 <code>BATTLE_API_DISABLED=1</code> 暂停生成，也可用访问码、实例内限流和日预算收窄公开消耗；暂停期间静态对比仍可使用。</p>
         </section>
         <section class="about-section">
           <h2>8 个主维度</h2>
@@ -2828,7 +2860,7 @@
         </section>
         <section class="about-section">
           <h2>部署</h2>
-          <p>主体页面仍是静态 HTML/CSS/JS，没有前端构建步骤。AI 裁定通过 Vercel Function 的 <code>/api/battle</code> 调用 LLM，因此推荐用 Vercel 作为主部署，并在 Vercel 环境变量中配置 <code>OPENAI_API_KEY</code>；公开测试阶段可用 <code>BATTLE_API_DISABLED=1</code> 暂停生成，GitHub Pages 只能作为静态镜像，无法生成 AI 裁定结果。</p>
+          <p>主体页面仍是静态 HTML/CSS/JS，没有前端构建步骤。AI 裁定通过 Vercel Function 的 <code>/api/battle</code> 调用 LLM，因此推荐用 Vercel 作为主部署，并在 Vercel 环境变量中配置 <code>OPENAI_API_KEY</code>、访问码、限流和日预算；公开测试阶段可用 <code>BATTLE_API_DISABLED=1</code> 暂停生成，GitHub Pages 只能作为静态镜像，无法生成 AI 裁定结果。</p>
         </section>
         <section class="about-section">
           <h2>数据边界</h2>

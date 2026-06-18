@@ -36,6 +36,18 @@
           claim: "用于复核山本始解/卍解、残火太刀和高端灵压量级口径；本站保留争议标签。"
         },
         {
+          type: "chapter",
+          scope: "日文原作卷话",
+          label: "集英社：BLEACH 58",
+          url: "https://books.shueisha.co.jp/items/contents.html?isbn=978-4-08-870551-4&mode=1",
+          citation: "久保帯人『BLEACH』第58巻（第506-510話前后，山本元柳斎重國 vs ユーハバッハ / 残火太刀）",
+          lang: "ja",
+          authority: "official",
+          medium: "manga",
+          ratingEvidence: true,
+          claim: "用于核对残火太刀在千年血战篇的原作战斗范围、释放条件、灵压/高温表现和败因；大陆级峰值仍保留争议标签，不当作稳定常态范围破坏。"
+        },
+        {
           type: "official",
           scope: "日文官方角色入口",
           label: "TV动画「BLEACH 千年血战篇」角色页",

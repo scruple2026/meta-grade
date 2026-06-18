@@ -1,12 +1,16 @@
+const crypto = require("crypto");
+
 const OPENAI_RESPONSES_PATH = "/responses";
 const OPENAI_CHAT_COMPLETIONS_PATH = "/chat/completions";
 const MAX_BODY_LENGTH = 28000;
 const MAX_TEXT_LENGTH = 900;
+const MAX_ACCESS_CODE_LENGTH = 200;
 const MAX_OUTPUT_TOKENS = 2600;
 const DEFAULT_MODEL = "gpt-4o-mini";
 const STREAM_DONE = "[DONE]";
 const OUTPUT_STYLES = ["verdict", "analysis", "narrative"];
 const DISABLED_VALUES = new Set(["1", "true", "yes", "on"]);
+const LOG_LEVELS = { silent: 0, error: 1, info: 2, debug: 3 };
 const ENVIRONMENT_PRESETS = {
   "standard-arena": ["标准空旷场", "无遮挡、双方可见，地面平整。"],
   "urban-block": ["城市街区", "道路、车辆、低层建筑和巷道充足，存在遮蔽与高低差。"],
@@ -46,8 +50,12 @@ const INTEL_POLICIES = {
 };
 const DEFAULT_RATE_LIMIT_WINDOW_MS = 60000;
 const DEFAULT_RATE_LIMIT_MAX = 12;
+const DEFAULT_DAILY_REQUEST_LIMIT = 0;
+const DEFAULT_DAILY_TOKEN_LIMIT = 0;
 const RATE_LIMITS = globalThis.__META_GRADE_BATTLE_RATE_LIMITS || new Map();
 globalThis.__META_GRADE_BATTLE_RATE_LIMITS = RATE_LIMITS;
+const DAILY_USAGE = globalThis.__META_GRADE_BATTLE_DAILY_USAGE || new Map();
+globalThis.__META_GRADE_BATTLE_DAILY_USAGE = DAILY_USAGE;
 
 const DIMENSIONS = [
   ["attack", "攻击能级"],
@@ -109,6 +117,7 @@ module.exports = async function handler(req, res) {
 
   if (req.method === "GET") {
     const disabled = battleApiDisabled();
+    const budget = dailyBudgetConfig();
     setJsonHeaders(res);
     res.status(200).json({
       ok: true,
@@ -120,7 +129,12 @@ module.exports = async function handler(req, res) {
       streaming: true,
       chatFallback: true,
       outputStyles: OUTPUT_STYLES,
-      rateLimit: rateLimitConfig()
+      rateLimit: rateLimitConfig(),
+      accessRequired: accessConfig().required,
+      dailyBudget: {
+        requestLimitConfigured: budget.requestLimit > 0,
+        tokenLimitConfigured: budget.tokenLimit > 0
+      }
     });
     return;
   }
@@ -131,6 +145,13 @@ module.exports = async function handler(req, res) {
     return;
   }
 
+  const requestId = makeRequestId();
+  const startedAt = Date.now();
+  let requestForCharge = null;
+  let outputTextForCharge = "";
+  let usageForCharge = null;
+  let chargedTokens = 0;
+
   try {
     if (battleApiDisabled()) {
       setJsonHeaders(res);
@@ -138,6 +159,7 @@ module.exports = async function handler(req, res) {
         ok: false,
         error: "AI 裁定已由 BATTLE_API_DISABLED 暂停。"
       });
+      logBattle("info", { requestId, outcome: "blocked", reason: "disabled", elapsedMs: Date.now() - startedAt });
       return;
     }
 
@@ -149,11 +171,29 @@ module.exports = async function handler(req, res) {
         ok: false,
         error: `对战生成过于频繁，请 ${Math.ceil(rateLimit.retryAfterMs / 1000)} 秒后再试。`
       });
+      logBattle("info", {
+        requestId,
+        outcome: "blocked",
+        reason: "rate_limit",
+        retryAfterMs: rateLimit.retryAfterMs,
+        elapsedMs: Date.now() - startedAt
+      });
+      return;
+    }
+
+    if (!hasValidAccessCode(req)) {
+      setJsonHeaders(res);
+      res.status(401).json({
+        ok: false,
+        error: "需要有效访问码才能生成 AI 裁定。"
+      });
+      logBattle("info", { requestId, outcome: "blocked", reason: "access_code", elapsedMs: Date.now() - startedAt });
       return;
     }
 
     const body = await parseJsonBody(req);
     const request = normalizeBattleRequest(body);
+    requestForCharge = request;
 
     if (!process.env.OPENAI_API_KEY) {
       setJsonHeaders(res);
@@ -161,14 +201,35 @@ module.exports = async function handler(req, res) {
         ok: false,
         error: "Vercel 环境变量 OPENAI_API_KEY 尚未配置，无法生成 AI 裁定。"
       });
+      logBattle("info", { requestId, outcome: "blocked", reason: "missing_openai_key", elapsedMs: Date.now() - startedAt });
       return;
     }
+
+    const budgetCheck = checkDailyBudget();
+    if (!budgetCheck.allowed) {
+      setJsonHeaders(res);
+      res.setHeader("Retry-After", String(Math.ceil(budgetCheck.retryAfterMs / 1000)));
+      res.status(429).json({
+        ok: false,
+        error: budgetCheck.message
+      });
+      logBattle("info", {
+        requestId,
+        outcome: "blocked",
+        reason: budgetCheck.reason,
+        retryAfterMs: budgetCheck.retryAfterMs,
+        usage: budgetCheck.usage,
+        elapsedMs: Date.now() - startedAt
+      });
+      return;
+    }
+    recordDailyRequest();
 
     const model = cleanToken(process.env.OPENAI_MODEL || DEFAULT_MODEL, DEFAULT_MODEL);
     const baseUrl = String(process.env.OPENAI_BASE_URL || "https://api.openai.com/v1").replace(/\/+$/, "");
     const wantsStream = acceptsStream(req);
     if (wantsStream) {
-      await streamBattleResponse(req, res, baseUrl, model, request);
+      await streamBattleResponse(req, res, baseUrl, model, request, requestId, startedAt);
       return;
     }
 
@@ -185,7 +246,19 @@ module.exports = async function handler(req, res) {
     if (!response.ok) {
       if (shouldTryChatFallback(response.status, data)) {
         const fallback = await completeChatCompletionFallback(baseUrl, model, request);
+        outputTextForCharge = fallback.outputText;
+        usageForCharge = fallback.usage;
         const result = parseBattleResult(fallback.outputText, request);
+        chargedTokens = recordDailyTokens(fallback.usage, request, fallback.outputText);
+        logBattle("info", {
+          requestId,
+          outcome: "success",
+          mode: "json",
+          fallback: "chat_completions",
+          elapsedMs: Date.now() - startedAt,
+          usage: summarizeUsage(fallback.usage),
+          chargedTokens
+        });
         res.status(200).json({
           ok: true,
           model,
@@ -196,12 +269,31 @@ module.exports = async function handler(req, res) {
         return;
       }
       const message = data && data.error && data.error.message ? data.error.message : "LLM provider request failed.";
+      logBattle("error", {
+        requestId,
+        outcome: "provider_error",
+        mode: "json",
+        status: response.status,
+        error: message,
+        elapsedMs: Date.now() - startedAt
+      });
       res.status(response.status).json({ ok: false, error: message });
       return;
     }
 
     const outputText = extractOutputText(data);
+    outputTextForCharge = outputText;
+    usageForCharge = data.usage || null;
     const result = parseBattleResult(outputText, request);
+    chargedTokens = recordDailyTokens(data.usage || null, request, outputText);
+    logBattle("info", {
+      requestId,
+      outcome: "success",
+      mode: "json",
+      elapsedMs: Date.now() - startedAt,
+      usage: summarizeUsage(data.usage || null),
+      chargedTokens
+    });
     res.status(200).json({
       ok: true,
       model,
@@ -216,6 +308,17 @@ module.exports = async function handler(req, res) {
     }
     setJsonHeaders(res);
     const status = error && error.status ? error.status : 500;
+    if (requestForCharge && outputTextForCharge && !chargedTokens) {
+      chargedTokens = recordDailyTokens(usageForCharge, requestForCharge, outputTextForCharge);
+    }
+    logBattle(status >= 500 ? "error" : "info", {
+      requestId,
+      outcome: "error",
+      status,
+      error: error && error.message ? error.message : "Battle generation failed.",
+      elapsedMs: Date.now() - startedAt,
+      chargedTokens
+    });
     res.status(status).json({
       ok: false,
       error: error && error.message ? error.message : "Battle generation failed."
@@ -225,6 +328,164 @@ module.exports = async function handler(req, res) {
 
 function battleApiDisabled() {
   return DISABLED_VALUES.has(String(process.env.BATTLE_API_DISABLED || "").trim().toLowerCase());
+}
+
+function accessConfig() {
+  const codes = String(process.env.BATTLE_ACCESS_CODES || "")
+    .split(/[\s,;]+/)
+    .map((code) => code.trim())
+    .filter(Boolean)
+    .slice(0, 50);
+  return {
+    required: codes.length > 0,
+    codes
+  };
+}
+
+function hasValidAccessCode(req) {
+  const config = accessConfig();
+  if (!config.required) return true;
+  const received = cleanAccessCode(req.headers && req.headers["x-battle-access-code"]);
+  if (!received) return false;
+  return config.codes.some((expected) => safeSecretEqual(received, expected));
+}
+
+function cleanAccessCode(value) {
+  return String(value || "").trim().slice(0, MAX_ACCESS_CODE_LENGTH);
+}
+
+function safeSecretEqual(left, right) {
+  const leftBuffer = Buffer.from(String(left || ""));
+  const rightBuffer = Buffer.from(String(right || ""));
+  if (!leftBuffer.length || leftBuffer.length !== rightBuffer.length) return false;
+  return crypto.timingSafeEqual(leftBuffer, rightBuffer);
+}
+
+function dailyBudgetConfig() {
+  return {
+    requestLimit: readPositiveInteger(process.env.BATTLE_DAILY_REQUEST_LIMIT, DEFAULT_DAILY_REQUEST_LIMIT),
+    tokenLimit: readPositiveInteger(process.env.BATTLE_DAILY_TOKEN_LIMIT, DEFAULT_DAILY_TOKEN_LIMIT)
+  };
+}
+
+function checkDailyBudget() {
+  const config = dailyBudgetConfig();
+  const usage = currentDailyUsage();
+  const retryAfterMs = msUntilNextUtcDay();
+  if (config.requestLimit > 0 && usage.requests >= config.requestLimit) {
+    return {
+      allowed: false,
+      reason: "daily_request_limit",
+      retryAfterMs,
+      usage: dailyUsageSummary(usage, config),
+      message: "今日 AI 裁定请求数已达到服务端预算，请明天再试。"
+    };
+  }
+  if (config.tokenLimit > 0 && usage.tokens >= config.tokenLimit) {
+    return {
+      allowed: false,
+      reason: "daily_token_limit",
+      retryAfterMs,
+      usage: dailyUsageSummary(usage, config),
+      message: "今日 AI 裁定 token 预算已达到服务端上限，请明天再试。"
+    };
+  }
+  return { allowed: true, reason: "", retryAfterMs: 0, usage: dailyUsageSummary(usage, config), message: "" };
+}
+
+function recordDailyRequest() {
+  const usage = currentDailyUsage();
+  usage.requests += 1;
+  return usage.requests;
+}
+
+function recordDailyTokens(providerUsage, request, outputText) {
+  const tokens = totalTokensFromUsage(providerUsage) || estimateBattleTokens(request, outputText);
+  const usage = currentDailyUsage();
+  usage.tokens += tokens;
+  return tokens;
+}
+
+function currentDailyUsage() {
+  const day = currentUtcDay();
+  if (!DAILY_USAGE.has(day)) {
+    DAILY_USAGE.clear();
+    DAILY_USAGE.set(day, { requests: 0, tokens: 0 });
+  }
+  return DAILY_USAGE.get(day);
+}
+
+function currentUtcDay() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function msUntilNextUtcDay() {
+  const now = new Date();
+  const next = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1);
+  return Math.max(1000, next - Date.now());
+}
+
+function dailyUsageSummary(usage, config = dailyBudgetConfig()) {
+  return {
+    day: currentUtcDay(),
+    requests: usage.requests,
+    requestLimit: config.requestLimit,
+    tokens: usage.tokens,
+    tokenLimit: config.tokenLimit
+  };
+}
+
+function estimateBattleTokens(request, outputText) {
+  return estimateTokenCount(JSON.stringify(request)) + estimateTokenCount(outputText);
+}
+
+function estimateTokenCount(text) {
+  return Math.max(1, Math.ceil(String(text || "").length / 4));
+}
+
+function totalTokensFromUsage(usage) {
+  if (!usage || typeof usage !== "object") return 0;
+  const total = Number(usage.total_tokens ?? usage.totalTokens ?? usage.total ?? 0);
+  if (Number.isFinite(total) && total > 0) return Math.ceil(total);
+  const input = Number(usage.input_tokens ?? usage.prompt_tokens ?? usage.inputTokens ?? 0);
+  const output = Number(usage.output_tokens ?? usage.completion_tokens ?? usage.outputTokens ?? 0);
+  const sum = (Number.isFinite(input) && input > 0 ? input : 0) + (Number.isFinite(output) && output > 0 ? output : 0);
+  return sum > 0 ? Math.ceil(sum) : 0;
+}
+
+function summarizeUsage(usage) {
+  if (!usage || typeof usage !== "object") return null;
+  const summary = {};
+  const totalTokens = totalTokensFromUsage(usage);
+  const inputTokens = Number(usage.input_tokens ?? usage.prompt_tokens ?? usage.inputTokens ?? 0);
+  const outputTokens = Number(usage.output_tokens ?? usage.completion_tokens ?? usage.outputTokens ?? 0);
+  if (totalTokens) summary.totalTokens = totalTokens;
+  if (Number.isFinite(inputTokens) && inputTokens > 0) summary.inputTokens = inputTokens;
+  if (Number.isFinite(outputTokens) && outputTokens > 0) summary.outputTokens = outputTokens;
+  return Object.keys(summary).length ? summary : null;
+}
+
+function logBattle(level, payload) {
+  const configured = logLevel();
+  if (LOG_LEVELS[configured] < LOG_LEVELS[level]) return;
+  const method = level === "error" ? "error" : "log";
+  console[method]("[battle]", sanitizeLogPayload(payload));
+}
+
+function logLevel() {
+  const value = String(process.env.BATTLE_LOG_LEVEL || "error").trim().toLowerCase();
+  return Object.prototype.hasOwnProperty.call(LOG_LEVELS, value) ? value : "error";
+}
+
+function sanitizeLogPayload(payload) {
+  const value = payload && typeof payload === "object" ? { ...payload } : {};
+  delete value.body;
+  delete value.prompt;
+  delete value.request;
+  delete value.outputText;
+  delete value.accessCode;
+  delete value.apiKey;
+  return value;
 }
 
 function setJsonHeaders(res) {
@@ -498,9 +759,7 @@ function buildSystemPrompt() {
   ].join("\n");
 }
 
-async function streamBattleResponse(req, res, baseUrl, model, request) {
-  const startedAt = Date.now();
-  const requestId = makeRequestId();
+async function streamBattleResponse(req, res, baseUrl, model, request, requestId, startedAt) {
   const abortController = new AbortController();
   res.on("close", () => {
     if (!res.writableEnded) abortController.abort();
@@ -512,6 +771,7 @@ async function streamBattleResponse(req, res, baseUrl, model, request) {
   let outputText = "";
   let usage = null;
   let upstreamStatus = 0;
+  let chargedTokens = 0;
   const eventTypes = new Set();
   try {
     const response = await fetch(`${baseUrl}${OPENAI_RESPONSES_PATH}`, {
@@ -531,6 +791,17 @@ async function streamBattleResponse(req, res, baseUrl, model, request) {
         eventTypes.add("fallback.chat_completions");
         outputText = await streamChatCompletionFallback(res, baseUrl, model, request, requestId, abortController.signal);
         const result = parseBattleResult(outputText, request);
+        chargedTokens = recordDailyTokens(usage, request, outputText);
+        logBattle("info", {
+          requestId,
+          outcome: "success",
+          mode: "sse",
+          fallback: "chat_completions",
+          upstreamStatus,
+          elapsedMs: Date.now() - startedAt,
+          chargedTokens,
+          eventTypes: [...eventTypes]
+        });
         sendSse(res, "done", {
           ok: true,
           model,
@@ -543,6 +814,16 @@ async function streamBattleResponse(req, res, baseUrl, model, request) {
         return;
       }
       const message = data && data.error && data.error.message ? data.error.message : "LLM provider request failed.";
+      logBattle("error", {
+        requestId,
+        outcome: "provider_error",
+        mode: "sse",
+        status: response.status,
+        upstreamStatus,
+        error: message,
+        elapsedMs: Date.now() - startedAt,
+        eventTypes: [...eventTypes]
+      });
       sendSse(res, "error", { error: message, status: response.status, requestId });
       res.end();
       return;
@@ -553,7 +834,19 @@ async function streamBattleResponse(req, res, baseUrl, model, request) {
       const data = await response.json().catch(() => ({}));
       outputText = extractOutputText(data);
       const result = parseBattleResult(outputText, request);
-      sendSse(res, "done", { ok: true, model, result, usage: data.usage || null, requestId });
+      usage = data.usage || null;
+      chargedTokens = recordDailyTokens(usage, request, outputText);
+      logBattle("info", {
+        requestId,
+        outcome: "success",
+        mode: "sse_json_response",
+        upstreamStatus,
+        elapsedMs: Date.now() - startedAt,
+        usage: summarizeUsage(usage),
+        chargedTokens,
+        eventTypes: [...eventTypes]
+      });
+      sendSse(res, "done", { ok: true, model, result, usage, requestId, elapsedMs: Date.now() - startedAt });
       res.end();
       return;
     }
@@ -620,6 +913,17 @@ async function streamBattleResponse(req, res, baseUrl, model, request) {
       outputText = await streamChatCompletionFallback(res, baseUrl, model, request, requestId, abortController.signal);
     }
     const result = parseBattleResult(outputText, request);
+    chargedTokens = recordDailyTokens(usage, request, outputText);
+    logBattle("info", {
+      requestId,
+      outcome: "success",
+      mode: "sse",
+      upstreamStatus,
+      elapsedMs: Date.now() - startedAt,
+      usage: summarizeUsage(usage),
+      chargedTokens,
+      eventTypes: [...eventTypes]
+    });
     sendSse(res, "done", {
       ok: true,
       model,
@@ -631,23 +935,29 @@ async function streamBattleResponse(req, res, baseUrl, model, request) {
     res.end();
   } catch (error) {
     if (error && error.name === "AbortError") {
-      console.warn("[battle]", {
+      logBattle("info", {
         requestId,
+        outcome: "aborted",
+        mode: "sse",
         upstreamStatus,
         elapsedMs: Date.now() - startedAt,
-        aborted: true,
         eventTypes: [...eventTypes]
       });
       return;
     }
+    if (outputText && !chargedTokens) {
+      chargedTokens = recordDailyTokens(usage, request, outputText);
+    }
     const message = error && error.message ? error.message : "Battle generation failed.";
-    console.error("[battle]", {
+    logBattle("error", {
       requestId,
+      outcome: "error",
+      mode: "sse",
       upstreamStatus,
       elapsedMs: Date.now() - startedAt,
       error: message,
       eventTypes: [...eventTypes],
-      outputPreview: previewText(outputText)
+      chargedTokens
     });
     sendSse(res, "error", { error: message, requestId });
     res.end();
@@ -992,12 +1302,6 @@ function looksTruncatedJson(text) {
     else if (char === "}") depth -= 1;
   }
   return inString || depth !== 0;
-}
-
-function previewText(text) {
-  const value = String(text || "").replace(/\s+/g, " ").trim();
-  if (!value) return "";
-  return value.length > 700 ? `${value.slice(0, 260)} ... ${value.slice(-360)}` : value;
 }
 
 function cleanText(value, maxLength) {

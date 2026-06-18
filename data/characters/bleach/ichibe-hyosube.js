@@ -36,6 +36,18 @@
           claim: "用于复核一兵卫真打一文字、名字权能和高端灵压口径；本站将名字权能与破坏主档分开记录。"
         },
         {
+          type: "chapter",
+          scope: "日文原作卷话",
+          label: "集英社：BLEACH 67",
+          url: "https://books.shueisha.co.jp/items/contents.html?isbn=978-4-08-880327-2",
+          citation: "久保帯人『BLEACH』第67巻（第605-610話前后，兵主部一兵衛 vs ユーハバッハ / 一文字・真打一文字）",
+          lang: "ja",
+          authority: "official",
+          medium: "manga",
+          ratingEvidence: true,
+          claim: "用于核对一兵卫在灵王宫战斗中的黑、名字剥夺/改名和真打一文字机制；概念权能继续写入特殊项，不直接换算为更大破坏范围。"
+        },
+        {
           type: "official",
           scope: "日文官方角色入口",
           label: "TV动画「BLEACH 千年血战篇」角色页",

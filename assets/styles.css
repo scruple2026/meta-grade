@@ -1318,6 +1318,11 @@ button {
   line-height: 1.25;
 }
 
+.battle-access-control {
+  display: grid;
+  max-width: 420px;
+}
+
 .battle-environment-control {
   display: grid;
   gap: 10px;
