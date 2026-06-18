@@ -50,7 +50,9 @@
     "data/works/fate-grand-order.js",
     "data/works/heaven-sword-dragon-saber.js",
     "data/works/the-deer-and-the-cauldron.js",
-    "data/works/the-book-and-the-sword.js"
+    "data/works/the-book-and-the-sword.js",
+    "data/works/legend-of-the-condor-heroes.js",
+    "data/works/return-of-the-condor-heroes.js"
   ];
   window.POWER_WIKI_CHARACTER_FILES = [
     "data/characters/jujutsu-kaisen/yuji-itadori.js",
@@ -456,6 +458,13 @@
     "data/characters/the-deer-and-the-cauldron/wei-xiaobao.js",
     "data/characters/the-deer-and-the-cauldron/chen-jinnan.js",
     "data/characters/the-book-and-the-sword/chen-jialuo.js",
+    "data/characters/legend-of-the-condor-heroes/huang-rong.js",
+    "data/characters/legend-of-the-condor-heroes/hong-qigong.js",
+    "data/characters/legend-of-the-condor-heroes/huang-yaoshi.js",
+    "data/characters/legend-of-the-condor-heroes/mei-chaofeng.js",
+    "data/characters/return-of-the-condor-heroes/yang-guo.js",
+    "data/characters/return-of-the-condor-heroes/xiaolongnu.js",
+    "data/characters/return-of-the-condor-heroes/li-mochou.js",
   ];
 
   if (window.POWER_WIKI && typeof window.POWER_WIKI.publish === "function") {
