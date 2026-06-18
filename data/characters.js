@@ -27,7 +27,8 @@
     "data/works/evangelion.js",
     "data/works/puella-magi-madoka-magica.js",
     "data/works/berserk.js",
-    "data/works/eighty-six.js"
+    "data/works/eighty-six.js",
+    "data/works/dr-stone.js"
   ];
   window.POWER_WIKI_CHARACTER_FILES = [
     "data/characters/jujutsu-kaisen/yuji-itadori.js",
@@ -206,7 +207,18 @@
     "data/characters/eighty-six/fido.js",
     "data/characters/eighty-six/lev-aldrecht.js",
     "data/characters/eighty-six/jerome-karlstahl.js",
-    "data/characters/eighty-six/henrietta-penrose.js"
+    "data/characters/eighty-six/henrietta-penrose.js",
+    "data/characters/dr-stone/senku-ishigami.js",
+    "data/characters/dr-stone/chrome.js",
+    "data/characters/dr-stone/kaseki.js",
+    "data/characters/dr-stone/tsukasa-shishio.js",
+    "data/characters/dr-stone/gen-asagiri.js",
+    "data/characters/dr-stone/hyoga.js",
+    "data/characters/dr-stone/ukyo-saionji.js",
+    "data/characters/dr-stone/homura-momiji.js",
+    "data/characters/dr-stone/taiju-oki.js",
+    "data/characters/dr-stone/yuzuriha-ogawa.js",
+    "data/characters/dr-stone/mirai-shishio.js"
   ];
 
   if (window.POWER_WIKI && typeof window.POWER_WIKI.publish === "function") {
