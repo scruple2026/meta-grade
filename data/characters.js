@@ -26,7 +26,8 @@
     "data/works/frieren.js",
     "data/works/evangelion.js",
     "data/works/puella-magi-madoka-magica.js",
-    "data/works/berserk.js"
+    "data/works/berserk.js",
+    "data/works/eighty-six.js"
   ];
   window.POWER_WIKI_CHARACTER_FILES = [
     "data/characters/jujutsu-kaisen/yuji-itadori.js",
@@ -194,7 +195,18 @@
     "data/characters/berserk/griffith.js",
     "data/characters/berserk/casca.js",
     "data/characters/berserk/skull-knight.js",
-    "data/characters/berserk/nosferatu-zodd.js"
+    "data/characters/berserk/nosferatu-zodd.js",
+    "data/characters/eighty-six/vladilena-milize.js",
+    "data/characters/eighty-six/shinei-nouzen.js",
+    "data/characters/eighty-six/shourei-nouzen.js",
+    "data/characters/eighty-six/raiden-shuga.js",
+    "data/characters/eighty-six/theoto-rikka.js",
+    "data/characters/eighty-six/anju-emma.js",
+    "data/characters/eighty-six/kurena-kukumila.js",
+    "data/characters/eighty-six/fido.js",
+    "data/characters/eighty-six/lev-aldrecht.js",
+    "data/characters/eighty-six/jerome-karlstahl.js",
+    "data/characters/eighty-six/henrietta-penrose.js"
   ];
 
   if (window.POWER_WIKI && typeof window.POWER_WIKI.publish === "function") {
