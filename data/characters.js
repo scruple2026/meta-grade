@@ -45,7 +45,8 @@
     "data/works/fate-stay-night.js",
     "data/works/fate-zero.js",
     "data/works/oregairu.js",
-    "data/works/dragon-raja.js"
+    "data/works/dragon-raja.js",
+    "data/works/infinite-horror.js"
   ];
   window.POWER_WIKI_CHARACTER_FILES = [
     "data/characters/jujutsu-kaisen/yuji-itadori.js",
@@ -436,7 +437,8 @@
     "data/characters/dragon-raja/minamoto-chime.js",
     "data/characters/dragon-raja/uesugi-yue.js",
     "data/characters/dragon-raja/zero-renata.js",
-    "data/characters/dragon-raja/fingel-von-frings.js"
+    "data/characters/dragon-raja/fingel-von-frings.js",
+    "data/characters/infinite-horror/lord-god.js",
   ];
 
   if (window.POWER_WIKI && typeof window.POWER_WIKI.publish === "function") {
