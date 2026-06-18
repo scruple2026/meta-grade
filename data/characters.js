@@ -38,7 +38,8 @@
     "data/works/the-smiling-proud-wanderer.js",
     "data/works/fate-stay-night.js",
     "data/works/fate-zero.js",
-    "data/works/oregairu.js"
+    "data/works/oregairu.js",
+    "data/works/dragon-raja.js"
   ];
   window.POWER_WIKI_CHARACTER_FILES = [
     "data/characters/jujutsu-kaisen/yuji-itadori.js",
@@ -349,7 +350,27 @@
     "data/characters/oregairu/yoshiteru-zaimokuza.js",
     "data/characters/oregairu/saki-kawasaki.js",
     "data/characters/oregairu/haruno-yukinoshita.js",
-    "data/characters/oregairu/meguri-shiromeguri.js"
+    "data/characters/oregairu/meguri-shiromeguri.js",
+    "data/characters/dragon-raja/lu-mingfei.js",
+    "data/characters/dragon-raja/lu-mingze.js",
+    "data/characters/dragon-raja/chu-zihang.js",
+    "data/characters/dragon-raja/caesar-gattuso.js",
+    "data/characters/dragon-raja/chen-motong.js",
+    "data/characters/dragon-raja/uesugi-erii.js",
+    "data/characters/dragon-raja/hilbert-ron-ange.js",
+    "data/characters/dragon-raja/herzog.js",
+    "data/characters/dragon-raja/xia-mi-jormungandr.js",
+    "data/characters/dragon-raja/norton.js",
+    "data/characters/dragon-raja/constantine.js",
+    "data/characters/dragon-raja/fenrir.js",
+    "data/characters/dragon-raja/odin-dragon-raja.js",
+    "data/characters/dragon-raja/nidhogg.js",
+    "data/characters/dragon-raja/white-king.js",
+    "data/characters/dragon-raja/minamoto-chisei.js",
+    "data/characters/dragon-raja/minamoto-chime.js",
+    "data/characters/dragon-raja/uesugi-yue.js",
+    "data/characters/dragon-raja/zero-renata.js",
+    "data/characters/dragon-raja/fingel-von-frings.js"
   ];
 
   if (window.POWER_WIKI && typeof window.POWER_WIKI.publish === "function") {
