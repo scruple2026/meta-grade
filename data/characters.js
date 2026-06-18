@@ -39,6 +39,7 @@
     "data/characters/fullmetal-alchemist/scar.js",
     "data/characters/fullmetal-alchemist/king-bradley.js",
     "data/characters/fullmetal-alchemist/father.js",
+    "data/characters/fullmetal-alchemist/alex-louis-armstrong.js",
     "data/characters/attack-on-titan/eren-yeager.js",
     "data/characters/attack-on-titan/mikasa-ackerman.js",
     "data/characters/attack-on-titan/levi-ackerman.js",
