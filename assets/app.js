@@ -453,8 +453,7 @@
       ...new Set(
         source
           .flatMap((item) => {
-            const entry = item.dimensions[key];
-            return getDimensionRanks(entry, scope);
+            return getCharacterDimensionEntries(item, key).flatMap((entry) => getDimensionRanks(entry, scope));
           })
           .filter(Boolean)
           .map((value) => String(value).trim())
@@ -509,8 +508,7 @@
         return dimensions.every((dimension) => {
           const filter = state.dimensionFilters[dimension.key];
           if (!filter || (filter.min === "all" && filter.max === "all")) return true;
-          const entry = item.dimensions[dimension.key];
-          return matchesDimensionRange(dimension.key, entry, filter, state.dimensionScope);
+          return matchesCharacterDimensionRange(dimension.key, item, filter, state.dimensionScope);
         });
       })
       .sort(sortCharacters);
@@ -537,6 +535,24 @@
       const index = order.indexOf(rank);
       return index >= minIndex && index <= maxIndex;
     });
+  }
+
+  function matchesCharacterDimensionRange(key, character, filter, scope = "any") {
+    const entries = getCharacterDimensionEntries(character, key);
+    return entries.some((entry) => matchesDimensionRange(key, entry, filter, scope));
+  }
+
+  function getCharacterDimensionEntries(character, key) {
+    const entries = [];
+    if (character && character.dimensions && character.dimensions[key]) {
+      entries.push(character.dimensions[key]);
+    }
+    for (const panel of Array.isArray(character && character.timelinePanels) ? character.timelinePanels : []) {
+      if (panel.dimensions && panel.dimensions[key]) {
+        entries.push(panel.dimensions[key]);
+      }
+    }
+    return entries;
   }
 
   function getDimensionRanks(entry, scope) {
@@ -1667,8 +1683,7 @@
         return dimensions.every((dimension) => {
           const filter = filters.dimensionFilters[dimension.key];
           if (!filter || (filter.min === "all" && filter.max === "all")) return true;
-          const entry = item.dimensions[dimension.key];
-          return matchesDimensionRange(dimension.key, entry, filter, filters.dimensionScope);
+          return matchesCharacterDimensionRange(dimension.key, item, filter, filters.dimensionScope);
         });
       })
       .sort(sortCharacters);
