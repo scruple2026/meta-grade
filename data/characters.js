@@ -14,8 +14,7 @@
     "data/works/bleach.js",
     "data/works/one-piece.js",
     "data/works/dragon-ball.js",
-    "data/works/fate-kaleid-liner-prisma-illya.js",
-    "data/works/marvel-comics.js"
+    "data/works/fate-kaleid-liner-prisma-illya.js"
   ];
   window.POWER_WIKI_CHARACTER_FILES = [
     "data/characters/jujutsu-kaisen/yuji-itadori.js",
@@ -118,8 +117,7 @@
     "data/characters/fate-kaleid-liner-prisma-illya/bazett-fraga-mcremitz.js",
     "data/characters/fate-kaleid-liner-prisma-illya/angelica-ainsworth.js",
     "data/characters/fate-kaleid-liner-prisma-illya/beatrice-flowerchild.js",
-    "data/characters/fate-kaleid-liner-prisma-illya/darius-ainsworth.js",
-    "data/characters/marvel-comics/one-above-all.js"
+    "data/characters/fate-kaleid-liner-prisma-illya/darius-ainsworth.js"
   ];
 
   if (window.POWER_WIKI && typeof window.POWER_WIKI.publish === "function") {
