@@ -55,6 +55,7 @@
     "data/characters/jujutsu-kaisen/mahito.js",
     "data/characters/jujutsu-kaisen/jogo.js",
     "data/characters/jujutsu-kaisen/kenjaku.js",
+    "data/characters/jujutsu-kaisen/tengen.js",
     "data/characters/jujutsu-kaisen/aoi-todo.js",
     "data/characters/jujutsu-kaisen/toji-fushiguro.js",
     "data/characters/demon-slayer/tanjiro-kamado.js",
