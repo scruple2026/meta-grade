@@ -47,7 +47,10 @@
     "data/works/oregairu.js",
     "data/works/dragon-raja.js",
     "data/works/infinite-horror.js",
-    "data/works/fate-grand-order.js"
+    "data/works/fate-grand-order.js",
+    "data/works/heaven-sword-dragon-saber.js",
+    "data/works/the-deer-and-the-cauldron.js",
+    "data/works/the-book-and-the-sword.js"
   ];
   window.POWER_WIKI_CHARACTER_FILES = [
     "data/characters/jujutsu-kaisen/yuji-itadori.js",
@@ -446,6 +449,13 @@
     "data/characters/fate-grand-order/scathach.js",
     "data/characters/fate-grand-order/artoria-caster.js",
     "data/characters/fate-grand-order/morgan.js",
+    "data/characters/heaven-sword-dragon-saber/zhang-wuji.js",
+    "data/characters/heaven-sword-dragon-saber/zhou-zhiruo.js",
+    "data/characters/heaven-sword-dragon-saber/yin-tianzheng.js",
+    "data/characters/heaven-sword-dragon-saber/zhang-sanfeng.js",
+    "data/characters/the-deer-and-the-cauldron/wei-xiaobao.js",
+    "data/characters/the-deer-and-the-cauldron/chen-jinnan.js",
+    "data/characters/the-book-and-the-sword/chen-jialuo.js",
   ];
 
   if (window.POWER_WIKI && typeof window.POWER_WIKI.publish === "function") {
