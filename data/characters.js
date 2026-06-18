@@ -32,7 +32,8 @@
     "data/works/re-zero.js",
     "data/works/ghost-in-the-shell.js",
     "data/works/psycho-pass.js",
-    "data/works/assassination-classroom.js"
+    "data/works/assassination-classroom.js",
+    "data/works/danmachi.js"
   ];
   window.POWER_WIKI_CHARACTER_FILES = [
     "data/characters/jujutsu-kaisen/yuji-itadori.js",
@@ -251,7 +252,23 @@
     "data/characters/assassination-classroom/karma-akabane.js",
     "data/characters/assassination-classroom/tadaomi-karasuma.js",
     "data/characters/assassination-classroom/irina-jelavic.js",
-    "data/characters/assassination-classroom/gakushu-asano.js"
+    "data/characters/assassination-classroom/gakushu-asano.js",
+    "data/characters/danmachi/bell-cranel.js",
+    "data/characters/danmachi/hestia.js",
+    "data/characters/danmachi/ais-wallenstein.js",
+    "data/characters/danmachi/eina-tulle.js",
+    "data/characters/danmachi/liliruca-arde.js",
+    "data/characters/danmachi/welf-crozzo.js",
+    "data/characters/danmachi/yamato-mikoto.js",
+    "data/characters/danmachi/sanjouno-haruhime.js",
+    "data/characters/danmachi/ryuu-lion.js",
+    "data/characters/danmachi/syr-flova.js",
+    "data/characters/danmachi/mia-grand.js",
+    "data/characters/danmachi/wiene.js",
+    "data/characters/danmachi/lyd.js",
+    "data/characters/danmachi/ray.js",
+    "data/characters/danmachi/gros.js",
+    "data/characters/danmachi/asterius.js"
   ];
 
   if (window.POWER_WIKI && typeof window.POWER_WIKI.publish === "function") {
