@@ -30,7 +30,9 @@
     "data/works/eighty-six.js",
     "data/works/dr-stone.js",
     "data/works/re-zero.js",
-    "data/works/ghost-in-the-shell.js"
+    "data/works/ghost-in-the-shell.js",
+    "data/works/psycho-pass.js",
+    "data/works/assassination-classroom.js"
   ];
   window.POWER_WIKI_CHARACTER_FILES = [
     "data/characters/jujutsu-kaisen/yuji-itadori.js",
@@ -235,7 +237,21 @@
     "data/characters/ghost-in-the-shell/batou.js",
     "data/characters/ghost-in-the-shell/puppet-master.js",
     "data/characters/ghost-in-the-shell/daisuke-aramaki.js",
-    "data/characters/ghost-in-the-shell/togusa.js"
+    "data/characters/ghost-in-the-shell/togusa.js",
+    "data/characters/psycho-pass/akane-tsunemori.js",
+    "data/characters/psycho-pass/shogo-makishima.js",
+    "data/characters/psycho-pass/shinya-kogami.js",
+    "data/characters/psycho-pass/nobuchika-ginoza.js",
+    "data/characters/psycho-pass/tomomi-masaoka.js",
+    "data/characters/psycho-pass/shion-karanomori.js",
+    "data/characters/psycho-pass/yayoi-kunizuka.js",
+    "data/characters/psycho-pass/shusei-kagari.js",
+    "data/characters/assassination-classroom/korosensei.js",
+    "data/characters/assassination-classroom/nagisa-shiota.js",
+    "data/characters/assassination-classroom/karma-akabane.js",
+    "data/characters/assassination-classroom/tadaomi-karasuma.js",
+    "data/characters/assassination-classroom/irina-jelavic.js",
+    "data/characters/assassination-classroom/gakushu-asano.js"
   ];
 
   if (window.POWER_WIKI && typeof window.POWER_WIKI.publish === "function") {
