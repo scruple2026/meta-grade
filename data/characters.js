@@ -37,7 +37,8 @@
     "data/works/demi-gods-semi-devils.js",
     "data/works/the-smiling-proud-wanderer.js",
     "data/works/fate-stay-night.js",
-    "data/works/fate-zero.js"
+    "data/works/fate-zero.js",
+    "data/works/oregairu.js"
   ];
   window.POWER_WIKI_CHARACTER_FILES = [
     "data/characters/jujutsu-kaisen/yuji-itadori.js",
@@ -335,7 +336,20 @@
     "data/characters/fate-zero/kirei-kotomine-fz.js",
     "data/characters/fate-zero/hundred-faced-hassan.js",
     "data/characters/fate-zero/shirou-emiya-fz.js",
-    "data/characters/fate-zero/artoria-pendragon-fz.js"
+    "data/characters/fate-zero/artoria-pendragon-fz.js",
+    "data/characters/oregairu/hachiman-hikigaya.js",
+    "data/characters/oregairu/yukino-yukinoshita.js",
+    "data/characters/oregairu/yui-yuigahama.js",
+    "data/characters/oregairu/shizuka-hiratsuka.js",
+    "data/characters/oregairu/iroha-isshiki.js",
+    "data/characters/oregairu/hayato-hayama.js",
+    "data/characters/oregairu/yumiko-miura.js",
+    "data/characters/oregairu/komachi-hikigaya.js",
+    "data/characters/oregairu/saika-totsuka.js",
+    "data/characters/oregairu/yoshiteru-zaimokuza.js",
+    "data/characters/oregairu/saki-kawasaki.js",
+    "data/characters/oregairu/haruno-yukinoshita.js",
+    "data/characters/oregairu/meguri-shiromeguri.js"
   ];
 
   if (window.POWER_WIKI && typeof window.POWER_WIKI.publish === "function") {
