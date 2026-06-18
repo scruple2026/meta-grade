@@ -34,7 +34,8 @@
     "data/works/psycho-pass.js",
     "data/works/assassination-classroom.js",
     "data/works/danmachi.js",
-    "data/works/demi-gods-semi-devils.js"
+    "data/works/demi-gods-semi-devils.js",
+    "data/works/the-smiling-proud-wanderer.js"
   ];
   window.POWER_WIKI_CHARACTER_FILES = [
     "data/characters/jujutsu-kaisen/yuji-itadori.js",
@@ -283,7 +284,18 @@
     "data/characters/demi-gods-semi-devils/murong-bo.js",
     "data/characters/demi-gods-semi-devils/sweeper-monk.js",
     "data/characters/demi-gods-semi-devils/wang-yuyan.js",
-    "data/characters/demi-gods-semi-devils/azi.js"
+    "data/characters/demi-gods-semi-devils/azi.js",
+    "data/characters/the-smiling-proud-wanderer/linghu-chong.js",
+    "data/characters/the-smiling-proud-wanderer/liu-zhengfeng.js",
+    "data/characters/the-smiling-proud-wanderer/qu-yang.js",
+    "data/characters/the-smiling-proud-wanderer/qu-feiyan.js",
+    "data/characters/the-smiling-proud-wanderer/yilin.js",
+    "data/characters/the-smiling-proud-wanderer/tian-boguang.js",
+    "data/characters/the-smiling-proud-wanderer/fei-bin.js",
+    "data/characters/the-smiling-proud-wanderer/ding-mian.js",
+    "data/characters/the-smiling-proud-wanderer/lu-bai.js",
+    "data/characters/the-smiling-proud-wanderer/mo-da.js",
+    "data/characters/the-smiling-proud-wanderer/yue-buqun.js"
   ];
 
   if (window.POWER_WIKI && typeof window.POWER_WIKI.publish === "function") {
