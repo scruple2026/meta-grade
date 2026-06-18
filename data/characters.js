@@ -308,6 +308,8 @@
     "data/characters/danmachi/ray.js",
     "data/characters/danmachi/gros.js",
     "data/characters/danmachi/asterius.js",
+    "data/characters/danmachi/dungeon-monsters.js",
+    "data/characters/danmachi/monster-rex-juggernaut.js",
     "data/characters/demi-gods-semi-devils/xiao-feng.js",
     "data/characters/demi-gods-semi-devils/duan-yu.js",
     "data/characters/demi-gods-semi-devils/xuzhu.js",
