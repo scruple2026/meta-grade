@@ -28,7 +28,8 @@
     "data/works/puella-magi-madoka-magica.js",
     "data/works/berserk.js",
     "data/works/eighty-six.js",
-    "data/works/dr-stone.js"
+    "data/works/dr-stone.js",
+    "data/works/re-zero.js"
   ];
   window.POWER_WIKI_CHARACTER_FILES = [
     "data/characters/jujutsu-kaisen/yuji-itadori.js",
@@ -218,7 +219,17 @@
     "data/characters/dr-stone/homura-momiji.js",
     "data/characters/dr-stone/taiju-oki.js",
     "data/characters/dr-stone/yuzuriha-ogawa.js",
-    "data/characters/dr-stone/mirai-shishio.js"
+    "data/characters/dr-stone/mirai-shishio.js",
+    "data/characters/re-zero/subaru-natsuki.js",
+    "data/characters/re-zero/petelgeuse-romanee-conti.js",
+    "data/characters/re-zero/white-whale.js",
+    "data/characters/re-zero/emilia.js",
+    "data/characters/re-zero/rem.js",
+    "data/characters/re-zero/puck.js",
+    "data/characters/re-zero/crusch-karsten.js",
+    "data/characters/re-zero/wilhelm-van-astrea.js",
+    "data/characters/re-zero/julius-juukulius.js",
+    "data/characters/re-zero/ferris.js"
   ];
 
   if (window.POWER_WIKI && typeof window.POWER_WIKI.publish === "function") {
