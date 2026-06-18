@@ -52,7 +52,9 @@
     "data/works/the-deer-and-the-cauldron.js",
     "data/works/the-book-and-the-sword.js",
     "data/works/legend-of-the-condor-heroes.js",
-    "data/works/return-of-the-condor-heroes.js"
+    "data/works/return-of-the-condor-heroes.js",
+    "data/works/sword-stained-with-royal-blood.js",
+    "data/works/the-young-flying-fox.js"
   ];
   window.POWER_WIKI_CHARACTER_FILES = [
     "data/characters/jujutsu-kaisen/yuji-itadori.js",
@@ -475,6 +477,9 @@
     "data/characters/return-of-the-condor-heroes/yang-guo.js",
     "data/characters/return-of-the-condor-heroes/xiaolongnu.js",
     "data/characters/return-of-the-condor-heroes/li-mochou.js",
+    "data/characters/sword-stained-with-royal-blood/yuan-chengzhi.js",
+    "data/characters/the-young-flying-fox/miao-renfeng.js",
+    "data/characters/the-young-flying-fox/yuan-ziyi.js",
   ];
 
   if (window.POWER_WIKI && typeof window.POWER_WIKI.publish === "function") {
