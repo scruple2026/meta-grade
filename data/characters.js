@@ -36,7 +36,8 @@
     "data/works/danmachi.js",
     "data/works/demi-gods-semi-devils.js",
     "data/works/the-smiling-proud-wanderer.js",
-    "data/works/fate-stay-night.js"
+    "data/works/fate-stay-night.js",
+    "data/works/fate-zero.js"
   ];
   window.POWER_WIKI_CHARACTER_FILES = [
     "data/characters/jujutsu-kaisen/yuji-itadori.js",
@@ -312,7 +313,29 @@
     "data/characters/fate-stay-night/medea-caster.js",
     "data/characters/fate-stay-night/sasaki-kojirou-assassin.js",
     "data/characters/fate-stay-night/heracles-berserker.js",
-    "data/characters/fate-stay-night/gilgamesh.js"
+    "data/characters/fate-stay-night/gilgamesh.js",
+    "data/characters/fate-zero/emiya-kiritsugu-fz.js",
+    "data/characters/fate-zero/irisviel-von-einzbern.js",
+    "data/characters/fate-zero/maiya-hisau.js",
+    "data/characters/fate-zero/illyasviel-fz.js",
+    "data/characters/fate-zero/tokiomi-tohsaka.js",
+    "data/characters/fate-zero/gilgamesh-fz.js",
+    "data/characters/fate-zero/aoi-tohsaka.js",
+    "data/characters/fate-zero/rin-tohsaka-fz.js",
+    "data/characters/fate-zero/sakura-matou-fz.js",
+    "data/characters/fate-zero/kariya-matou.js",
+    "data/characters/fate-zero/lancelot-berserker.js",
+    "data/characters/fate-zero/waver-velvet-fz.js",
+    "data/characters/fate-zero/iskandar-rider.js",
+    "data/characters/fate-zero/uryuu-ryuunosuke.js",
+    "data/characters/fate-zero/gilles-de-rais-caster.js",
+    "data/characters/fate-zero/kayneth-el-melloi-archibald.js",
+    "data/characters/fate-zero/diarmuid-ua-duibhne.js",
+    "data/characters/fate-zero/sola-ui-nuada-re-sophia-ri.js",
+    "data/characters/fate-zero/kirei-kotomine-fz.js",
+    "data/characters/fate-zero/hundred-faced-hassan.js",
+    "data/characters/fate-zero/shirou-emiya-fz.js",
+    "data/characters/fate-zero/artoria-pendragon-fz.js"
   ];
 
   if (window.POWER_WIKI && typeof window.POWER_WIKI.publish === "function") {
