@@ -476,6 +476,8 @@
     "data/characters/the-smiling-proud-wanderer/dingxian-shitai.js",
     "data/characters/the-smiling-proud-wanderer/dingjing-shitai.js",
     "data/characters/the-smiling-proud-wanderer/dingyi-shitai.js",
+    "data/characters/the-smiling-proud-wanderer/lin-zhennan.js",
+    "data/characters/the-smiling-proud-wanderer/wang-yuanba.js",
     "data/characters/fate-stay-night/shirou-emiya.js",
     "data/characters/fate-stay-night/artoria-pendragon.js",
     "data/characters/fate-stay-night/rin-tohsaka.js",
