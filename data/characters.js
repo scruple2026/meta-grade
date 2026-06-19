@@ -57,7 +57,9 @@
     "data/works/the-young-flying-fox.js",
     "data/works/kara-no-kyoukai.js",
     "data/works/witch-on-the-holy-night.js",
-    "data/works/tsukihime.js"
+    "data/works/tsukihime.js",
+    "data/works/ode-to-gallantry.js",
+    "data/works/who-can-be-more-yin.js"
   ];
   window.POWER_WIKI_CHARACTER_FILES = [
     "data/characters/jujutsu-kaisen/yuji-itadori.js",
@@ -216,6 +218,7 @@
     "data/characters/record-of-mortal-cultivation/yinyue.js",
     "data/characters/perfect-world/shi-hao.js",
     "data/characters/xian-ni/wang-lin.js",
+    "data/characters/xian-ni/hongdie.js",
     "data/characters/a-will-eternal/bai-xiaochun.js",
     "data/characters/a-will-eternal/hou-xiaomei.js",
     "data/characters/reverend-insanity/gu-yue-fang-yuan.js",
@@ -518,6 +521,7 @@
     "data/characters/the-deer-and-the-cauldron/hong-antong.js",
     "data/characters/the-deer-and-the-cauldron/su-quan.js",
     "data/characters/the-book-and-the-sword/chen-jialuo.js",
+    "data/characters/the-book-and-the-sword/yuan-shixiao.js",
     "data/characters/legend-of-the-condor-heroes/huang-rong.js",
     "data/characters/legend-of-the-condor-heroes/hong-qigong.js",
     "data/characters/legend-of-the-condor-heroes/huang-yaoshi.js",
@@ -538,6 +542,8 @@
     "data/characters/tsukihime/shiki-tohno.js",
     "data/characters/tsukihime/arcueid-brunestud.js",
     "data/characters/tsukihime/ciel.js",
+    "data/characters/ode-to-gallantry/bei-haishi.js",
+    "data/characters/who-can-be-more-yin/song-wen.js",
   ];
 
   if (window.POWER_WIKI && typeof window.POWER_WIKI.publish === "function") {

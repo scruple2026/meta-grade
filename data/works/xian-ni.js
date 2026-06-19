@@ -36,9 +36,9 @@
       }
     ],
     scaleNotes: {
-      scope: "当前只收录《道友先上我断后》worldbook key/comment 中出现的王林；不扩展《仙逆》长尾角色。",
+      scope: "当前只收录《道友先上我断后》worldbook key/comment 中出现的王林、红蝶；不扩展《仙逆》长尾角色。",
       versionPolicy: "默认按终盘王林记录；朱雀星、化凡、古神、仙罡大陆等阶段后续可拆 timelinePanels。",
-      highRisk: ["终盘王林", "古神", "本源", "踏天", "修真宇宙论"],
+      highRisk: ["终盘王林", "红蝶", "古神", "本源", "踏天", "修真宇宙论"],
       conservativeNotes: "修真境界、踏天名号和宇宙论描述不直接推出无限档；终盘高端先统一标争议。"
     },
     sourcePolicy: "优先使用起点正版入口和可读公开百科；高端战斗表现后续应补原文卷章或正版章节 citation。"

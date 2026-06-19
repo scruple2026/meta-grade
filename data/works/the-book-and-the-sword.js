@@ -37,9 +37,9 @@
     ],
     scaleEvidenceLinks: [],
     scaleNotes: {
-      scope: "当前收录金庸共通 worldbook key/comment 中明确出现的书剑人物：陈家洛。",
+      scope: "当前收录金庸共通 worldbook key/comment 中明确出现的书剑人物：陈家洛、袁士霄。",
       versionPolicy: "按《书剑恩仇录》原作主线记录；红花会总舵主身份、百花错拳、庖丁解牛掌和团队资源分开处理。",
-      highRisk: ["红花会", "百花错拳", "庖丁解牛掌", "反清复明", "总舵主"],
+      highRisk: ["红花会", "百花错拳", "庖丁解牛掌", "天山派", "反清复明", "总舵主"],
       conservativeNotes: "红花会地位、领袖身份和政治行动不直接换算为破坏规模；个人武功仍按金庸低武到中武口径记录。"
     },
     sourcePolicy: "金庸 Wiki 和公开小说条目是入口来源；高争议武功表现后续应补原文回目、版本和章节引用。"
