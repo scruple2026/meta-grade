@@ -60,7 +60,8 @@
     "data/works/tsukihime.js",
     "data/works/ode-to-gallantry.js",
     "data/works/who-can-be-more-yin.js",
-    "data/works/zhu-xian.js"
+    "data/works/zhu-xian.js",
+    "data/works/fate-prototype.js"
   ];
   window.POWER_WIKI_CHARACTER_FILES = [
     "data/characters/jujutsu-kaisen/yuji-itadori.js",
@@ -613,6 +614,8 @@
     "data/characters/ode-to-gallantry/bei-haishi.js",
     "data/characters/who-can-be-more-yin/song-wen.js",
     "data/characters/zhu-xian/lu-xueqi.js",
+    "data/characters/fate-prototype/manaka-sajyou.js",
+    "data/characters/fate-prototype/ayaka-sajyou.js",
   ];
 
   if (window.POWER_WIKI && typeof window.POWER_WIKI.publish === "function") {
