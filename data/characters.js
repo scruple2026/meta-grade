@@ -580,6 +580,7 @@
     "data/characters/fate-grand-order/arthur-pendragon-prototype.js",
     "data/characters/fate-grand-order/sieg.js",
     "data/characters/fate-grand-order/hakuno-kishinami.js",
+    "data/characters/fate-grand-order/indra.js",
     "data/characters/heaven-sword-dragon-saber/zhang-wuji.js",
     "data/characters/heaven-sword-dragon-saber/zhou-zhiruo.js",
     "data/characters/heaven-sword-dragon-saber/yin-tianzheng.js",
