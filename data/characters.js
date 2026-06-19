@@ -429,6 +429,8 @@
     "data/characters/danmachi/dix-perdix.js",
     "data/characters/danmachi/fels.js",
     "data/characters/danmachi/ouranos.js",
+    "data/characters/danmachi/hermes.js",
+    "data/characters/danmachi/asfi-al-andromeda.js",
     "data/characters/demi-gods-semi-devils/xiao-feng.js",
     "data/characters/demi-gods-semi-devils/duan-yu.js",
     "data/characters/demi-gods-semi-devils/xuzhu.js",
