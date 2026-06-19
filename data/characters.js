@@ -617,6 +617,7 @@
     "data/characters/heaven-sword-dragon-saber/he-taichong.js",
     "data/characters/heaven-sword-dragon-saber/ban-shuxian.js",
     "data/characters/heaven-sword-dragon-saber/he-zudao.js",
+    "data/characters/heaven-sword-dragon-saber/yang-dingtian.js",
     "data/characters/the-deer-and-the-cauldron/wei-xiaobao.js",
     "data/characters/the-deer-and-the-cauldron/chen-jinnan.js",
     "data/characters/the-deer-and-the-cauldron/hong-antong.js",
