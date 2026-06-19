@@ -61,7 +61,8 @@
     "data/works/ode-to-gallantry.js",
     "data/works/who-can-be-more-yin.js",
     "data/works/zhu-xian.js",
-    "data/works/fate-prototype.js"
+    "data/works/fate-prototype.js",
+    "data/works/resident-evil.js"
   ];
   window.POWER_WIKI_CHARACTER_FILES = [
     "data/characters/jujutsu-kaisen/yuji-itadori.js",
@@ -617,6 +618,9 @@
     "data/characters/zhu-xian/lu-xueqi.js",
     "data/characters/fate-prototype/manaka-sajyou.js",
     "data/characters/fate-prototype/ayaka-sajyou.js",
+    "data/characters/resident-evil/leon-s-kennedy.js",
+    "data/characters/resident-evil/ada-wong.js",
+    "data/characters/resident-evil/jill-valentine.js",
   ];
 
   if (window.POWER_WIKI && typeof window.POWER_WIKI.publish === "function") {
