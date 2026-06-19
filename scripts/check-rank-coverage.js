@@ -131,6 +131,12 @@ const REQUIRED_VISIBLE_LOW_FILTER_OPTIONS = {
   vitality: "昆虫级生命阈值",
   energy: "昆虫级能量"
 };
+const REQUIRED_VISIBLE_LOW_FILTER_LABELS = {
+  attack: "昆虫级",
+  defense: "昆虫级",
+  vitality: "昆虫级",
+  energy: "昆虫级"
+};
 const RANK_ORDERS = loadRankOrders();
 
 const DIMENSION_LABELS = {
@@ -253,7 +259,18 @@ function assertLowestRankFilterOptionsVisible() {
     if (options[0] !== rank) {
       throw new Error(`assets/app.js rankOrders.${key} must expose "${rank}" as the first filter option.`);
     }
+    const expectedLabel = REQUIRED_VISIBLE_LOW_FILTER_LABELS[key];
+    if (expectedLabel && filterOptionLabel(key, rank) !== expectedLabel) {
+      throw new Error(`assets/app.js rankOrders.${key} must render "${rank}" as visible label "${expectedLabel}".`);
+    }
   }
+}
+
+function filterOptionLabel(key, value) {
+  const text = String(value || "");
+  if (key === "vitality") return text.replace(/生命阈值|生命结构/g, "");
+  if (key === "energy") return text === "凡人能量" ? "凡人级" : text.replace(/能量/g, "");
+  return text;
 }
 
 function loadData() {
