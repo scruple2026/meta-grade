@@ -529,6 +529,8 @@
     "data/characters/dragon-raja/su-qian.js",
     "data/characters/dragon-raja/lancelot-dragon-raja.js",
     "data/characters/dragon-raja/parsi-gattuso.js",
+    "data/characters/dragon-raja/leviathan-dragon-raja.js",
+    "data/characters/dragon-raja/behemoth-black-snake.js",
     "data/characters/infinite-horror/lord-god.js",
     "data/characters/fate-grand-order/ritsuka-fujimaru.js",
     "data/characters/fate-grand-order/mash-kyrielight.js",
