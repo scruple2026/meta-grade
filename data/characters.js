@@ -69,7 +69,9 @@
     "data/works/akame-ga-kill.js",
     "data/works/danganronpa.js",
     "data/works/detective-conan.js",
-    "data/works/lupin-iii.js"
+    "data/works/lupin-iii.js",
+    "data/works/genshin-impact.js",
+    "data/works/honkai-star-rail.js"
   ];
   window.POWER_WIKI_CHARACTER_FILES = [
     "data/characters/jujutsu-kaisen/yuji-itadori.js",
@@ -646,6 +648,10 @@
     "data/characters/lupin-iii/arsene-lupin-iii.js",
     "data/characters/lupin-iii/fujiko-mine.js",
     "data/characters/lupin-iii/goemon-ishikawa-xiii.js",
+    "data/characters/genshin-impact/furina.js",
+    "data/characters/genshin-impact/neuvillette.js",
+    "data/characters/genshin-impact/wriothesley.js",
+    "data/characters/honkai-star-rail/yunli.js",
   ];
 
   if (window.POWER_WIKI && typeof window.POWER_WIKI.publish === "function") {
