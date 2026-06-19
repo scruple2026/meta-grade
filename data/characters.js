@@ -67,7 +67,9 @@
     "data/works/final-fantasy-vii.js",
     "data/works/tomb-raider.js",
     "data/works/akame-ga-kill.js",
-    "data/works/danganronpa.js"
+    "data/works/danganronpa.js",
+    "data/works/detective-conan.js",
+    "data/works/lupin-iii.js"
   ];
   window.POWER_WIKI_CHARACTER_FILES = [
     "data/characters/jujutsu-kaisen/yuji-itadori.js",
@@ -636,6 +638,14 @@
     "data/characters/tomb-raider/lara-croft.js",
     "data/characters/akame-ga-kill/esdeath.js",
     "data/characters/danganronpa/junko-enoshima.js",
+    "data/characters/detective-conan/conan-edogawa.js",
+    "data/characters/detective-conan/ran-mouri.js",
+    "data/characters/detective-conan/kogoro-mouri.js",
+    "data/characters/detective-conan/juzo-megure.js",
+    "data/characters/detective-conan/wataru-takagi.js",
+    "data/characters/lupin-iii/arsene-lupin-iii.js",
+    "data/characters/lupin-iii/fujiko-mine.js",
+    "data/characters/lupin-iii/goemon-ishikawa-xiii.js",
   ];
 
   if (window.POWER_WIKI && typeof window.POWER_WIKI.publish === "function") {
