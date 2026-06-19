@@ -59,7 +59,8 @@
     "data/works/witch-on-the-holy-night.js",
     "data/works/tsukihime.js",
     "data/works/ode-to-gallantry.js",
-    "data/works/who-can-be-more-yin.js"
+    "data/works/who-can-be-more-yin.js",
+    "data/works/zhu-xian.js"
   ];
   window.POWER_WIKI_CHARACTER_FILES = [
     "data/characters/jujutsu-kaisen/yuji-itadori.js",
@@ -87,6 +88,9 @@
     "data/characters/jujutsu-kaisen/hana-kurusu.js",
     "data/characters/jujutsu-kaisen/aoi-todo.js",
     "data/characters/jujutsu-kaisen/toji-fushiguro.js",
+    "data/characters/jujutsu-kaisen/uraume.js",
+    "data/characters/jujutsu-kaisen/mei-mei.js",
+    "data/characters/jujutsu-kaisen/shoko-ieiri.js",
     "data/characters/demon-slayer/tanjiro-kamado.js",
     "data/characters/demon-slayer/nezuko-kamado.js",
     "data/characters/demon-slayer/zenitsu-agatsuma.js",
@@ -544,6 +548,7 @@
     "data/characters/tsukihime/ciel.js",
     "data/characters/ode-to-gallantry/bei-haishi.js",
     "data/characters/who-can-be-more-yin/song-wen.js",
+    "data/characters/zhu-xian/lu-xueqi.js",
   ];
 
   if (window.POWER_WIKI && typeof window.POWER_WIKI.publish === "function") {
