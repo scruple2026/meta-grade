@@ -74,7 +74,8 @@
     "data/works/genshin-impact.js",
     "data/works/honkai-star-rail.js",
     "data/works/k-on.js",
-    "data/works/zombie-land-saga.js"
+    "data/works/zombie-land-saga.js",
+    "data/works/fate-apocrypha.js"
   ];
   window.POWER_WIKI_CHARACTER_FILES = [
     "data/characters/jujutsu-kaisen/yuji-itadori.js",
@@ -684,6 +685,7 @@
     "data/characters/zombie-land-saga/junko-konno.js",
     "data/characters/zombie-land-saga/yugiri.js",
     "data/characters/zombie-land-saga/kotaro-tatsumi.js",
+    "data/characters/fate-apocrypha/kairi-sisigou.js",
   ];
 
   if (window.POWER_WIKI && typeof window.POWER_WIKI.publish === "function") {
