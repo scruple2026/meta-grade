@@ -633,6 +633,7 @@
     "data/characters/return-of-the-condor-heroes/li-mochou.js",
     "data/characters/return-of-the-condor-heroes/guo-xiang.js",
     "data/characters/return-of-the-condor-heroes/dugu-qiubai.js",
+    "data/characters/return-of-the-condor-heroes/lin-chaoying.js",
     "data/characters/sword-stained-with-royal-blood/yuan-chengzhi.js",
     "data/characters/the-young-flying-fox/miao-renfeng.js",
     "data/characters/the-young-flying-fox/yuan-ziyi.js",
