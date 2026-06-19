@@ -377,6 +377,7 @@
     "data/characters/assassination-classroom/tadaomi-karasuma.js",
     "data/characters/assassination-classroom/irina-jelavic.js",
     "data/characters/assassination-classroom/gakushu-asano.js",
+    "data/characters/assassination-classroom/kaede-kayano.js",
     "data/characters/danmachi/bell-cranel.js",
     "data/characters/danmachi/hestia.js",
     "data/characters/danmachi/ais-wallenstein.js",
