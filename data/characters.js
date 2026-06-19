@@ -180,6 +180,7 @@
     "data/characters/fate-kaleid-liner-prisma-illya/miyu-edelfelt.js",
     "data/characters/fate-kaleid-liner-prisma-illya/chloe-von-einzbern.js",
     "data/characters/fate-kaleid-liner-prisma-illya/bazett-fraga-mcremitz.js",
+    "data/characters/fate-kaleid-liner-prisma-illya/luviagelita-edelfelt-prisma-illya.js",
     "data/characters/fate-kaleid-liner-prisma-illya/angelica-ainsworth.js",
     "data/characters/fate-kaleid-liner-prisma-illya/beatrice-flowerchild.js",
     "data/characters/fate-kaleid-liner-prisma-illya/darius-ainsworth.js",
