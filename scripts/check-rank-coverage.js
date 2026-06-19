@@ -125,6 +125,12 @@ const FALLBACK_RANK_ORDERS = {
   ],
   energyRegen: ["无回能", "缓慢回能", "中速回能", "快速回能", "极速回能", "瞬时回能"]
 };
+const REQUIRED_VISIBLE_LOW_FILTER_OPTIONS = {
+  attack: "昆虫级",
+  defense: "昆虫级",
+  vitality: "昆虫级生命阈值",
+  energy: "昆虫级能量"
+};
 const RANK_ORDERS = loadRankOrders();
 
 const DIMENSION_LABELS = {
@@ -198,6 +204,7 @@ function extractObjectLiteral(source, start) {
 
 function main() {
   assertRankFilterOptionsUseFullOrder();
+  assertLowestRankFilterOptionsVisible();
 
   const data = loadData();
   const characters = Array.isArray(data.POWER_WIKI_CHARACTERS) ? data.POWER_WIKI_CHARACTERS : [];
@@ -237,6 +244,15 @@ function assertRankFilterOptionsUseFullOrder() {
   const body = bodyStart < 0 ? "" : extractObjectLiteral(source, bodyStart);
   if (!body.includes("rankOrders[key]")) {
     throw new Error("rank filters must use full rankOrders so low/unoccupied ranks like 昆虫级 remain selectable.");
+  }
+}
+
+function assertLowestRankFilterOptionsVisible() {
+  for (const [key, rank] of Object.entries(REQUIRED_VISIBLE_LOW_FILTER_OPTIONS)) {
+    const options = RANK_ORDERS[key] || [];
+    if (options[0] !== rank) {
+      throw new Error(`assets/app.js rankOrders.${key} must expose "${rank}" as the first filter option.`);
+    }
   }
 }
 
