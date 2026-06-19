@@ -456,6 +456,7 @@
     "data/characters/demi-gods-semi-devils/wuyazi.js",
     "data/characters/demi-gods-semi-devils/duan-zhengchun.js",
     "data/characters/demi-gods-semi-devils/li-qingluo.js",
+    "data/characters/demi-gods-semi-devils/duan-zhengming.js",
     "data/characters/the-smiling-proud-wanderer/linghu-chong.js",
     "data/characters/the-smiling-proud-wanderer/liu-zhengfeng.js",
     "data/characters/the-smiling-proud-wanderer/qu-yang.js",
