@@ -38,7 +38,7 @@
     ],
     scaleEvidenceLinks: [],
     scaleNotes: {
-      scope: "当前收录型月 DLC worldbook key/comment 中明确出现的《月姬》近月线核心人物：远野志贵、爱尔奎特·布伦史塔德和希耶尔。",
+      scope: "当前收录型月 DLC worldbook key/comment 中明确出现的《月姬》近月线核心人物：远野志贵、爱尔奎特·布伦史塔德和希耶尔；七夜志贵作为远野志贵的同源/替代表现折入远野志贵条目，不重复新增独立主面板。",
       versionPolicy: "按《月姬》同人版/重制版共有主线入口记录；FGO、Melty Blood、Archetype: Earth 和其他跨作状态不并入本作主面板。直死魔眼、真祖、空想具现化、不死性和第七圣典均作为特殊权能或条件峰值处理。",
       highRisk: ["直死魔眼", "真祖", "空想具现化", "Archetype: Earth", "死徒/罗亚", "不死性", "第七圣典", "圣堂教会"],
       conservativeNotes: "型月规则系能力、真祖设定和不死机制不自动换算为无限或天体破坏。主面板优先记录角色在月姬本篇可用于战斗的肉体、武器、魔术/异能和资源规模。"

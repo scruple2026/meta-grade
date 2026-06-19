@@ -10,7 +10,7 @@
     name: "远野志贵",
     en: "Shiki Tohno",
     ja: "遠野志貴",
-    aliases: ["志贵", "远野同学", "杀人贵", "Shiki Tohno"],
+    aliases: ["志贵", "远野同学", "杀人贵", "七夜志贵", "Nanaya Shiki", "Shiki Nanaya", "Shiki Tohno"],
     affiliation: "远野家 / 七夜血统",
     grade: "主角 / 直死魔眼持有者",
     appearances: ["月姬主线", "A piece of blue glass moon"],
@@ -30,7 +30,21 @@
         medium: "wiki",
         ratingEvidence: false,
         claim: "用于核对远野志贵、直死魔眼和月姬身份入口；具体量级按保守规则处理。"
+      },
+      {
+        type: "wiki",
+        scope: "七夜志贵/替代表现入口",
+        label: "TYPE-MOON Wiki：Shiki Nanaya",
+        url: "https://typemoon.fandom.com/wiki/Shiki_Nanaya",
+        lang: "en",
+        authority: "wiki",
+        medium: "wiki",
+        ratingEvidence: false,
+        claim: "用于核对七夜志贵为远野志贵潜意识/替代表现相关角色；本站将其折入远野志贵条目搜索别名与七夜体术说明，不单独新增主面板。"
       }
+    ],
+    revisionNotes: [
+      "型月DLC worldbook 的 comment/key 中出现七夜志贵；按公开资料将其作为远野志贵的同源/替代表现折入别名和说明，不重复新增独立正式角色。"
     ],
     dimensions: dims({
       attack: ["砖级", "墙级｜直死魔眼/七夜体术｜特殊", "物理破坏不高，直死魔眼属于死亡线弱点杀伤。"],
