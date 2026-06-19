@@ -261,6 +261,7 @@
     "data/characters/fate-kaleid-liner-prisma-illya/mimi-katsura.js",
     "data/characters/fate-kaleid-liner-prisma-illya/darkened-class-card-spirits.js",
     "data/characters/fate-kaleid-liner-prisma-illya/eighth-card-gilgamesh.js",
+    "data/characters/fate-kaleid-liner-prisma-illya/julian-ainsworth.js",
     "data/characters/dragon-talisman/gu-chensha.js",
     "data/characters/galaxy-emperor/jiang-li.js",
     "data/characters/eternal-life/fang-han.js",
