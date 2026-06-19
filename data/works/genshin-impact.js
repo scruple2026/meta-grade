@@ -33,7 +33,7 @@
     }],
     scaleEvidenceLinks: [],
     scaleNotes: {
-      scope: "当前收录缄默之秋 worldbook key/comment 中明确出现的 Fontaine 角色：芙宁娜、那维莱特、莱欧斯利。暂不展开全提瓦特长尾角色。",
+      scope: "当前收录缄默之秋 worldbook key/comment 中明确出现的 Fontaine 主线核心：芙宁娜和那维莱特；地区支线角色和全提瓦特长尾不扩入。",
       versionPolicy: "按游戏公开资料综合记录；神明身份、古龙权柄、元素爆发、命之座、剧情仪式和旅行者队伍机制必须标注条件，不自动并入常态。",
       highRisk: ["神明身份", "古龙权柄", "元素爆发", "命之座", "剧情仪式", "队伍机制"],
       conservativeNotes: "神、龙、审判官、典狱长等称号不直接换算高阶破坏；元素攻击、治疗、召唤物和剧情权柄与本体承伤分开。"

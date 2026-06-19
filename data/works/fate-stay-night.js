@@ -42,7 +42,7 @@
       }
     ],
     scaleNotes: {
-      scope: "当前收录命运之夜 worldbook 索引字段中的 Fate/stay night 本篇核心角色：卫宫士郎、阿尔托莉雅、远坂凛、间桐樱、伊莉雅、言峰绮礼、间桐慎二、间桐脏砚、葛木宗一郎，以及 Archer、Lancer、Rider、Caster、Assassin、Berserker、吉尔伽美什和 Heaven's Feel 真Assassin咒腕哈桑。",
+      scope: "当前收录命运之夜 worldbook key/comment 中的 Fate/stay night 主角团、三路线核心和终局对立核心：卫宫士郎、阿尔托莉雅、远坂凛、间桐樱、伊莉雅、言峰绮礼、间桐慎二、间桐脏砚、Archer、Rider、Caster、Berserker和吉尔伽美什；次级从者与支援者不再扩入。",
       versionPolicy: "按第五次圣杯战争记录；Fate/Zero、FGO、二世事件簿等时间线不并入本作品面板。黑化、圣杯泥、HF影、投影过载、令咒和宝具真名解放均作为条件峰值或特殊项处理。",
       highRisk: ["宝具", "固有结界", "王之财宝", "Ea", "Excalibur", "令咒", "圣杯泥", "影", "十二试炼", "破万符", "妄想心音", "气息遮断"],
       conservativeNotes: "从者称号、神话原型和宝具名不直接抬到城市级以上；缺少具体破坏范围时，常规白刃战和魔术战按局部破坏、穿透、结界和特殊杀伤分开记录。"

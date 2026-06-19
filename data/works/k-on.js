@@ -33,7 +33,7 @@
     }],
     scaleEvidenceLinks: [],
     scaleNotes: {
-      scope: "当前收录缄默之秋 worldbook key/comment 中明确出现的樱丘女子高中相关主要角色：平泽唯、秋山澪、田井中律、琴吹紬、平泽忧。",
+      scope: "当前收录缄默之秋 worldbook key/comment 中明确出现的放学后茶会主角团成员：平泽唯、秋山澪、田井中律和琴吹紬；亲属/支援角色不扩入。",
       versionPolicy: "按动画/漫画公开资料综合记录；乐器、舞台道具和日常夸张演出只作为低档装备/喜剧标签，不转化为战斗能力。",
       highRisk: ["日常夸张演出", "乐器", "舞台道具"],
       conservativeNotes: "这是非战斗日常作品，主要角色身份不等于战斗面板；全部按普通高中生或生活道具峰值记录。"

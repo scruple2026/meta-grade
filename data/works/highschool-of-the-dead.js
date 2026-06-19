@@ -42,7 +42,7 @@
     }],
     scaleEvidenceLinks: [],
     scaleNotes: {
-      scope: "当前收录缄默之秋 worldbook key/comment 中明确出现的《学园默示录 HIGHSCHOOL OF THE DEAD》主角团：小室孝、毒岛冴子、宫本丽、平野耕太、高城沙耶、鞠川静香。暂不展开未出现在索引中的长尾幸存者或敌对人群。",
+      scope: "当前收录缄默之秋 worldbook key/comment 中明确出现的《学园默示录 HIGHSCHOOL OF THE DEAD》学生主角团：小室孝、毒岛冴子、宫本丽、平野耕太和高城沙耶；医护/支援角色与长尾幸存者不扩入。",
       versionPolicy: "按原作/动画主线的丧尸爆发期记录；枪械、刀剑、长枪、车辆、巴士和临时物资均作为装备/环境峰值，不写成本体肉身。",
       highRisk: ["枪械", "刀剑", "长枪", "车辆", "丧尸潮", "生还经历", "医疗支援"],
       conservativeNotes: "主角团在丧尸爆发中生还不等同超人肉身、防御或自愈；攻击峰值主要来自武器、弹药、车辆和环境利用。"
