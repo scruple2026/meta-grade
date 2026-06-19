@@ -62,7 +62,8 @@
     "data/works/who-can-be-more-yin.js",
     "data/works/zhu-xian.js",
     "data/works/fate-prototype.js",
-    "data/works/resident-evil.js"
+    "data/works/resident-evil.js",
+    "data/works/highschool-of-the-dead.js"
   ];
   window.POWER_WIKI_CHARACTER_FILES = [
     "data/characters/jujutsu-kaisen/yuji-itadori.js",
@@ -621,6 +622,12 @@
     "data/characters/resident-evil/leon-s-kennedy.js",
     "data/characters/resident-evil/ada-wong.js",
     "data/characters/resident-evil/jill-valentine.js",
+    "data/characters/highschool-of-the-dead/takashi-komuro.js",
+    "data/characters/highschool-of-the-dead/saeko-busujima.js",
+    "data/characters/highschool-of-the-dead/rei-miyamoto.js",
+    "data/characters/highschool-of-the-dead/kohta-hirano.js",
+    "data/characters/highschool-of-the-dead/saya-takagi.js",
+    "data/characters/highschool-of-the-dead/shizuka-marikawa.js",
   ];
 
   if (window.POWER_WIKI && typeof window.POWER_WIKI.publish === "function") {
