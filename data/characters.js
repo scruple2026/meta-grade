@@ -71,7 +71,9 @@
     "data/works/detective-conan.js",
     "data/works/lupin-iii.js",
     "data/works/genshin-impact.js",
-    "data/works/honkai-star-rail.js"
+    "data/works/honkai-star-rail.js",
+    "data/works/k-on.js",
+    "data/works/zombie-land-saga.js"
   ];
   window.POWER_WIKI_CHARACTER_FILES = [
     "data/characters/jujutsu-kaisen/yuji-itadori.js",
@@ -652,6 +654,16 @@
     "data/characters/genshin-impact/neuvillette.js",
     "data/characters/genshin-impact/wriothesley.js",
     "data/characters/honkai-star-rail/yunli.js",
+    "data/characters/k-on/yui-hirasawa.js",
+    "data/characters/k-on/mio-akiyama.js",
+    "data/characters/k-on/ritsu-tainaka.js",
+    "data/characters/k-on/tsumugi-kotobuki.js",
+    "data/characters/k-on/ui-hirasawa.js",
+    "data/characters/zombie-land-saga/sakura-minamoto.js",
+    "data/characters/zombie-land-saga/ai-mizuno.js",
+    "data/characters/zombie-land-saga/junko-konno.js",
+    "data/characters/zombie-land-saga/yugiri.js",
+    "data/characters/zombie-land-saga/kotaro-tatsumi.js",
   ];
 
   if (window.POWER_WIKI && typeof window.POWER_WIKI.publish === "function") {
