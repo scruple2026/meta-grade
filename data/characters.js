@@ -274,6 +274,8 @@
     "data/characters/a-will-eternal/hou-xiaomei.js",
     "data/characters/reverend-insanity/gu-yue-fang-yuan.js",
     "data/characters/reverend-insanity/shang-xinci.js",
+    "data/characters/reverend-insanity/star-constellation-immortal-venerable.js",
+    "data/characters/reverend-insanity/red-lotus-demon-venerable.js",
     "data/characters/douluo-dalu/tang-san.js",
     "data/characters/dragon-ball-super/son-goku-super.js",
     "data/characters/tengen-toppa-gurren-lagann/simon-gurren-lagann.js",
