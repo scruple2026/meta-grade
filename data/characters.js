@@ -630,6 +630,7 @@
     "data/characters/legend-of-the-condor-heroes/mei-chaofeng.js",
     "data/characters/legend-of-the-condor-heroes/chen-xuanfeng.js",
     "data/characters/legend-of-the-condor-heroes/ouyang-ke.js",
+    "data/characters/legend-of-the-condor-heroes/hou-tonghai.js",
     "data/characters/return-of-the-condor-heroes/yang-guo.js",
     "data/characters/return-of-the-condor-heroes/xiaolongnu.js",
     "data/characters/return-of-the-condor-heroes/li-mochou.js",
