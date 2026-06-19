@@ -63,7 +63,11 @@
     "data/works/zhu-xian.js",
     "data/works/fate-prototype.js",
     "data/works/resident-evil.js",
-    "data/works/highschool-of-the-dead.js"
+    "data/works/highschool-of-the-dead.js",
+    "data/works/final-fantasy-vii.js",
+    "data/works/tomb-raider.js",
+    "data/works/akame-ga-kill.js",
+    "data/works/danganronpa.js"
   ];
   window.POWER_WIKI_CHARACTER_FILES = [
     "data/characters/jujutsu-kaisen/yuji-itadori.js",
@@ -628,6 +632,10 @@
     "data/characters/highschool-of-the-dead/kohta-hirano.js",
     "data/characters/highschool-of-the-dead/saya-takagi.js",
     "data/characters/highschool-of-the-dead/shizuka-marikawa.js",
+    "data/characters/final-fantasy-vii/tifa-lockhart.js",
+    "data/characters/tomb-raider/lara-croft.js",
+    "data/characters/akame-ga-kill/esdeath.js",
+    "data/characters/danganronpa/junko-enoshima.js",
   ];
 
   if (window.POWER_WIKI && typeof window.POWER_WIKI.publish === "function") {
