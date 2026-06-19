@@ -18,7 +18,7 @@
       grade: "四皇 / 魂魂果实",
       appearances: ["蛋糕岛篇", "和之国篇"],
       timelineStatus: "和之国篇 / 大妈",
-      aliases: ["大妈", "Big Mom", "BIG MOM", "魂魂果实"],
+      aliases: ["大妈", "夏洛特·玲玲", "Big Mom", "BIG MOM", "魂魂果实"],
       fandomSlug: "Charlotte_Linlin",
       confidence: "review",
       evidenceType: ["角色页入口", "官方入口", "跨界参考"],

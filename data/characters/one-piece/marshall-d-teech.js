@@ -18,7 +18,7 @@
       grade: "四皇 / 黑暗果实与震震果实",
       appearances: ["正篇"],
       timelineStatus: "顶上战争后 / 双果实",
-      aliases: [],
+      aliases: ["黑胡子", "蒂奇", "Blackbeard", "Teach"],
       fandomSlug: "Marshall_D._Teach",
       evidenceLinks: [
         {
