@@ -44,7 +44,7 @@ Do not build exhaustive cast lists by default. For a new work or a new update pa
 
 Skip non-combat characters, pure story characters, minor civilians, ordinary support staff, background factions, and low-priority one-off fighters unless the user explicitly asks to include them.
 
-For the current project scope, preserve the existing curated compact roster for each work instead of auto-expanding into exhaustive cast lists. Keep summons, external powers, and temporary allies inside the relevant character's battle-explanation fields (`notes.*`) unless the user explicitly asks to add a separate entry. Do not re-add long-tail cast just because a source wiki lists them.
+For the current project scope, preserve the existing curated compact roster for each work instead of auto-expanding into exhaustive cast lists. For worldbook-driven roster updates, interpret "主要人物" narrowly as stable protagonist team members plus the final antagonist group. Do not treat arc bosses, phase villains, top-tier side fighters, mentors, technicians, support staff, temporary allies, ordinary cadres, summons, vehicles, systems, or sample entities as separate formal roster additions unless the user explicitly names them. Keep summons, external powers, and temporary allies inside the relevant character's battle-explanation fields (`notes.*`) unless the user explicitly asks to add a separate entry. Do not re-add long-tail cast just because a source wiki lists them.
 
 The current maintained roster is intentionally compact:
 

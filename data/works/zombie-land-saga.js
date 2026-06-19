@@ -33,7 +33,7 @@
     }],
     scaleEvidenceLinks: [],
     scaleNotes: {
-      scope: "当前收录缄默之秋 worldbook key/comment 中明确出现的弗兰秀秀成员与企划核心：源樱、水野爱、绀野纯子、夕雾和巽幸太郎；未在名字字段出现的成员、亲属和普通支援角色不扩入。",
+      scope: "当前收录缄默之秋 worldbook key/comment 中明确出现的弗兰秀秀成员：源樱、水野爱、绀野纯子和夕雾；经纪/支援角色、未在名字字段出现的成员和亲属不扩入。",
       versionPolicy: "按动画公开资料综合记录；丧尸身份、不死性、舞台演出和喜剧夸张不直接并入攻击、防御或速度。",
       highRisk: ["丧尸身份", "不死性", "舞台事故", "喜剧夸张演出"],
       conservativeNotes: "Franchouchou成员不是战斗角色；丧尸身体写入生命体量、弱点和特殊项，主攻击/速度保持普通人低档。"
