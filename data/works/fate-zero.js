@@ -38,7 +38,7 @@
     }],
     scaleEvidenceLinks: [],
     scaleNotes: {
-      scope: "当前收录 Fate/Zero worldbook key/comment 中的主角阵营与终局对立核心：卫宫切嗣、阿尔托莉雅、爱丽丝菲尔、言峰绮礼、吉尔伽美什和韦伯；其他御主/从者、亲属和支援人员不再按名字池自动扩入。",
+      scope: "当前收录 Fate/Zero worldbook key/comment 中的主角阵营与终局对立核心：卫宫切嗣、阿尔托莉雅、爱丽丝菲尔、韦伯、伊斯坎达尔、言峰绮礼和吉尔伽美什；其他御主/从者、亲属和支援人员不再按名字池自动扩入。",
       versionPolicy: "按第四次圣杯战争记录；Fate/stay night、FGO、二世事件簿等后续时间线不并入本作品面板。宝具、令咒、供魔、狂化、王之军势、怪物召唤和小圣杯状态均作为条件峰值或特殊项处理。",
       highRisk: ["宝具", "王之财宝", "Ea", "Excalibur", "王之军势", "For Someone's Glory", "Knight of Owner", "Prelati's Spellbook", "令咒", "小圣杯"],
       conservativeNotes: "从者职阶、英灵传说、御主身份和圣杯战争战术价值不自动抬高主面板；缺少具体破坏范围时，白刃战、魔术、召唤物、结界和规则效果分开记录。"
