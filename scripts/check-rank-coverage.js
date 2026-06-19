@@ -197,6 +197,8 @@ function extractObjectLiteral(source, start) {
 }
 
 function main() {
+  assertRankFilterOptionsUseFullOrder();
+
   const data = loadData();
   const characters = Array.isArray(data.POWER_WIKI_CHARACTERS) ? data.POWER_WIKI_CHARACTERS : [];
   const coverage = buildCoverage(characters);
@@ -220,6 +222,21 @@ function main() {
     process.exitCode = 1;
   } else {
     console.log("rank coverage ok");
+  }
+}
+
+function assertRankFilterOptionsUseFullOrder() {
+  const source = fs.readFileSync(path.join(ROOT, "assets/app.js"), "utf8");
+  const marker = "function collectRankFilterOptions";
+  const markerIndex = source.indexOf(marker);
+  if (markerIndex < 0) {
+    throw new Error("assets/app.js is missing collectRankFilterOptions.");
+  }
+
+  const bodyStart = source.indexOf("{", markerIndex);
+  const body = bodyStart < 0 ? "" : extractObjectLiteral(source, bodyStart);
+  if (!body.includes("rankOrders[key]")) {
+    throw new Error("rank filters must use full rankOrders so low/unoccupied ranks like 昆虫级 remain selectable.");
   }
 }
 
