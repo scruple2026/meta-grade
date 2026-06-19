@@ -316,6 +316,7 @@
     "data/characters/dragon-raja/chu-zihang.js",
     "data/characters/dragon-raja/caesar-gattuso.js",
     "data/characters/dragon-raja/chen-motong.js",
+    "data/characters/dragon-raja/zero-renata.js",
     "data/characters/dragon-raja/uesugi-erii.js",
     "data/characters/dragon-raja/herzog.js",
     "data/characters/dragon-raja/xia-mi-jormungandr.js",
