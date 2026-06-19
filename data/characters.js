@@ -353,6 +353,7 @@
     "data/characters/zhu-xian/lu-xueqi.js",
     "data/characters/fate-prototype/manaka-sajyou.js",
     "data/characters/fate-prototype/ayaka-sajyou.js",
+    "data/characters/fate-prototype/arthur-pendragon-prototype.js",
     "data/characters/resident-evil/leon-s-kennedy.js",
     "data/characters/resident-evil/ada-wong.js",
     "data/characters/resident-evil/jill-valentine.js",

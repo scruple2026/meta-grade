@@ -32,7 +32,7 @@
     }],
     scaleEvidenceLinks: [],
     scaleNotes: {
-      scope: "当前收录型月 DLC worldbook key/comment 中明确出现、且当前 roster 缺失的 Fate/Prototype 核心人物：沙条爱歌、沙条绫香。亚瑟·潘德拉贡已有 FGO/Prototype 召唤灵基条目，暂不重复。",
+      scope: "当前收录型月 DLC worldbook key/comment 中明确出现的 Fate/Prototype 主角侧与终局对立核心：沙条爱歌、沙条绫香和亚瑟·潘德拉贡；FSF、冰室、苍银碎片和FGO变体不按名字池重复扩入。",
       versionPolicy: "按 Fate/Prototype 语境记录；FGO 召唤灵基、苍银碎片和其他外传后续可按需要拆分，不把从者输出直接并入御主本人。",
       highRisk: ["根源", "Beast", "圣杯", "从者契约", "令咒", "Prototype", "外源峰值"],
       conservativeNotes: "根源接续、Beast关联、圣杯/从者契约和剧情危险性不自动抬高日常肉身、防御或速度；外源、仪式和契约支援用峰值标签与 notes 分开记录。"
