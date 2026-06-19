@@ -26,7 +26,7 @@
       { label: "Jujutsu Kaisen Wiki 角色总表", url: "https://jujutsu-kaisen.fandom.com/wiki/List_of_Characters" }
     ],
     scaleNotes: {
-          "scope": "当前收录主角团、高专核心和终局反派核心：虎杖、伏黑、钉崎、五条、真希、狗卷、胖达、乙骨、羂索、里梅和最终 Boss 两面宿傩；支援人员、普通术师、死灭回游长尾和阶段性咒灵不再按 worldbook 名字池自动扩入。",
+          "scope": "当前收录主角团、高专核心和终局反派核心：虎杖、伏黑、钉崎、五条、真希、狗卷、胖达、乙骨、秤金次、羂索、里梅和最终 Boss 两面宿傩；支援人员、普通术师、死灭回游长尾和阶段性咒灵不再按 worldbook 名字池自动扩入。",
           "versionPolicy": "高成长角色按 timelineStatus 限定，结局状态与早期状态后续可拆 timelinePanels。",
           "highRisk": [
                 "领域",

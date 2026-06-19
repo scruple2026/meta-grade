@@ -82,6 +82,7 @@
     "data/characters/jujutsu-kaisen/toge-inumaki.js",
     "data/characters/jujutsu-kaisen/panda.js",
     "data/characters/jujutsu-kaisen/yuta-okkotsu.js",
+    "data/characters/jujutsu-kaisen/kinji-hakari.js",
     "data/characters/jujutsu-kaisen/sukuna.js",
     "data/characters/jujutsu-kaisen/kenjaku.js",
     "data/characters/jujutsu-kaisen/uraume.js",
@@ -211,6 +212,7 @@
     "data/characters/mob-psycho-100/arataka-reigen.js",
     "data/characters/mob-psycho-100/ritsu-kageyama.js",
     "data/characters/mob-psycho-100/teruki-hanazawa.js",
+    "data/characters/mob-psycho-100/katsuya-serizawa.js",
     "data/characters/frieren/frieren.js",
     "data/characters/frieren/fern.js",
     "data/characters/frieren/stark.js",
@@ -244,6 +246,7 @@
     "data/characters/dr-stone/chrome.js",
     "data/characters/dr-stone/tsukasa-shishio.js",
     "data/characters/dr-stone/gen-asagiri.js",
+    "data/characters/dr-stone/kaseki.js",
     "data/characters/dr-stone/taiju-oki.js",
     "data/characters/dr-stone/yuzuriha-ogawa.js",
     "data/characters/re-zero/subaru-natsuki.js",
@@ -382,6 +385,7 @@
     "data/characters/zombie-land-saga/ai-mizuno.js",
     "data/characters/zombie-land-saga/junko-konno.js",
     "data/characters/zombie-land-saga/yugiri.js",
+    "data/characters/zombie-land-saga/kotaro-tatsumi.js",
   ];
 
   if (window.POWER_WIKI && typeof window.POWER_WIKI.publish === "function") {
