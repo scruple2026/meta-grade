@@ -609,6 +609,7 @@
     "data/characters/heaven-sword-dragon-saber/yin-tianzheng.js",
     "data/characters/heaven-sword-dragon-saber/yin-susu.js",
     "data/characters/heaven-sword-dragon-saber/yin-yewang.js",
+    "data/characters/heaven-sword-dragon-saber/xie-xun.js",
     "data/characters/heaven-sword-dragon-saber/zhang-sanfeng.js",
     "data/characters/heaven-sword-dragon-saber/miejue-shitai.js",
     "data/characters/heaven-sword-dragon-saber/he-taichong.js",
