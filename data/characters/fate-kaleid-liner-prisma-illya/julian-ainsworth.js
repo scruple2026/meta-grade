@@ -87,7 +87,7 @@
         energyRegen: ["中速回能", "快速回能｜黑泥/仪式资源｜争议", "有外部/仪式资源支撑，但不是无条件无限回能。"]
       }),
       notes: notes({
-        penetration: "Flash Air/置换魔术可改变空间、物体与身体部位位置，棘枝魔力和黑泥/Pandora资源提供异质杀伤，Class Card权限偏规则/系统侧，不等同纯破坏规模。",
+        penetration: "Flash Air/置换魔术可改变空间、物体与身体部位位置，棘枝魔力和黑泥/Pandora资源提供异质杀伤，Class Card权限偏规则/系统侧，不等同纯破坏规模。攻击速度：棘枝与黑泥有各自伸展或覆盖过程，Flash Air置换则依赖选定与发动；空间换位不能因无飞行轨迹就视为无限速。",
         resistance: "可用Flash Air逆向转移、棘枝外壳、Darius宿主状态和仪式资源提高生存；但对反魔术、宿主分离、Rule Master权限被破坏、仪式中断和针对心脏/核心的攻击仍有风险。",
         sensing: "可借恩兹华斯城、置换魔术、远程投影/观察和Rule Master权限掌握战场；个人近身感知不按全知处理。",
         tactics: "作为当代恩兹华斯当主与Rule Master，擅长用Class Card、黑化英灵、置换魔术、地形和人质/圣杯条件构建战局；弱点是执念、Darius控制和仪式依赖。",

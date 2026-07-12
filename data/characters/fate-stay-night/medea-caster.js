@@ -30,7 +30,7 @@
       energyRegen: ["快速回能｜阵地", "快速回能｜阵地/供魔", "阵地内回能优势明显。"]
     }),
     notes: notes({
-      penetration: "神代魔术和Rule Breaker偏术式干涉、契约破坏和结界压制。",
+      penetration: "神代魔术和Rule Breaker偏术式干涉、契约破坏和结界压制。攻击速度：美狄亚的神代魔术按具体术式分别施放，Rule Breaker必须由短剑实际刺中才破坏契约；结界压制还依赖阵地。",
       resistance: "阵地防护强，本体被近身时风险高。",
       sensing: "柳洞寺阵地、使魔和魔术探查优秀。",
       tactics: "擅长阵地经营、契约夺取和魔术压制。",

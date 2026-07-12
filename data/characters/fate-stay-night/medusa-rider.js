@@ -30,7 +30,7 @@
       energyRegen: ["中速回能", "快速回能｜樱供魔", "供魔充足时续航明显提升。"]
     }),
     notes: notes({
-      penetration: "魔眼偏石化/束缚，Bellerophon偏高速冲击和局部爆发。",
+      penetration: "魔眼偏石化/束缚，Bellerophon偏高速冲击和局部爆发。攻击速度：美杜莎的魔眼依赖视线与石化条件，Bellerophon则要完成骑乘宝具发动后高速冲击；两种能力没有共同弹道。",
       resistance: "供魔不足时能力受限，供魔充足时全面提升。",
       sensing: "从者感知和魔眼压制强。",
       tactics: "擅长伏击、速度战和保护樱。",

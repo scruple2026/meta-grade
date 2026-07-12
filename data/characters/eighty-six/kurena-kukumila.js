@@ -34,7 +34,7 @@
         energyRegen: ["中速回能", "缓慢回能｜整备补给", "弹药和机体需要整备。"]
       }),
       notes: notes({
-        penetration: "Juggernaut火炮和远距射击能力。",
+        penetration: "Juggernaut火炮和远距射击能力。攻击速度：可蕾娜的远距炮弹离膛后独立于机体移动，狙击效果还取决于瞄准、射界与再次装填，并非贴身连打。",
         resistance: "机体防护有限，本体无特殊抗性。",
         sensing: "依靠瞄准、通信和战场观察。",
         tactics: "偏射击/火力支援定位，适合在队伍中提供覆盖和精确打击。",

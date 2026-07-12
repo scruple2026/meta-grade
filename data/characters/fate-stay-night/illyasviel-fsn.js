@@ -30,7 +30,7 @@
       energyRegen: ["中速回能", "快速回能｜小圣杯供魔", "供魔能力强。"]
     }),
     notes: notes({
-      penetration: "本体攻击多为魔术和使魔，Berserker战力不并入她的攻击常态。",
+      penetration: "本体攻击多为魔术和使魔，Berserker战力不并入她的攻击常态。攻击速度：伊莉雅本人的魔术先经施术再产生效果，使魔成形后按自身动作接战；Berserker接受命令后的挥击属于外援，不能记作伊莉雅本体出手。",
       resistance: "小圣杯和人造人素体特殊，但仍需Berserker保护。",
       sensing: "魔术感知和圣杯系统关联强。",
       tactics: "依赖Berserker压制和爱因兹贝伦准备。",

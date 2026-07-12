@@ -32,7 +32,7 @@
         energyRegen: ["中速回能", "快速回能｜供魔充足", "供魔质量直接影响续航。"]
       }),
     notes: notes({
-        penetration: "Invisible Air与Excalibur偏圣剑斩击和光炮峰值，需区分白刃战和真名解放。",
+        penetration: "Invisible Air与Excalibur偏圣剑斩击和光炮峰值，需区分白刃战和真名解放。攻击速度：第四次圣杯战争中的圣剑挥击随阿尔托莉雅近身接战，Excalibur则要先完成真名解放再形成光炮；两个阶段不能用同一速度描述。",
         resistance: "对魔力、铠甲和魔力放出强，仍会被规则型、宝具或供魔问题克制。",
         sensing: "直感可辅助预判危机，不等同全知索敌。",
         tactics: "骑士战经验丰富，正面决斗和保护御主能力强。",

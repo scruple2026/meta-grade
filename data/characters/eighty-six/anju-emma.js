@@ -34,7 +34,7 @@
         energyRegen: ["中速回能", "缓慢回能｜整备补给", "弹药和机体需要整备。"]
       }),
       notes: notes({
-        penetration: "Juggernaut火炮和队伍协同输出。",
+        penetration: "Juggernaut火炮和队伍协同输出。攻击速度：安琪的Juggernaut火炮在瞄准发射后按炮弹独立飞行，射速受装填、弹药与协同窗口限制，不随机体冲刺同步。",
         resistance: "机体防护有限，本体无特殊抗性。",
         sensing: "依靠通信、队伍协同和战场观察。",
         tactics: "稳定的小队成员，擅长按队伍节奏提供支援火力。",

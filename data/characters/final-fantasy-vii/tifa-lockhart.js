@@ -52,7 +52,7 @@
         energyRegen: ["缓慢回能", "中速回能｜道具/战斗循环", "依赖道具、战斗节奏和队友补给。"]
       }),
     notes: notes({
-        penetration: "拳套、武术连段、Limit Break和Materia可提升近战杀伤；召唤兽和队友协同不并入本体常态。",
+        penetration: "拳套、武术连段、Limit Break和Materia可提升近战杀伤；召唤兽和队友协同不并入本体常态。攻击速度：蒂法的拳套攻击、武术连段和Limit Break均随近身步法与拳脚衔接，Materia若产生远程效果则按具体魔法另判。",
         resistance: "本体并非高防生物，靠防具、Materia、药剂和战斗系统承伤。",
         sensing: "近战距离感、队伍协同和战场观察优秀，但无稳定远程索敌或未来视。",
         tactics: "擅长贴身连段、打断、队伍配合和在有限窗口内压制敌人。",

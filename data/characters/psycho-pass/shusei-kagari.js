@@ -34,7 +34,7 @@
         energyRegen: ["中速回能", "缓慢回能｜补给", "装备需要补给。"]
       }),
       notes: notes({
-        penetration: "Dominator、枪械和执行官战术。",
+        penetration: "Dominator、枪械和执行官战术。攻击速度：縢使用Dominator时需经历举枪、瞄准和系统判定；普通枪械则在击发后由弹丸独立飞行，两者不能混为同一种发射流程。",
         resistance: "无特殊抗性，面对西比拉系统级处置极脆弱。",
         sensing: "公安情报、现场观察和执行官经验。",
         tactics: "行动灵活，能担任现场追踪和支援。",

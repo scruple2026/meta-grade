@@ -30,7 +30,7 @@
       energyRegen: ["中速回能", "快速回能｜供魔/阵地", "续航受御主和消耗影响。"]
     }),
     notes: notes({
-      penetration: "投影宝具、弓兵狙击和Broken Phantasm偏穿透与局部爆发。",
+      penetration: "投影宝具、弓兵狙击和Broken Phantasm偏穿透与局部爆发。攻击速度：Archer的弓兵狙击要先投影或备箭、瞄准并放箭，宝具离弦后独立飞行；Broken Phantasm还要计入引爆准备。",
       resistance: "心眼和战斗经验降低受击，硬防不如重装从者。",
       sensing: "千里眼、经验和投影解析提高索敌与读招。",
       tactics: "战术、欺骗、远近转换和资源管理极强。",

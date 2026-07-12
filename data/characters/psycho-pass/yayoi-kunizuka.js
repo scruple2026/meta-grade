@@ -34,7 +34,7 @@
         energyRegen: ["中速回能", "缓慢回能｜补给", "装备需要补给。"]
       }),
       notes: notes({
-        penetration: "Dominator、枪械和执行官战术是主要杀伤手段。",
+        penetration: "Dominator、枪械和执行官战术是主要杀伤手段。攻击速度：六合塚的开火节奏由Dominator操作、瞄准及系统许可决定，枪弹传播不能从她的移动表现反推。",
         resistance: "无特殊抗性，依赖装备和队伍协同。",
         sensing: "公安情报、现场观察和执行官经验。",
         tactics: "冷静、服从团队行动，适合支援与抓捕。",

@@ -34,7 +34,7 @@
         energyRegen: ["中速回能", "缓慢回能｜系统/补给", "外部资源需要授权与补给。"]
       }),
       notes: notes({
-        penetration: "Dominator和公安装备是主要杀伤手段。",
+        penetration: "Dominator和公安装备是主要杀伤手段。攻击速度：宜野座使用Dominator时需先拔枪、瞄准并等待系统授权，射击效果的生效过程不等同他的身体动作速度。",
         resistance: "无特殊抗性。",
         sensing: "依靠Dominator、公安情报和刑事训练。",
         tactics: "程序化执法和团队管理能力强，但第一季心理负担较重。",

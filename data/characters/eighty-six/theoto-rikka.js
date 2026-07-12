@@ -34,7 +34,7 @@
         energyRegen: ["中速回能", "缓慢回能｜整备补给", "弹药和机体需要整备。"]
       }),
       notes: notes({
-        penetration: "Juggernaut火炮和机动作战。",
+        penetration: "Juggernaut火炮和机动作战。攻击速度：赛欧的Juggernaut炮击按炮弹飞行与装填节奏判断，机体迂回只改变射击位置，不直接提高弹速。",
         resistance: "机体防护有限，本体无特殊抗性。",
         sensing: "依靠通信、队友信息和战场观察。",
         tactics: "战场经验成熟，能在小队中执行机动支援和火力压制。",

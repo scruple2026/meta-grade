@@ -34,7 +34,7 @@
         energyRegen: ["中速回能", "缓慢回能｜补给", "装备需要补给。"]
       }),
       notes: notes({
-        penetration: "Dominator、枪械、刑警经验和近身应对。",
+        penetration: "Dominator、枪械、刑警经验和近身应对。攻击速度：征陆的近身应对取决于身体出手与接战，Dominator或枪械射击另受拔枪、瞄准和武器判定影响。",
         resistance: "肉身和义肢可承受一定伤害，但无特殊抗性。",
         sensing: "老刑警的现场嗅觉和调查经验很强。",
         tactics: "丰富刑警经验、队伍支援和临场保护能力。",

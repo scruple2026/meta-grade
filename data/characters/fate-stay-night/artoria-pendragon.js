@@ -30,7 +30,7 @@
       energyRegen: ["中速回能", "快速回能｜供魔充足/黑化", "供魔质量直接影响续航。"]
     }),
     notes: notes({
-      penetration: "Invisible Air与Excalibur偏圣剑斩击和光炮峰值，黑化时输出提升但受路线条件限制。",
+      penetration: "Invisible Air与Excalibur偏圣剑斩击和光炮峰值，黑化时输出提升但受路线条件限制。攻击速度：阿尔托莉雅的Invisible Air剑击随白刃动作命中，Excalibur须先真名解放再发射光炮；黑化只改变输出条件，不合并两种速度。",
       resistance: "对魔力、铠甲和魔力放出强，仍会被规则型、宝具或供魔问题克制。",
       sensing: "直感可辅助预判危机，不等同全知索敌。",
       tactics: "骑士战经验丰富，正面决斗和保护御主能力强。",
