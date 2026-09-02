@@ -24,13 +24,13 @@
       evidenceType: ["官方入口", "角色页入口"],
       sourceQuality: "entry",
       dimensions: dims({
-        attack: ["砖级", "墙级｜Dominator/枪械", "老练执行官，峰值来自Dominator和警用武器。"],
-        defense: ["凡人级", "砖级｜义肢/经验", "有义肢与经验加成，但肉身仍有限。"],
+        attack: ["砖块级", "墙体级｜Dominator/枪械", "老练执行官，峰值来自Dominator和警用武器。"],
+        defense: ["凡人级", "砖块级｜义肢/经验", "有义肢与经验加成，但肉身仍有限。"],
         movement: ["凡人速", "凡人速", "年长刑警机动。"],
         reaction: ["凡人速", "亚音速｜刑警经验", "经验和直觉可弥补部分速度差。"],
         vitality: ["强化凡体", "精锐韧体｜意志/义肢", "资深刑警承伤和意志较强。"],
         healing: ["无自愈", "缓慢自愈｜体魄", "自然恢复。"],
-        energy: ["砖级能量｜体能/武器", "墙级能量｜Dominator/公安资源", "资源来自武器、Dominator和经验。"],
+        energy: ["砖块级能量｜体能/武器", "墙体级能量｜Dominator/公安资源", "资源来自武器、Dominator和经验。"],
         energyRegen: ["中速回能", "缓慢回能｜补给", "装备需要补给。"]
       }),
       notes: notes({

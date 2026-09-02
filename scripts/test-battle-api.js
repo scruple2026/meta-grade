@@ -478,7 +478,7 @@ function fighterFixture({ id, name, stageKey }) {
 }
 
 function dimensionFixture() {
-  const item = { normal: "墙级", peak: "楼级", brief: "测试面板。" };
+  const item = { normal: "墙体级", peak: "楼宇级", brief: "测试面板。" };
   return {
     attack: item,
     defense: item,
@@ -486,7 +486,7 @@ function dimensionFixture() {
     reaction: { normal: "亚音速", peak: "音速", brief: "测试反应。" },
     vitality: { normal: "强化凡体", peak: "精锐韧体", brief: "测试生命体量。" },
     healing: { normal: "无自愈", peak: "缓慢自愈", brief: "测试自愈。" },
-    energy: { normal: "墙级能量", peak: "楼级能量", brief: "测试能量。" },
+    energy: { normal: "墙体级能量", peak: "楼宇级能量", brief: "测试能量。" },
     energyRegen: { normal: "缓慢回能", peak: "中速回能", brief: "测试回能。" }
   };
 }

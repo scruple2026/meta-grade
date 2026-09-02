@@ -24,13 +24,13 @@
       evidenceType: ["官方入口", "角色页入口"],
       sourceQuality: "entry",
       dimensions: dims({
-        attack: ["凡人级", "墙级｜Dominator分解执行｜系统授权", "个人武力低，峰值来自Dominator授权模式。"],
+        attack: ["凡人级", "墙体级｜Dominator分解执行｜系统授权", "个人武力低，峰值来自Dominator授权模式。"],
         defense: ["凡人级", "凡人级", "普通人肉身。"],
         movement: ["凡人速", "凡人速", "普通警员机动。"],
         reaction: ["凡人速", "凡人速｜刑事判断", "判断和心理稳定强，不等同高速身体反应。"],
         vitality: ["凡人肉身", "凡人肉身", "普通人生命体量。"],
         healing: ["无自愈", "无自愈", "无自愈。"],
-        energy: ["凡人能量", "墙级能量｜Dominator/公安资源", "资源来自Dominator、公安系统和队伍支援。"],
+        energy: ["凡人能量", "墙体级能量｜Dominator/公安资源", "资源来自Dominator、公安系统和队伍支援。"],
         energyRegen: ["中速回能", "缓慢回能｜系统/补给", "外部资源依赖系统授权和装备补给。"]
       }),
       notes: notes({

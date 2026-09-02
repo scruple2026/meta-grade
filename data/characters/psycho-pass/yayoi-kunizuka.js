@@ -24,13 +24,13 @@
       evidenceType: ["官方入口", "角色页入口"],
       sourceQuality: "entry",
       dimensions: dims({
-        attack: ["砖级", "墙级｜Dominator/枪械", "执行官训练和Dominator火力。"],
-        defense: ["凡人级", "砖级｜防具/训练", "肉身仍是人类。"],
+        attack: ["砖块级", "墙体级｜Dominator/枪械", "执行官训练和Dominator火力。"],
+        defense: ["凡人级", "砖块级｜防具/训练", "肉身仍是人类。"],
         movement: ["凡人速", "亚音速｜执行官训练", "受训行动员机动。"],
         reaction: ["凡人速", "亚音速｜执行官训练", "受训反应优秀。"],
         vitality: ["强化凡体", "强化凡体", "训练者体魄。"],
         healing: ["无自愈", "无自愈", "无自愈。"],
-        energy: ["砖级能量｜体能/武器", "墙级能量｜Dominator/公安资源", "资源来自武器和Dominator。"],
+        energy: ["砖块级能量｜体能/武器", "墙体级能量｜Dominator/公安资源", "资源来自武器和Dominator。"],
         energyRegen: ["中速回能", "缓慢回能｜补给", "装备需要补给。"]
       }),
       notes: notes({

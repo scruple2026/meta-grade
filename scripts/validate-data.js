@@ -20,10 +20,10 @@ const NOTE_KEYS = ["penetration", "resistance", "sensing", "tactics", "special",
 const MAIN_ENERGY_BASES = [
   "昆虫级",
   "凡人级",
-  "砖级",
-  "墙级",
+  "砖块级",
+  "墙体级",
   "房屋级",
-  "楼级",
+  "楼宇级",
   "街区级",
   "城市级",
   "国家级",
@@ -33,7 +33,7 @@ const MAIN_ENERGY_BASES = [
   "恒星级",
   "星系级",
   "超星系团级",
-  "有限宇宙级",
+  "可观测宇宙级",
   "无限级"
 ];
 const SPEED_BASES = [
@@ -52,7 +52,7 @@ const SPEED_BASES = [
   "星系尺度超光速",
   "星系际超光速",
   "超星系团尺度超光速",
-  "有限宇宙尺度超光速",
+  "可观测宇宙尺度超光速",
   "无限速"
 ];
 const VITALITY_BASES = [
@@ -61,7 +61,7 @@ const VITALITY_BASES = [
   "强化凡体",
   "精锐韧体",
   "房屋级生命阈值",
-  "楼级生命阈值",
+  "楼宇级生命阈值",
   "街区级生命阈值",
   "城市级生命阈值",
   "国家级生命阈值",
@@ -71,17 +71,17 @@ const VITALITY_BASES = [
   "恒星级生命结构",
   "星系级生命结构",
   "超星系团级生命结构",
-  "有限宇宙级生命结构",
+  "可观测宇宙级生命结构",
   "无限级生命结构"
 ];
 const HEALING_BASES = ["无自愈", "缓慢自愈", "中速自愈", "快速自愈", "极速自愈", "瞬愈"];
 const ENERGY_POOL_BASES = [
   "昆虫级能量",
   "凡人能量",
-  "砖级能量",
-  "墙级能量",
+  "砖块级能量",
+  "墙体级能量",
   "房屋级能量",
-  "楼级能量",
+  "楼宇级能量",
   "街区级能量",
   "城市级能量",
   "国家级能量",
@@ -91,7 +91,7 @@ const ENERGY_POOL_BASES = [
   "恒星级能量",
   "星系级能量",
   "超星系团级能量",
-  "有限宇宙级能量",
+  "可观测宇宙级能量",
   "无限级能量"
 ];
 const ENERGY_REGEN_BASES = ["无回能", "缓慢回能", "中速回能", "快速回能", "极速回能", "瞬时回能"];
@@ -104,7 +104,7 @@ const HIGH_RISK_BASES = new Set([
   "恒星级",
   "星系级",
   "超星系团级",
-  "有限宇宙级",
+  "可观测宇宙级",
   "无限级",
   "国家级生命阈值",
   "大陆级生命阈值",
@@ -113,7 +113,7 @@ const HIGH_RISK_BASES = new Set([
   "恒星级生命结构",
   "星系级生命结构",
   "超星系团级生命结构",
-  "有限宇宙级生命结构",
+  "可观测宇宙级生命结构",
   "无限级生命结构",
   "国家级能量",
   "大陆级能量",
@@ -122,7 +122,7 @@ const HIGH_RISK_BASES = new Set([
   "恒星级能量",
   "星系级能量",
   "超星系团级能量",
-  "有限宇宙级能量",
+  "可观测宇宙级能量",
   "无限级能量",
   "超第三宇宙速度级",
   "亚光速",
@@ -133,7 +133,7 @@ const HIGH_RISK_BASES = new Set([
   "星系尺度超光速",
   "星系际超光速",
   "超星系团尺度超光速",
-  "有限宇宙尺度超光速",
+  "可观测宇宙尺度超光速",
   "无限速"
 ]);
 const REVIEW_TERMS = /争议|仅下限|仅上限|外源|一次性|仪式|特殊|设定|直接|持续|装备|短时|条件|不可控|剧情限定/;
@@ -616,8 +616,8 @@ function vitalityRankIndex(value) {
     .replace("生命阈值", "")
     .replace("生命结构", "");
   if (rank === "凡人肉身") return MAIN_ENERGY_BASES.indexOf("凡人级");
-  if (rank === "强化凡体") return MAIN_ENERGY_BASES.indexOf("砖级");
-  if (rank === "精锐韧体") return MAIN_ENERGY_BASES.indexOf("墙级");
+  if (rank === "强化凡体") return MAIN_ENERGY_BASES.indexOf("砖块级");
+  if (rank === "精锐韧体") return MAIN_ENERGY_BASES.indexOf("墙体级");
   return MAIN_ENERGY_BASES.indexOf(rank);
 }
 

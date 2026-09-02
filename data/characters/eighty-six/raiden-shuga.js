@@ -24,13 +24,13 @@
       evidenceType: ["官方角色页", "角色页入口"],
       sourceQuality: "entry",
       dimensions: dims({
-        attack: ["凡人级", "墙级｜Juggernaut火炮｜装备", "战斗输出来自机体武装。"],
-        defense: ["凡人级", "墙级｜Juggernaut装甲｜装备", "本体凡人，机体提供有限防护。"],
+        attack: ["凡人级", "墙体级｜Juggernaut火炮｜装备", "战斗输出来自机体武装。"],
+        defense: ["凡人级", "墙体级｜Juggernaut装甲｜装备", "本体凡人，机体提供有限防护。"],
         movement: ["凡人速", "亚音速｜Juggernaut机动", "依赖机动兵器。"],
         reaction: ["凡人速", "亚音速｜驾驶经验", "老练驾驶员的战场反应。"],
         vitality: ["凡人肉身", "精锐韧体｜机体保护", "峰值来自机体承伤。"],
         healing: ["无自愈", "无自愈", "无自愈。"],
-        energy: ["凡人能量", "墙级能量｜弹药/机体", "作战资源依赖机体与补给。"],
+        energy: ["凡人能量", "墙体级能量｜弹药/机体", "作战资源依赖机体与补给。"],
         energyRegen: ["中速回能", "缓慢回能｜整备补给", "弹药和机体需要整备。"]
       }),
       notes: notes({

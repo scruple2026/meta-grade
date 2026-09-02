@@ -64,12 +64,12 @@
       ],
       dimensions: dims({
         attack: ["房屋级", "街区级｜Mjolnir/雷击｜Berserker Install｜争议", "锤击和雷击压制力强；峰值按雷神之锤宝具和本作可见范围保守列街区级。"],
-        defense: ["房屋级", "楼级｜Berserker Install/Doll", "Berserker卡和Doll身体提高正面承伤，但不是全类型免疫。"],
+        defense: ["房屋级", "楼宇级｜Berserker Install/Doll", "Berserker卡和Doll身体提高正面承伤，但不是全类型免疫。"],
         movement: ["亚音速", "音速｜Berserker突进", "近战突进和跳跃爆发强，雷击效果不直接写成移动速度。"],
         reaction: ["亚音速", "音速｜近战压制", "可压制初入美游世界的伊莉雅和田中，反应按近战表现保守记录。"],
-        vitality: ["精锐韧体｜Doll", "楼级生命阈值｜Berserker Install", "Doll身体和狂战士卡带来高韧性，仍可被战术牵制和宝具克制。"],
+        vitality: ["精锐韧体｜Doll", "楼宇级生命阈值｜Berserker Install", "Doll身体和狂战士卡带来高韧性，仍可被战术牵制和宝具克制。"],
         healing: ["无自愈", "中速自愈｜Doll维护/外部处理", "缺少稳定战斗中自愈表现；Doll维护不等同反转术式。"],
-        energy: ["楼级能量", "街区级能量｜雷神之锤｜争议", "雷击宝具输出强但依赖Class Card和使用条件。"],
+        energy: ["楼宇级能量", "街区级能量｜雷神之锤｜争议", "雷击宝具输出强但依赖Class Card和使用条件。"],
         energyRegen: ["中速回能", "快速回能｜Class Card", "可持续挥锤和雷击压制，但不是无限能源。"]
       }),
       notes: notes({
